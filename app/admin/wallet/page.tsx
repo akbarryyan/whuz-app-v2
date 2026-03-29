@@ -55,15 +55,20 @@ interface LedgerResponse {
 
 const ACTION_LABELS: Record<string, { label: string; color: string; desc: string }> = {
   CREDIT:  { label: "CREDIT",  color: "bg-emerald-100 text-emerald-700",  desc: "Top-up / tambah saldo" },
+  COMMISSION: { label: "COMMISSION", color: "bg-lime-100 text-lime-700", desc: "Komisi seller dari order sukses" },
   HOLD:    { label: "HOLD",    color: "bg-amber-100 text-amber-700",      desc: "Tahan saldo (transaksi pending)" },
   RELEASE: { label: "RELEASE", color: "bg-sky-100 text-sky-700",          desc: "Kembalikan saldo yang di-hold" },
   DEBIT:   { label: "DEBIT",   color: "bg-rose-100 text-rose-700",        desc: "Potong saldo langsung" },
   REFUND:  { label: "REFUND",  color: "bg-purple-100 text-purple-700",    desc: "Kembalikan saldo setelah debit" },
+  WITHDRAW_HOLD: { label: "WITHDRAW_HOLD", color: "bg-orange-100 text-orange-700", desc: "Saldo ditahan untuk request withdraw seller" },
+  WITHDRAW_RELEASE: { label: "WITHDRAW_RELEASE", color: "bg-cyan-100 text-cyan-700", desc: "Saldo withdraw seller dikembalikan" },
+  WITHDRAW_PAID: { label: "WITHDRAW_PAID", color: "bg-fuchsia-100 text-fuchsia-700", desc: "Withdraw seller sudah dibayarkan" },
 };
 
 const DELTA_SIGN: Record<string, string> = {
   CREDIT: "+", RELEASE: "+", REFUND: "+",
-  HOLD: "-",   DEBIT: "-",
+  COMMISSION: "+", WITHDRAW_RELEASE: "+",
+  HOLD: "-",   DEBIT: "-", WITHDRAW_HOLD: "-", WITHDRAW_PAID: "",
 };
 
 function rp(n: number) {

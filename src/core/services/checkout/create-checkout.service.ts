@@ -14,8 +14,9 @@ import { getPriceForUser } from "@/lib/pricing";
 
 export interface CheckoutInput {
   productId: string;
+  sellerProductId?: string;
   targetNumber: string;            // phone / game ID / etc.
-  targetData?: Record<string, any>; // zone, server, etc.
+  targetData?: Record<string, unknown>; // zone, server, etc.
   whatsapp?: string;                // customer WhatsApp for notification
   paymentMethod: "WALLET" | "PAYMENT_GATEWAY";
   paymentGatewayMethod?: string;   // QRIS, VA_BCA, etc. (PG only)
@@ -71,7 +72,34 @@ export class CreateCheckoutService {
     }
 
     // ── 2. Fetch & validate product ────────────────────────────────────────
-    const product = await prisma.product.findUnique({
+    const sellerProduct = input.sellerProductId
+      ? await prisma.sellerProduct.findUnique({
+          where: { id: input.sellerProductId },
+          include: {
+            seller: {
+              select: {
+                id: true,
+                sellerProfile: {
+                  select: { id: true, isActive: true },
+                },
+              },
+            },
+            product: true,
+          },
+        })
+      : null;
+
+    if (input.sellerProductId && !sellerProduct) {
+      throw new NotFoundError("Seller product");
+    }
+    if (sellerProduct && (!sellerProduct.isActive || !sellerProduct.seller.sellerProfile?.isActive)) {
+      throw new ValidationError("Seller product is not active");
+    }
+    if (sellerProduct && sellerProduct.productId !== input.productId) {
+      throw new ValidationError("Seller product does not match selected product");
+    }
+
+    const product = sellerProduct?.product ?? await prisma.product.findUnique({
       where: { id: input.productId },
     });
 
@@ -80,12 +108,35 @@ export class CreateCheckoutService {
     if (!product.stock) throw new ValidationError("Product is out of stock");
 
     // ── 3. Compute pricing snapshot (tier-aware) ──────────────────────────
-    const tierPricing = await getPriceForUser(input.userId, product);
+    const tierPricing = sellerProduct ? null : await getPriceForUser(input.userId, product);
     const basePrice = tierPricing?.basePrice ?? Number(product.providerPrice);
-    const markup    = tierPricing?.markup    ?? Number(product.margin);
+    const configuredSellingPrice = sellerProduct?.sellingPrice !== null && sellerProduct?.sellingPrice !== undefined
+      ? Number(sellerProduct.sellingPrice)
+      : Number(product.sellingPrice);
+    const markup = sellerProduct
+      ? Math.max(0, configuredSellingPrice - basePrice)
+      : (tierPricing?.markup ?? Number(product.margin));
     const fee = 0; // Gateway fee added after we know method — update after PG call
     const discount = Math.min(input.voucherDiscount ?? 0, basePrice + markup - 1); // Can't discount to below 1
     const amount = Math.max(1, basePrice + markup - discount); // Customer pays after voucher discount
+    const sellerGrossProfit = sellerProduct ? Math.max(0, markup - discount) : 0;
+    const sellerFeeAmount = sellerProduct
+      ? this.calculateMerchantFee({
+          feeType: sellerProduct.feeType,
+          feeValue: Number(sellerProduct.feeValue),
+          grossProfit: sellerGrossProfit,
+        })
+      : 0;
+    const sellerCommission = sellerProduct
+      ? Math.max(
+          0,
+          this.calculateSellerCommission({
+            commissionType: sellerProduct.commissionType,
+            commissionValue: Number(sellerProduct.commissionValue),
+            realizedMarkup: sellerGrossProfit,
+          }) - sellerFeeAmount
+        )
+      : 0;
 
     // ── 4. Generate order code ─────────────────────────────────────────────
     const orderCode = this.generateOrderCode();
@@ -112,6 +163,8 @@ export class CreateCheckoutService {
       orderCode,
       userId: input.userId ?? undefined,
       productId: product.id,
+      sellerId: sellerProduct?.sellerId,
+      sellerProductId: sellerProduct?.id,
       provider: product.provider,
       targetNumber: input.targetNumber,
       targetData: input.targetData,
@@ -122,6 +175,9 @@ export class CreateCheckoutService {
       discount,
       voucherCode: input.voucherCode,
       amount,
+      sellerGrossProfit,
+      sellerFeeAmount,
+      sellerCommission,
       status:
         input.paymentMethod === PaymentMethod.WALLET
           ? OrderStatus.CREATED
@@ -152,9 +208,10 @@ export class CreateCheckoutService {
       // Execute provider langsung (inline) — idempotent via atomic claim
       try {
         await this.executeService.execute(order.id);
-      } catch (execErr: any) {
+      } catch (execErr: unknown) {
         // Execute gagal tapi order sudah PAID — admin bisa reconcile
-        console.error(`[Checkout] Wallet order ${order.id} execute gagal:`, execErr.message);
+        const message = execErr instanceof Error ? execErr.message : "Unknown error";
+        console.error(`[Checkout] Wallet order ${order.id} execute gagal:`, message);
       }
 
       // Re-fetch order untuk return status terbaru
@@ -220,5 +277,33 @@ export class CreateCheckoutService {
     const dd = String(now.getDate()).padStart(2, "0");
     const rand = crypto.randomBytes(3).toString("hex").toUpperCase();
     return `WP-${yy}${mm}${dd}-${rand}`;
+  }
+
+  private calculateSellerCommission(input: {
+    commissionType: string;
+    commissionValue: number;
+    realizedMarkup: number;
+  }): number {
+    if (input.realizedMarkup <= 0 || input.commissionValue <= 0) return 0;
+
+    const rawCommission = input.commissionType === "FIXED"
+      ? input.commissionValue
+      : Math.floor((input.realizedMarkup * input.commissionValue) / 100);
+
+    return Math.max(0, Math.min(rawCommission, input.realizedMarkup));
+  }
+
+  private calculateMerchantFee(input: {
+    feeType: string;
+    feeValue: number;
+    grossProfit: number;
+  }): number {
+    if (input.grossProfit <= 0 || input.feeValue <= 0) return 0;
+
+    const rawFee = input.feeType === "FIXED"
+      ? input.feeValue
+      : Math.floor((input.grossProfit * input.feeValue) / 100);
+
+    return Math.max(0, Math.min(rawFee, input.grossProfit));
   }
 }

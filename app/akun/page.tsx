@@ -22,6 +22,13 @@ interface UserData {
   createdAt: string;
 }
 
+interface SellerData {
+  id: string;
+  slug: string;
+  displayName: string;
+  isActive: boolean;
+}
+
 interface WalletData {
   balance: number;
 }
@@ -52,6 +59,7 @@ export default function AkunPage() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [tier, setTier] = useState<TierInfo | null>(null);
   const [nextTier, setNextTier] = useState<TierInfo | null>(null);
+  const [seller, setSeller] = useState<SellerData | null>(null);
 
   // Modal state
   const [modal, setModal] = useState<ModalType>(null);
@@ -103,6 +111,7 @@ export default function AkunPage() {
         setStats(data.stats ?? { totalOrders: 0, successOrders: 0 });
         setTier(data.tier ?? null);
         setNextTier(data.nextTier ?? null);
+        setSeller(data.seller ?? null);
       })
       .catch(() => router.replace("/login"))
       .finally(() => setIsLoading(false));
@@ -245,6 +254,31 @@ export default function AkunPage() {
           color: "text-blue-600 bg-blue-50",
           action: () => openModal("change-password"),
         },
+        ...(seller?.isActive
+          ? [{
+              icon: (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
+                    d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5v-9ZM9 12l2 2 4-4" />
+                </svg>
+              ),
+              label: "Dashboard Merchant",
+              sub: `Kelola toko ${seller.displayName}`,
+              color: "text-emerald-700 bg-emerald-50",
+              action: () => router.push("/merchant/dashboard"),
+            }]
+          : [{
+              icon: (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
+                    d="M12 6v12m6-6H6m1-7h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" />
+                </svg>
+              ),
+              label: "Daftar Merchant",
+              sub: "Buka toko dan mulai jualan",
+              color: "text-emerald-700 bg-emerald-50",
+              action: () => router.push("/merchant/register"),
+            }]),
       ],
     },
     {

@@ -7,9 +7,11 @@ export interface CreateOrderInput {
   orderCode: string;
   userId?: string;
   productId: string;
+  sellerId?: string;
+  sellerProductId?: string;
   provider: string;       // DIGIFLAZZ | VIP_RESELLER
   targetNumber: string;
-  targetData?: Record<string, any>;
+  targetData?: Record<string, unknown>;
   whatsapp?: string;
   basePrice: number;
   markup: number;
@@ -17,6 +19,9 @@ export interface CreateOrderInput {
   discount?: number;       // Voucher discount applied
   voucherCode?: string;   // Voucher code used
   amount: number;
+  sellerGrossProfit?: number;
+  sellerFeeAmount?: number;
+  sellerCommission?: number;
   status: OrderStatus;
   paymentMethod: string;
   viewTokenHash?: string; // guest only — raw token never stored
@@ -46,6 +51,8 @@ export class OrderRepository {
         orderCode: input.orderCode,
         userId: input.userId ?? null,
         productId: input.productId,
+        sellerId: input.sellerId ?? null,
+        sellerProductId: input.sellerProductId ?? null,
         provider: input.provider,
         targetNumber: input.targetNumber,
         targetData: input.targetData ?? undefined,
@@ -56,39 +63,42 @@ export class OrderRepository {
         discount: input.discount ?? 0,
         voucherCode: input.voucherCode ?? null,
         amount: input.amount,
+        sellerGrossProfit: input.sellerGrossProfit ?? 0,
+        sellerFeeAmount: input.sellerFeeAmount ?? 0,
+        sellerCommission: input.sellerCommission ?? 0,
         status: input.status,
         paymentMethod: input.paymentMethod,
         viewTokenHash: input.viewTokenHash ?? null,
       },
-      include: { product: true },
+      include: { product: true, seller: true, sellerProduct: true },
     });
   }
 
   async findByCode(orderCode: string) {
     return prisma.order.findUnique({
       where: { orderCode },
-      include: { product: true, paymentInvoice: true, user: true },
+      include: { product: true, paymentInvoice: true, user: true, seller: true, sellerProduct: true },
     });
   }
 
   async findById(id: string) {
     return prisma.order.findUnique({
       where: { id },
-      include: { product: true, paymentInvoice: true, user: true },
+      include: { product: true, paymentInvoice: true, user: true, seller: true, sellerProduct: true },
     });
   }
 
   async findByProviderRef(providerRef: string) {
     return prisma.order.findFirst({
       where: { providerRef },
-      include: { product: true, paymentInvoice: true, user: true },
+      include: { product: true, paymentInvoice: true, user: true, seller: true, sellerProduct: true },
     });
   }
 
   async findByViewTokenHash(hash: string) {
     return prisma.order.findUnique({
       where: { viewTokenHash: hash },
-      include: { product: true, paymentInvoice: true },
+      include: { product: true, paymentInvoice: true, seller: true, sellerProduct: true },
     });
   }
 
@@ -151,7 +161,7 @@ export class OrderRepository {
   async updateInvoiceStatus(
     invoiceId: string,
     status: InvoiceStatus,
-    extra?: { paidAt?: Date; rawPayload?: any }
+    extra?: { paidAt?: Date; rawPayload?: unknown }
   ) {
     return prisma.paymentInvoice.update({
       where: { invoiceId },
@@ -170,7 +180,7 @@ export class OrderRepository {
     source: string;
     eventId: string;
     eventType: string;
-    payload: any;
+    payload: unknown;
   }) {
     const existing = await prisma.webhookEvent.findUnique({
       where: { eventId: data.eventId },
@@ -206,8 +216,8 @@ export class OrderRepository {
     orderId: string;
     provider: string;
     action: string;
-    request?: any;
-    response?: any;
+    request?: unknown;
+    response?: unknown;
     success: boolean;
     errorMessage?: string;
   }) {
@@ -311,6 +321,66 @@ export class OrderRepository {
           description: `HOLD released for order ${orderId}`,
         },
       });
+    });
+  }
+
+  async creditSellerCommission(orderId: string) {
+    return prisma.$transaction(async (tx) => {
+      const order = await tx.order.findUnique({
+        where: { id: orderId },
+        select: {
+          id: true,
+          orderCode: true,
+          sellerId: true,
+          sellerCommission: true,
+          sellerCommissionCreditedAt: true,
+        },
+      });
+
+      if (!order || !order.sellerId) return null;
+
+      const commissionAmount = Number(order.sellerCommission ?? 0);
+      if (commissionAmount <= 0) return null;
+      if (order.sellerCommissionCreditedAt) return null;
+
+      let wallet = await tx.wallet.findUnique({ where: { userId: order.sellerId } });
+      if (!wallet) {
+        wallet = await tx.wallet.create({
+          data: { userId: order.sellerId, balance: 0 },
+        });
+      }
+
+      const balanceBefore = Number(wallet.balance);
+      const balanceAfter = balanceBefore + commissionAmount;
+
+      await tx.wallet.update({
+        where: { id: wallet.id },
+        data: { balance: balanceAfter },
+      });
+
+      await tx.ledgerEntry.create({
+        data: {
+          walletId: wallet.id,
+          type: "COMMISSION",
+          amount: commissionAmount,
+          balanceBefore,
+          balanceAfter,
+          reference: order.id,
+          description: `Komisi seller untuk order ${order.orderCode}`,
+        },
+      });
+
+      await tx.order.update({
+        where: { id: order.id },
+        data: { sellerCommissionCreditedAt: new Date() },
+      });
+
+      return {
+        sellerId: order.sellerId,
+        commissionAmount,
+        balanceBefore,
+        balanceAfter,
+      };
     });
   }
 

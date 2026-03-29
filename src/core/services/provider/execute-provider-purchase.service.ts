@@ -61,7 +61,7 @@ export class ExecuteProviderPurchaseService {
       productCode: order.product.providerCode,
       target: order.targetNumber,
       additionalData: {
-        ...(((order.targetData as Record<string, any>) ?? {})),
+        ...(((order.targetData as Record<string, unknown>) ?? {})),
         // Pass product type so adapters can route to the correct endpoint
         _productType: order.product.type,
       },
@@ -79,18 +79,19 @@ export class ExecuteProviderPurchaseService {
     let result;
     try {
       result = await provider.purchase(purchaseReq);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Unknown error";
       await this.orderRepo.logProviderAction({
         orderId,
         provider: providerType,
         action: "purchase:response",
-        response: { error: err.message },
+        response: { error: message },
         success: false,
-        errorMessage: err.message,
+        errorMessage: message,
       });
 
       await this.orderRepo.updateStatus(orderId, OrderStatus.FAILED, {
-        notes: `Provider error: ${err.message}`,
+        notes: `Provider error: ${message}`,
       });
 
       // Release wallet hold if applicable
@@ -116,6 +117,8 @@ export class ExecuteProviderPurchaseService {
         serialNumber: result.serialNumber,
         providerRef: result.transactionId,
       });
+
+      await this.orderRepo.creditSellerCommission(orderId);
 
       // Finalize wallet debit ledger (balance was already reduced by HOLD)
       if (order.paymentMethod === "WALLET" && order.userId) {

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isOtpAuthEnabled } from "@/lib/auth-config";
 import { prisma } from "@/src/infra/db/prisma";
 import {
   sendWhatsAppMessage,
@@ -10,6 +11,16 @@ import { sendOtpEmail } from "@/lib/mailer";
 
 export async function POST(req: NextRequest) {
   try {
+    if (!isOtpAuthEnabled()) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Verifikasi OTP sedang dinonaktifkan sementara.",
+        },
+        { status: 503 }
+      );
+    }
+
     const body = await req.json();
     const { phone, email, purpose, target } = body;
     // target: "whatsapp" | "email"

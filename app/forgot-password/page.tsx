@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Quicksand } from "next/font/google";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/ui/Toast";
+import { isOtpAuthEnabledClient } from "@/lib/auth-config";
 
 const quicksand = Quicksand({
   subsets: ["latin"],
@@ -180,6 +181,7 @@ const CheckCircleIcon = () => (
 export default function ForgotPasswordPage() {
   const router = useRouter();
   const toast = useToast();
+  const otpEnabled = isOtpAuthEnabledClient;
 
   const [step, setStep] = useState<Step>("identifier");
   const [method, setMethod] = useState<OtpTarget>("whatsapp");
@@ -214,8 +216,8 @@ export default function ForgotPasswordPage() {
       return;
     }
 
-    if (method === "email" && !identifier.includes("@")) {
-      toast.error("Format email tidak valid.");
+    if (!otpEnabled) {
+      toast.error("Reset password saat ini masih membutuhkan OTP.");
       return;
     }
 
@@ -454,7 +456,9 @@ export default function ForgotPasswordPage() {
                         value={identifier}
                         onChange={(e) =>
                           setIdentifier(
-                            method === "whatsapp" ? e.target.value.replace(/[^\d+]/g, "") : e.target.value
+                            method === "whatsapp"
+                              ? e.target.value.replace(/[^\d+]/g, "")
+                              : e.target.value
                           )
                         }
                         className={`w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 py-3 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 transition ${
@@ -466,7 +470,9 @@ export default function ForgotPasswordPage() {
                       />
                     </div>
                     <p className="text-xs text-slate-400">
-                      Kode OTP akan dikirim ke {method === "whatsapp" ? "WhatsApp" : "Email"} kamu
+                      {otpEnabled
+                        ? `Kode OTP akan dikirim ke ${method === "whatsapp" ? "WhatsApp" : "email"} kamu`
+                        : "OTP sedang dimatikan sementara. Reset password belum tersedia tanpa OTP."}
                     </p>
                   </div>
 

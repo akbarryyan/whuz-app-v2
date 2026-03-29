@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Quicksand } from "next/font/google";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/ui/Toast";
@@ -45,6 +45,7 @@ const DEFAULT_INPUT_FIELDS: InputFieldDef[] = [
 
 interface Product {
   id: string;
+  sellerProductId?: string;
   providerCode: string;
   name: string;
   category: string;
@@ -53,6 +54,12 @@ interface Product {
   providerPrice: number;
   sellingPrice: number;
   discount: number;
+  description: string | null;
+}
+
+interface SellerStoreInfo {
+  slug: string;
+  displayName: string;
   description: string | null;
 }
 
@@ -119,11 +126,13 @@ export default function BrandDetailPage({
   params: Promise<{ brand: string }>;
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const toast = useToast();
 
   const [brandSlug, setBrandSlug] = useState<string>("");
   const [brandName, setBrandName] = useState<string>("");
   const [brandImageUrl, setBrandImageUrl] = useState<string | null>(null);
+  const [sellerStore, setSellerStore] = useState<SellerStoreInfo | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [types, setTypes] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -181,6 +190,8 @@ export default function BrandDetailPage({
       const { brand: slug } = await params;
       if (cancelled) return;
       setBrandSlug(slug);
+      const sellerSlug = searchParams.get("seller");
+      const selectedSellerProductId = searchParams.get("sellerProductId");
 
       try {
         const res = await fetch(`/api/catalog/brands/${slug}/products`);
@@ -190,8 +201,61 @@ export default function BrandDetailPage({
         if (data.success) {
           setBrandName(data.brand);
           setBrandImageUrl(data.imageUrl ?? null);
-          setProducts(data.data);
-          setTypes(data.types);
+          let finalProducts: Product[] = data.data;
+
+          if (sellerSlug) {
+            try {
+              const sellerRes = await fetch(`/api/catalog/sellers/${sellerSlug}/products`);
+              const sellerData = await sellerRes.json();
+
+              if (sellerData.success) {
+                setSellerStore({
+                  slug: sellerData.seller.slug,
+                  displayName: sellerData.seller.displayName,
+                  description: sellerData.seller.description ?? null,
+                });
+
+                const sellerBrandProducts = (sellerData.data as Array<{
+                  sellerProductId: string;
+                  product: {
+                    id: string;
+                    providerCode: string;
+                    name: string;
+                    category: string;
+                    brand: string;
+                    type: string;
+                    providerPrice: number;
+                    sellingPrice: number;
+                  };
+                }>).filter((item) => item.product.brand === data.brand);
+
+                if (sellerBrandProducts.length > 0) {
+                  finalProducts = sellerBrandProducts.map((item) => ({
+                    id: item.product.id,
+                    sellerProductId: item.sellerProductId,
+                    providerCode: item.product.providerCode,
+                    name: item.product.name,
+                    category: item.product.category,
+                    brand: item.product.brand,
+                    type: item.product.type,
+                    providerPrice: item.product.providerPrice,
+                    sellingPrice: item.product.sellingPrice,
+                    discount: item.product.providerPrice > item.product.sellingPrice
+                      ? Math.round(((item.product.providerPrice - item.product.sellingPrice) / item.product.providerPrice) * 100)
+                      : 0,
+                    description: null,
+                  }));
+                }
+              }
+            } catch {
+              setSellerStore(null);
+            }
+          } else {
+            setSellerStore(null);
+          }
+
+          setProducts(finalProducts);
+          setTypes(Array.from(new Set(finalProducts.map((product) => product.type))));
           const fields: InputFieldDef[] =
             data.inputFields && data.inputFields.length > 0
               ? data.inputFields
@@ -201,6 +265,11 @@ export default function BrandDetailPage({
           const initValues: Record<string, string> = {};
           for (const f of fields) initValues[f.key] = "";
           setFieldValues(initValues);
+
+          if (selectedSellerProductId) {
+            const matchedProduct = finalProducts.find((product) => product.sellerProductId === selectedSellerProductId);
+            if (matchedProduct) setSelectedProduct(matchedProduct);
+          }
         } else {
           setError(data.error || "Brand tidak ditemukan.");
         }
@@ -215,7 +284,7 @@ export default function BrandDetailPage({
 
     loadData();
     return () => { cancelled = true; };
-  }, [params]);
+  }, [params, searchParams]);
 
   // Fetch payment methods from DB
   useEffect(() => {
@@ -424,6 +493,7 @@ export default function BrandDetailPage({
 
       const body: Record<string, unknown> = {
         productId: selectedProduct.id,
+        sellerProductId: selectedProduct.sellerProductId,
         targetNumber,
         targetData,
         paymentMethod,
@@ -616,6 +686,23 @@ export default function BrandDetailPage({
                 <span className="text-slate-600 font-medium truncate">{brandName}</span>
               </div>
             </div>
+
+            {sellerStore && (
+              <div className="mb-3 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-700">Toko Merchant</p>
+                <p className="mt-1 text-sm font-bold text-slate-900">{sellerStore.displayName}</p>
+                {sellerStore.description && (
+                  <p className="mt-1 text-xs text-slate-600">{sellerStore.description}</p>
+                )}
+                <button
+                  type="button"
+                  onClick={() => router.push(`/seller/${sellerStore.slug}`)}
+                  className="mt-2 text-xs font-semibold text-emerald-700 hover:text-emerald-800"
+                >
+                  Kembali ke storefront merchant
+                </button>
+              </div>
+            )}
 
             {/* Brand info row */}
             <div className="flex items-center gap-3">
@@ -1285,7 +1372,6 @@ export default function BrandDetailPage({
                     const base = selectedProduct?.sellingPrice ?? 0;
                     const fee = base > 0 ? estimatePgFee(m.key, base) : 0;
                     const total = base + fee;
-                    const abbr = m.key.replace(/_va$/, "").toUpperCase().slice(0, 4);
                     return (
                       <button
                         key={m.key}

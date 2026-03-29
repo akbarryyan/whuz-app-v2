@@ -24,6 +24,7 @@ export const dynamic = "force-dynamic";
 
 const CheckoutSchema = z.object({
   productId: z.string().min(1),
+  sellerProductId: z.string().min(1).optional(),
   targetNumber: z.string().min(1),
   targetData: z.record(z.string(), z.any()).optional(),
   whatsapp: z.string().max(20).optional(),
@@ -177,4 +178,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
 }
-

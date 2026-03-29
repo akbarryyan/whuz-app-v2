@@ -33,6 +33,14 @@ export async function GET() {
               isDefault: true,
             },
           },
+          sellerProfile: {
+            select: {
+              id: true,
+              slug: true,
+              displayName: true,
+              isActive: true,
+            },
+          },
         },
       }),
       prisma.wallet.findUnique({
@@ -98,6 +106,14 @@ export async function GET() {
         role: user.role,
         createdAt: user.createdAt,
       },
+      seller: user.sellerProfile
+        ? {
+            id: user.sellerProfile.id,
+            slug: user.sellerProfile.slug,
+            displayName: user.sellerProfile.displayName,
+            isActive: user.sellerProfile.isActive,
+          }
+        : null,
       wallet: {
         balance: wallet ? Number(wallet.balance) : 0,
       },

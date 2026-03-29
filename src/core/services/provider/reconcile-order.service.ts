@@ -68,9 +68,10 @@ export class ReconcileOrderService {
     let checkResult;
     try {
       checkResult = await provider.checkStatus(order.providerRef);
-    } catch (err: any) {
-      console.error(`[Reconcile] checkStatus failed for order ${orderId}:`, err.message);
-      return { status: "error", message: `checkStatus error: ${err.message}. Coba lagi nanti.` };
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      console.error(`[Reconcile] checkStatus failed for order ${orderId}:`, message);
+      return { status: "error", message: `checkStatus error: ${message}. Coba lagi nanti.` };
     }
 
     await this.orderRepo.logProviderAction({
@@ -86,6 +87,8 @@ export class ReconcileOrderService {
         serialNumber: checkResult.serialNumber,
         providerRef: checkResult.transactionId,
       });
+
+      await this.orderRepo.creditSellerCommission(orderId);
 
       if (order.paymentMethod === "WALLET" && order.userId) {
         await this.orderRepo.finalizeDebitLedger(order.userId, Number(order.amount), orderId);
