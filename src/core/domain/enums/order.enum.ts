@@ -1,0 +1,36 @@
+export enum OrderStatus {
+  CREATED = "CREATED",
+  WAITING_PAYMENT = "WAITING_PAYMENT",
+  PAID = "PAID",
+  PROCESSING_PROVIDER = "PROCESSING_PROVIDER",
+  SUCCESS = "SUCCESS",
+  FAILED = "FAILED",
+  EXPIRED = "EXPIRED",
+  REFUNDED = "REFUNDED",
+}
+
+export enum PaymentMethod {
+  WALLET = "WALLET",
+  PAYMENT_GATEWAY = "PAYMENT_GATEWAY",
+}
+
+export enum InvoiceStatus {
+  PENDING = "PENDING",
+  PAID = "PAID",
+  EXPIRED = "EXPIRED",
+  CANCELLED = "CANCELLED",
+}
+
+export enum LedgerType {
+  HOLD = "HOLD",
+  DEBIT = "DEBIT",
+  CREDIT = "CREDIT",
+  RELEASE = "RELEASE",
+  REFUND = "REFUND",
+}
+
+export enum WebhookSource {
+  PAKASIR = "PAKASIR",
+  DIGIFLAZZ = "DIGIFLAZZ",
+  VIP_RESELLER = "VIP_RESELLER",
+}
