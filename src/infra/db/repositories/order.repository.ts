@@ -1,4 +1,5 @@
 import { prisma } from "@/src/infra/db/prisma";
+import { Prisma } from "@prisma/client";
 import { OrderStatus, InvoiceStatus } from "@/src/core/domain/enums/order.enum";
 
 // ─── Input Types ────────────────────────────────────────────────────────────
@@ -11,7 +12,7 @@ export interface CreateOrderInput {
   sellerProductId?: string;
   provider: string;       // DIGIFLAZZ | VIP_RESELLER
   targetNumber: string;
-  targetData?: Record<string, unknown>;
+  targetData?: Prisma.InputJsonValue;
   whatsapp?: string;
   basePrice: number;
   markup: number;
@@ -161,7 +162,7 @@ export class OrderRepository {
   async updateInvoiceStatus(
     invoiceId: string,
     status: InvoiceStatus,
-    extra?: { paidAt?: Date; rawPayload?: unknown }
+    extra?: { paidAt?: Date; rawPayload?: Prisma.InputJsonValue | typeof Prisma.JsonNull }
   ) {
     return prisma.paymentInvoice.update({
       where: { invoiceId },
@@ -180,7 +181,7 @@ export class OrderRepository {
     source: string;
     eventId: string;
     eventType: string;
-    payload: unknown;
+    payload: Prisma.InputJsonValue;
   }) {
     const existing = await prisma.webhookEvent.findUnique({
       where: { eventId: data.eventId },
@@ -216,8 +217,8 @@ export class OrderRepository {
     orderId: string;
     provider: string;
     action: string;
-    request?: unknown;
-    response?: unknown;
+    request?: Prisma.InputJsonValue | typeof Prisma.JsonNull;
+    response?: Prisma.InputJsonValue | typeof Prisma.JsonNull;
     success: boolean;
     errorMessage?: string;
   }) {
@@ -227,8 +228,8 @@ export class OrderRepository {
           orderId: data.orderId,
           provider: data.provider,
           action: data.action,
-          request: data.request ?? null,
-          response: data.response ?? null,
+          request: data.request ?? undefined,
+          response: data.response ?? undefined,
           success: data.success,
           errorMessage: data.errorMessage ?? null,
         },

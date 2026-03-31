@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/src/infra/db/prisma";
 import { OrderRepository } from "@/src/infra/db/repositories/order.repository";
 import { IPaymentGatewayPort } from "@/src/core/ports/payment-gateway.port";
@@ -16,7 +17,7 @@ export interface CheckoutInput {
   productId: string;
   sellerProductId?: string;
   targetNumber: string;            // phone / game ID / etc.
-  targetData?: Record<string, unknown>; // zone, server, etc.
+  targetData?: Prisma.InputJsonValue; // zone, server, etc.
   whatsapp?: string;                // customer WhatsApp for notification
   paymentMethod: "WALLET" | "PAYMENT_GATEWAY";
   paymentGatewayMethod?: string;   // QRIS, VA_BCA, etc. (PG only)
