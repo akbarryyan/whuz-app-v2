@@ -56,7 +56,6 @@ export async function GET(req: NextRequest) {
           : {}),
       },
       orderBy: [{ brand: "asc" }, { name: "asc" }],
-      take: 300,
     }),
   ]);
 

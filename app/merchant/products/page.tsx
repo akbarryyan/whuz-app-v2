@@ -30,6 +30,21 @@ interface CatalogRow {
   } | null;
 }
 
+const CATEGORY_TABS = [
+  { label: "Semua", value: null },
+  { label: "Top Up Game", value: "game" },
+  { label: "Pulsa & Data", value: "pulsa" },
+  { label: "E-Wallet", value: "ewallet" },
+  { label: "Token Listrik", value: "listrik" },
+] as const;
+
+const TYPE_GROUP_MAP: Record<string, string[]> = {
+  game: ["game"],
+  pulsa: ["paket-internet", "paket-telepon", "pulsa-reguler", "pulsa-transfer", "pulsa-internasional", "paket-lainnya"],
+  ewallet: ["saldo-emoney"],
+  listrik: ["token-pln"],
+};
+
 function rupiah(value: number) {
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
@@ -44,6 +59,7 @@ export default function MerchantProductsPage() {
   const [rows, setRows] = useState<CatalogRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [selectedOnly, setSelectedOnly] = useState(false);
   const [page, setPage] = useState(1);
   const [processingId, setProcessingId] = useState<string | null>(null);
@@ -98,12 +114,14 @@ export default function MerchantProductsPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [search, selectedOnly]);
+  }, [activeCategory, search, selectedOnly]);
 
   const groupedBrands = useMemo(() => {
     const groups = new Map<string, CatalogRow[]>();
+    const allowedTypes = activeCategory ? TYPE_GROUP_MAP[activeCategory] ?? [] : null;
 
     for (const row of rows) {
+      if (allowedTypes && !allowedTypes.includes(row.type)) continue;
       const list = groups.get(row.brand) ?? [];
       list.push(row);
       groups.set(row.brand, list);
@@ -116,7 +134,7 @@ export default function MerchantProductsPage() {
         selectedCount: items.filter((item) => item.isSelected).length,
       }))
       .sort((a, b) => a.brand.localeCompare(b.brand));
-  }, [rows]);
+  }, [activeCategory, rows]);
 
   const totalPages = Math.max(1, Math.ceil(groupedBrands.length / BRANDS_PER_PAGE));
   const paginatedBrands = groupedBrands.slice((page - 1) * BRANDS_PER_PAGE, page * BRANDS_PER_PAGE);
@@ -222,12 +240,34 @@ export default function MerchantProductsPage() {
               </div>
             </div>
 
+            <div className="mb-5 overflow-x-auto">
+              <div className="inline-flex min-w-full gap-2 rounded-2xl bg-slate-100 p-1">
+                {CATEGORY_TABS.map((category) => {
+                  const isActive = activeCategory === category.value;
+                  return (
+                    <button
+                      key={category.label}
+                      type="button"
+                      onClick={() => setActiveCategory(category.value)}
+                      className={`whitespace-nowrap rounded-2xl px-4 py-2.5 text-sm font-semibold transition ${
+                        isActive
+                          ? "bg-white text-emerald-600 shadow-sm"
+                          : "text-slate-500 hover:text-slate-700"
+                      }`}
+                    >
+                      {category.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {loading ? (
               <div className="py-10 text-center text-sm text-slate-400">Memuat katalog produk merchant...</div>
             ) : groupedBrands.length === 0 ? (
               <div className="rounded-2xl bg-slate-50 px-4 py-10 text-center sm:rounded-3xl">
                 <p className="text-sm font-medium text-slate-600">Belum ada brand yang cocok</p>
-                <p className="mt-1 text-xs text-slate-400">Coba ubah kata kunci pencarian atau matikan filter produk terpilih.</p>
+                <p className="mt-1 text-xs text-slate-400">Coba ganti kategori, ubah kata kunci pencarian, atau matikan filter produk terpilih.</p>
               </div>
             ) : (
               <div className="space-y-4">
