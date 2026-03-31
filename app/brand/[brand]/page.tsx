@@ -65,6 +65,16 @@ interface SellerStoreInfo {
   description: string | null;
 }
 
+interface BrandCatalogResponse {
+  success: boolean;
+  brand: string;
+  imageUrl: string | null;
+  inputFields: InputFieldDef[] | null;
+  hasMerchantProducts?: boolean;
+  data: Product[];
+  error?: string;
+}
+
 interface ReviewItem {
   id: string;
   userName: string;
@@ -197,7 +207,7 @@ export default function BrandDetailPage({
 
       try {
         const res = await fetch(`/api/catalog/brands/${slug}/products`);
-        const data = await res.json();
+        const data = await res.json() as BrandCatalogResponse;
         if (cancelled) return;
 
         if (data.success) {
@@ -948,8 +958,15 @@ export default function BrandDetailPage({
                   />
                 </svg>
                 <p className="text-sm text-slate-500">
-                  Tidak ada produk untuk kategori ini.
+                  {products.length === 0
+                    ? "Belum ada merchant yang menjual brand ini."
+                    : "Tidak ada produk untuk kategori ini."}
                 </p>
+                {products.length === 0 && (
+                  <p className="mt-1 text-xs text-slate-400">
+                    Brand sudah tersedia di katalog, tetapi produk merchant untuk brand ini belum dipublikasikan.
+                  </p>
+                )}
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-2.5">

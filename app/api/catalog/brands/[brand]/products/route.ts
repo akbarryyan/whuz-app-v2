@@ -5,7 +5,8 @@ export const dynamic = "force-dynamic";
 
 /**
  * GET /api/catalog/brands/[brand]/products
- * Return merchant-selected products for a specific brand slug (public, no auth)
+ * Return merchant-selected products for a specific brand slug (public, no auth).
+ * Brand remains public even when no merchant has listed products yet.
  */
 export async function GET(
   _req: NextRequest,
@@ -14,29 +15,18 @@ export async function GET(
   try {
     const { brand: brandSlug } = await params;
 
-    const allSellerProducts = await prisma.sellerProduct.findMany({
+    const allProducts = await prisma.product.findMany({
       where: {
         isActive: true,
-        seller: {
-          sellerProfile: {
-            isActive: true,
-          },
-        },
-        product: {
-          isActive: true,
-          stock: true,
-        },
+        stock: true,
       },
       select: {
-        product: {
-          select: {
-            brand: true,
-          },
-        },
+        brand: true,
       },
+      distinct: ["brand"],
     });
 
-    const allBrands = Array.from(new Set(allSellerProducts.map((item) => item.product.brand)));
+    const allBrands = allProducts.map((item) => item.brand);
 
     const matchedBrand = allBrands.find((brand) => {
       const slug = brand
@@ -52,6 +42,11 @@ export async function GET(
         { status: 404 }
       );
     }
+
+    const brandMeta = await prisma.brandMeta.findUnique({
+      where: { brand: matchedBrand },
+      select: { imageUrl: true, inputFields: true },
+    });
 
     const products = await prisma.sellerProduct.findMany({
       where: {
@@ -118,16 +113,12 @@ export async function GET(
       typeGroups[p.type].push(p);
     });
 
-    const brandMeta = await prisma.brandMeta.findUnique({
-      where: { brand: matchedBrand },
-      select: { imageUrl: true, inputFields: true },
-    });
-
     return NextResponse.json({
       success: true,
       brand: matchedBrand,
       imageUrl: brandMeta?.imageUrl ?? null,
       inputFields: brandMeta?.inputFields ?? null,
+      hasMerchantProducts: productsData.length > 0,
       types: Object.keys(typeGroups),
       data: productsData,
       grouped: typeGroups,
