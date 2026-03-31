@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 interface BrandItem {
@@ -9,8 +9,6 @@ interface BrandItem {
   productCount: number;
   imageUrl: string | null;
 }
-
-const DEFAULT_GRID_BORDER_IMAGE_URL = "https://iili.io/qwmtmrb.md.png";
 
 // Fallback images for brands without a DB imageUrl
 const BRAND_IMAGES_FALLBACK: Record<string, string> = {
@@ -56,13 +54,14 @@ interface GameGridProps {
 export default function GameGrid({ category }: GameGridProps) {
   const router = useRouter();
   const [brands, setBrands] = useState<BrandItem[]>([]);
-  const [globalBorderImageUrl, setGlobalBorderImageUrl] = useState<string | null>(DEFAULT_GRID_BORDER_IMAGE_URL);
   const [loading, setLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
-    setShowAll(false);
+    startTransition(() => {
+      setLoading(true);
+      setShowAll(false);
+    });
     const url = category
       ? `/api/catalog/brands?typeGroup=${encodeURIComponent(category)}`
       : "/api/catalog/brands";
@@ -84,7 +83,6 @@ export default function GameGrid({ category }: GameGridProps) {
             });
           }
           setBrands(data);
-          setGlobalBorderImageUrl(res.globalBorderImageUrl ?? DEFAULT_GRID_BORDER_IMAGE_URL);
         }
       })
       .catch(() => {})
@@ -148,7 +146,6 @@ export default function GameGrid({ category }: GameGridProps) {
       <div className="grid grid-cols-4 gap-x-3 gap-y-5">
         {displayedBrands.map((brand, idx) => {
           const image = brand.imageUrl ?? BRAND_IMAGES_FALLBACK[brand.brand] ?? null;
-          const borderImage = globalBorderImageUrl ?? DEFAULT_GRID_BORDER_IMAGE_URL;
           const gradient = BRAND_GRADIENTS[idx % BRAND_GRADIENTS.length];
           const initials = brand.brand
             .split(" ")
@@ -161,19 +158,9 @@ export default function GameGrid({ category }: GameGridProps) {
             <button
               key={brand.slug}
               onClick={() => router.push(`/brand/${brand.slug}`)}
-              className="group relative rounded-xl bg-white shadow-sm transition-shadow hover:shadow-md"
+              className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
             >
-              {/* Temporary decorative border overlay for the full card */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={borderImage}
-                alt=""
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-x-0 -top-3 bottom-0 z-10 h-[calc(100%+12px)] w-full object-fill"
-                loading="lazy"
-              />
-
-              <div className="relative z-0 flex flex-col items-center gap-2 px-3 pb-3 pt-4">
+              <div className="flex flex-col items-center gap-2 px-3 pb-3 pt-4">
                 <div className="w-full aspect-square overflow-hidden rounded-lg bg-gradient-to-br from-purple-100 to-blue-100">
                   <div className="h-full w-full overflow-hidden rounded-lg">
                     {image ? (

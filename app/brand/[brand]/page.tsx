@@ -46,6 +46,8 @@ const DEFAULT_INPUT_FIELDS: InputFieldDef[] = [
 interface Product {
   id: string;
   sellerProductId?: string;
+  merchantName?: string;
+  merchantSlug?: string | null;
   providerCode: string;
   name: string;
   category: string;
@@ -215,37 +217,7 @@ export default function BrandDetailPage({
                   description: sellerData.seller.description ?? null,
                 });
 
-                const sellerBrandProducts = (sellerData.data as Array<{
-                  sellerProductId: string;
-                  product: {
-                    id: string;
-                    providerCode: string;
-                    name: string;
-                    category: string;
-                    brand: string;
-                    type: string;
-                    providerPrice: number;
-                    sellingPrice: number;
-                  };
-                }>).filter((item) => item.product.brand === data.brand);
-
-                if (sellerBrandProducts.length > 0) {
-                  finalProducts = sellerBrandProducts.map((item) => ({
-                    id: item.product.id,
-                    sellerProductId: item.sellerProductId,
-                    providerCode: item.product.providerCode,
-                    name: item.product.name,
-                    category: item.product.category,
-                    brand: item.product.brand,
-                    type: item.product.type,
-                    providerPrice: item.product.providerPrice,
-                    sellingPrice: item.product.sellingPrice,
-                    discount: item.product.providerPrice > item.product.sellingPrice
-                      ? Math.round(((item.product.providerPrice - item.product.sellingPrice) / item.product.providerPrice) * 100)
-                      : 0,
-                    description: null,
-                  }));
-                }
+                finalProducts = (data.data as Product[]).filter((item) => item.merchantSlug === sellerSlug);
               }
             } catch {
               setSellerStore(null);
@@ -982,11 +954,12 @@ export default function BrandDetailPage({
             ) : (
               <div className="grid grid-cols-2 gap-2.5">
                 {filteredProducts.map((product) => {
-                  const isSelected = selectedProduct?.id === product.id;
+                  const isSelected = (selectedProduct?.sellerProductId ?? selectedProduct?.id) === (product.sellerProductId ?? product.id);
+                  const productMerchantName = product.merchantName ?? sellerStore?.displayName ?? null;
 
                   return (
                     <button
-                      key={product.id}
+                      key={product.sellerProductId ?? product.id}
                       onClick={() =>
                         setSelectedProduct(isSelected ? null : product)
                       }
@@ -1031,6 +1004,12 @@ export default function BrandDetailPage({
                         {product.name}
                       </p>
 
+                      {productMerchantName && (
+                        <div className="mb-2 inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-emerald-700">
+                          Merchant: {productMerchantName}
+                        </div>
+                      )}
+
                       {/* Price */}
                       <p
                         className={`text-sm font-bold ${
@@ -1040,10 +1019,21 @@ export default function BrandDetailPage({
                         Rp {formatPrice(product.sellingPrice)}
                       </p>
 
-                      {/* Original price if discount */}
-                      {product.discount > 0 && (
-                        <p className="text-[10px] text-slate-400 line-through mt-0.5">
-                          Rp {formatPrice(product.providerPrice)}
+                      {productMerchantName ? (
+                        <p className="mt-0.5 text-[10px] text-emerald-600">
+                          Harga jual merchant
+                        </p>
+                      ) : (
+                        product.discount > 0 && (
+                          <p className="mt-0.5 text-[10px] text-slate-400 line-through">
+                            Rp {formatPrice(product.providerPrice)}
+                          </p>
+                        )
+                      )}
+
+                      {productMerchantName && (
+                        <p className="mt-2 text-[10px] text-slate-400">
+                          Produk ini dijual oleh {productMerchantName}.
                         </p>
                       )}
                     </button>

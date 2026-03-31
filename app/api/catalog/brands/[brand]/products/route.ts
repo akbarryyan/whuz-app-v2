@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * GET /api/catalog/brands/[brand]/products
- * Return all active products for a specific brand slug (public, no auth)
+ * Return merchant-selected products for a specific brand slug (public, no auth)
  */
 export async function GET(
   _req: NextRequest,
@@ -14,15 +14,32 @@ export async function GET(
   try {
     const { brand: brandSlug } = await params;
 
-    // Cari semua brand yang ada, lalu cocokkan slug
-    const allBrands = await prisma.product.findMany({
-      where: { isActive: true, stock: true },
-      select: { brand: true },
-      distinct: ["brand"],
+    const allSellerProducts = await prisma.sellerProduct.findMany({
+      where: {
+        isActive: true,
+        seller: {
+          sellerProfile: {
+            isActive: true,
+          },
+        },
+        product: {
+          isActive: true,
+          stock: true,
+        },
+      },
+      select: {
+        product: {
+          select: {
+            brand: true,
+          },
+        },
+      },
     });
 
-    const matchedBrand = allBrands.find((b) => {
-      const slug = b.brand
+    const allBrands = Array.from(new Set(allSellerProducts.map((item) => item.product.brand)));
+
+    const matchedBrand = allBrands.find((brand) => {
+      const slug = brand
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/(^-|-$)/g, "");
@@ -36,56 +53,79 @@ export async function GET(
       );
     }
 
-    const products = await prisma.product.findMany({
+    const products = await prisma.sellerProduct.findMany({
       where: {
-        brand: matchedBrand.brand,
         isActive: true,
-        stock: true,
+        seller: {
+          sellerProfile: {
+            isActive: true,
+          },
+        },
+        product: {
+          brand: matchedBrand,
+          isActive: true,
+          stock: true,
+        },
       },
-      orderBy: [{ type: "asc" }, { sellingPrice: "asc" }],
-      select: {
-        id: true,
-        providerCode: true,
-        name: true,
-        category: true,
-        brand: true,
-        type: true,
-        providerPrice: true,
-        sellingPrice: true,
-        description: true,
+      include: {
+        product: true,
+        seller: {
+          select: {
+            sellerProfile: {
+              select: {
+                displayName: true,
+                slug: true,
+              },
+            },
+          },
+        },
       },
     });
 
-    // Group products by type for tab filters
-    const typeGroups: Record<string, typeof productsData> = {};
-    const productsData = products.map((p) => ({
-      id: p.id,
-      providerCode: p.providerCode,
-      name: p.name,
-      category: p.category,
-      brand: p.brand,
-      type: p.type,
-      providerPrice: Number(p.providerPrice),
-      sellingPrice: Number(p.sellingPrice),
-      discount: Number(p.providerPrice) > Number(p.sellingPrice)
-        ? Math.round(((Number(p.providerPrice) - Number(p.sellingPrice)) / Number(p.providerPrice)) * 100)
-        : 0,
-      description: p.description,
-    }));
+    const productsData = products
+      .map((item) => {
+        const merchantSellingPrice = item.sellingPrice !== null
+          ? Number(item.sellingPrice)
+          : Number(item.product.sellingPrice);
 
+        return {
+          id: item.product.id,
+          sellerProductId: item.id,
+          merchantName: item.seller.sellerProfile?.displayName ?? "Merchant",
+          merchantSlug: item.seller.sellerProfile?.slug ?? null,
+          providerCode: item.product.providerCode,
+          name: item.product.name,
+          category: item.product.category,
+          brand: item.product.brand,
+          type: item.product.type,
+          providerPrice: Number(item.product.providerPrice),
+          sellingPrice: merchantSellingPrice,
+          discount: Number(item.product.providerPrice) > merchantSellingPrice
+            ? Math.round(((Number(item.product.providerPrice) - merchantSellingPrice) / Number(item.product.providerPrice)) * 100)
+            : 0,
+          description: item.product.description,
+        };
+      })
+      .sort((a, b) => {
+        if (a.type !== b.type) return a.type.localeCompare(b.type);
+        if (a.sellingPrice !== b.sellingPrice) return a.sellingPrice - b.sellingPrice;
+        return a.name.localeCompare(b.name);
+      });
+
+    const typeGroups: Record<string, typeof productsData> = {};
     productsData.forEach((p) => {
       if (!typeGroups[p.type]) typeGroups[p.type] = [];
       typeGroups[p.type].push(p);
     });
 
     const brandMeta = await prisma.brandMeta.findUnique({
-      where: { brand: matchedBrand.brand },
+      where: { brand: matchedBrand },
       select: { imageUrl: true, inputFields: true },
     });
 
     return NextResponse.json({
       success: true,
-      brand: matchedBrand.brand,
+      brand: matchedBrand,
       imageUrl: brandMeta?.imageUrl ?? null,
       inputFields: brandMeta?.inputFields ?? null,
       types: Object.keys(typeGroups),

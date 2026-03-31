@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
-import { getSiteConfig } from "@/lib/site-config";
 
 export const dynamic = "force-dynamic";
 
@@ -14,8 +13,7 @@ const TYPE_GROUP_MAP: Record<string, string[]> = {
 
 /**
  * GET /api/catalog/brands?typeGroup=game
- * Return distinct brands with product count + imageUrl from BrandMeta (public, no auth)
- * Only active products with stock.
+ * Return distinct brands from active merchant-selected products.
  * Optional ?typeGroup= to filter by product type group.
  */
 export async function GET(request: NextRequest) {
@@ -24,45 +22,57 @@ export async function GET(request: NextRequest) {
     const typeGroup = searchParams.get("typeGroup") ?? undefined;
     const types = typeGroup ? TYPE_GROUP_MAP[typeGroup] : undefined;
 
-    const where: Parameters<typeof prisma.product.groupBy>[0]["where"] = {
-      isActive: true,
-      stock: true,
-      ...(types ? { type: { in: types } } : {}),
-    };
-
-    const brands = await prisma.product.groupBy({
-      by: ["brand"],
-      where,
-      _count: { id: true },
-      orderBy: { brand: "asc" },
+    const sellerProducts = await prisma.sellerProduct.findMany({
+      where: {
+        isActive: true,
+        seller: {
+          sellerProfile: {
+            isActive: true,
+          },
+        },
+        product: {
+          isActive: true,
+          stock: true,
+          ...(types ? { type: { in: types } } : {}),
+        },
+      },
+      select: {
+        product: {
+          select: {
+            brand: true,
+          },
+        },
+      },
     });
 
-    // Fetch brand imageUrls from BrandMeta in one query
-    const brandNames = brands.map((b) => b.brand);
-    const [metas, globalBorderImageUrl] = await Promise.all([
-      prisma.brandMeta.findMany({
-        where: { brand: { in: brandNames } },
-        select: { brand: true, imageUrl: true },
-      }),
-      getSiteConfig("HOME_GAME_GRID_BORDER_IMAGE_URL"),
-    ]);
+    const brandCounts = new Map<string, number>();
+    for (const item of sellerProducts) {
+      const key = item.product.brand;
+      brandCounts.set(key, (brandCounts.get(key) ?? 0) + 1);
+    }
+
+    const brandNames = Array.from(brandCounts.keys()).sort((a, b) => a.localeCompare(b));
+
+    const metas = await prisma.brandMeta.findMany({
+      where: { brand: { in: brandNames } },
+      select: { brand: true, imageUrl: true },
+    });
     const metaMap: Record<string, { imageUrl: string | null }> = {};
     for (const m of metas) metaMap[m.brand] = { imageUrl: m.imageUrl ?? null };
 
-    const data = brands.map((b) => ({
-      brand: b.brand,
-      slug: b.brand
+    const data = brandNames.map((brand) => ({
+      brand,
+      slug: brand
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/(^-|-$)/g, ""),
-      productCount: b._count.id,
-      imageUrl: metaMap[b.brand]?.imageUrl ?? null,
+      productCount: brandCounts.get(brand) ?? 0,
+      imageUrl: metaMap[brand]?.imageUrl ?? null,
     }));
 
     return NextResponse.json({
       success: true,
       data,
-      globalBorderImageUrl: globalBorderImageUrl || null,
     });
   } catch (error) {
     console.error("[CATALOG BRANDS ERROR]", error);
