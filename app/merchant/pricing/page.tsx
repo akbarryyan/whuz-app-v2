@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import MerchantSidebar from "@/components/merchant/Sidebar";
 import MerchantHeader from "@/components/merchant/Header";
@@ -127,7 +128,13 @@ export default function MerchantPricingPage() {
             ) : rows.length === 0 ? (
               <div className="rounded-2xl bg-slate-50 px-4 py-10 text-center sm:rounded-3xl">
                 <p className="text-sm font-medium text-slate-600">Belum ada produk merchant yang cocok</p>
-                <p className="mt-1 text-xs text-slate-400">Pilih produk merchant terlebih dulu atau ubah kata kunci pencarian.</p>
+                <p className="mt-1 text-xs text-slate-400">Pilih dulu produk yang mau dijual dari katalog website, baru atur margin di halaman ini.</p>
+                <Link
+                  href="/merchant/products"
+                  className="mt-4 inline-flex rounded-2xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-600"
+                >
+                  Pilih Produk Merchant
+                </Link>
               </div>
             ) : (
               <div className="space-y-4">

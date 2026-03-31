@@ -22,6 +22,15 @@ const NAV_ITEMS = [
     ),
   },
   {
+    name: "Produk",
+    href: "/merchant/products",
+    icon: (
+      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7.5 12 3l8 4.5M4 7.5V16.5L12 21m-8-13.5L12 12m8-4.5V12M12 21v-9" />
+      </svg>
+    ),
+  },
+  {
     name: "Pricing",
     href: "/merchant/pricing",
     icon: (
