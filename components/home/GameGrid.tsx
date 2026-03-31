@@ -7,7 +7,6 @@ interface BrandItem {
   brand: string;
   slug: string;
   productCount: number;
-  hasMerchantProducts: boolean;
   imageUrl: string | null;
 }
 
@@ -186,15 +185,6 @@ export default function GameGrid({ category }: GameGridProps) {
 
                 <span className="text-center text-[11px] font-medium leading-tight text-slate-700 line-clamp-2">
                   {brand.brand}
-                </span>
-                <span
-                  className={`rounded-full px-2 py-0.5 text-[9px] font-semibold ${
-                    brand.hasMerchantProducts
-                      ? "bg-emerald-50 text-emerald-700"
-                      : "bg-slate-100 text-slate-500"
-                  }`}
-                >
-                  {brand.hasMerchantProducts ? `Tersedia ${brand.productCount}` : "Segera Hadir"}
                 </span>
               </div>
             </button>
