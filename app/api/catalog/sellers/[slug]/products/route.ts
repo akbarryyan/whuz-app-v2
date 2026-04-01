@@ -18,6 +18,7 @@ export async function GET(
       slug: true,
       displayName: true,
       description: true,
+      profileImageUrl: true,
       isActive: true,
       userId: true,
     },
