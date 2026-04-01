@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Sans, Space_Grotesk } from "next/font/google";
 import { getSiteConfig } from "@/lib/site-config";
 import "./globals.css";
@@ -48,6 +48,14 @@ export async function generateMetadata(): Promise<Metadata> {
     },
   };
 }
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+};
 
 export default function RootLayout({
   children,

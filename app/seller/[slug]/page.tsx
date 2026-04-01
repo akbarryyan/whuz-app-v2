@@ -131,15 +131,15 @@ export default function SellerStorefrontPage({
     return (
       <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5]`}>
         <div className="w-full max-w-[480px] min-h-screen bg-white shadow-2xl">
-          <AppHeader onBack={() => router.push("/")} />
+          <AppHeader onBack={() => router.push("/seller")} />
           <div className="flex min-h-[70vh] flex-col items-center justify-center px-6 text-center">
             <p className="text-lg font-bold text-slate-800">{error || "Toko merchant tidak ditemukan"}</p>
             <button
               type="button"
-              onClick={() => router.push("/")}
+              onClick={() => router.push("/seller")}
               className="mt-5 rounded-2xl bg-[#003D99] px-5 py-3 text-sm font-semibold text-white"
             >
-              Kembali ke Beranda
+              Kembali ke Merchant
             </button>
           </div>
           <ToastContainer toasts={toast.toasts} onRemove={toast.removeToast} />
@@ -153,7 +153,7 @@ export default function SellerStorefrontPage({
       <ToastContainer toasts={toast.toasts} onRemove={toast.removeToast} />
 
       <div className="relative w-full max-w-[480px] min-h-screen bg-[#f5f7fb] shadow-2xl">
-        <AppHeader onBack={() => router.push("/")} />
+        <AppHeader onBack={() => router.push("/seller")} />
 
         <div className="h-[60px]" />
 
