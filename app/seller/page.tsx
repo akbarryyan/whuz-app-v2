@@ -17,6 +17,7 @@ interface SellerItem {
   slug: string;
   displayName: string;
   description: string | null;
+  profileImageUrl: string | null;
   productCount: number;
   brandCount: number;
 }
@@ -78,15 +79,24 @@ export default function SellerListPage() {
                   className="overflow-hidden rounded-[24px] bg-white shadow-sm transition-transform hover:-translate-y-0.5"
                 >
                   <div className={`bg-gradient-to-br ${ACCENTS[index % ACCENTS.length]} p-4`}>
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15">
-                      <span className="text-base font-bold text-white">
-                        {seller.displayName
-                          .split(" ")
-                          .map((part) => part[0])
-                          .slice(0, 2)
-                          .join("")
-                          .toUpperCase()}
-                      </span>
+                    <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-white/15 ring-1 ring-white/15">
+                      {seller.profileImageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={seller.profileImageUrl}
+                          alt={seller.displayName}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-base font-bold text-white">
+                          {seller.displayName
+                            .split(" ")
+                            .map((part) => part[0])
+                            .slice(0, 2)
+                            .join("")
+                            .toUpperCase()}
+                        </span>
+                      )}
                     </div>
                     <p className="mt-4 line-clamp-2 text-base font-bold text-white">{seller.displayName}</p>
                   </div>

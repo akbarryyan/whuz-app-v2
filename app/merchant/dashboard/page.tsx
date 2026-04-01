@@ -8,7 +8,13 @@ import { ToastContainer } from "@/components/ui/Toast";
 import { useToast } from "@/hooks/useToast";
 
 interface DashboardData {
-  merchant: { id: string; slug: string; displayName: string };
+  merchant: {
+    id: string;
+    slug: string;
+    displayName: string;
+    description: string | null;
+    profileImageUrl: string | null;
+  };
   summary: {
     saldo: number;
     totalTransaksi: number;
@@ -50,6 +56,13 @@ export default function MerchantDashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeRevenueIndex, setActiveRevenueIndex] = useState<number | null>(null);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    displayName: "",
+    slug: "",
+    description: "",
+    profileImageUrl: "",
+  });
   const { toasts, removeToast, error: showError } = useToast();
 
   useEffect(() => {
@@ -58,6 +71,12 @@ export default function MerchantDashboardPage() {
       .then((json) => {
         if (!json.success) throw new Error(json.error || "Gagal memuat dashboard merchant");
         setData(json.data);
+        setProfileForm({
+          displayName: json.data.merchant.displayName ?? "",
+          slug: json.data.merchant.slug ?? "",
+          description: json.data.merchant.description ?? "",
+          profileImageUrl: json.data.merchant.profileImageUrl ?? "",
+        });
       })
       .catch((caughtError: unknown) => {
         const message = caughtError instanceof Error ? caughtError.message : "Gagal memuat dashboard merchant";
@@ -74,6 +93,40 @@ export default function MerchantDashboardPage() {
         { label: "Saldo Masuk Bersih", value: rupiah(data.summary.totalSaldoMasuk), delta: "Setelah fee", tone: "bg-fuchsia-100 text-fuchsia-600" },
       ]
     : [];
+
+  const saveProfile = async () => {
+    setSavingProfile(true);
+    try {
+      const res = await fetch("/api/seller/profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          displayName: profileForm.displayName.trim(),
+          slug: profileForm.slug.trim(),
+          description: profileForm.description.trim(),
+          profileImageUrl: profileForm.profileImageUrl.trim(),
+        }),
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error || "Gagal menyimpan profil merchant");
+
+      setData((prev) => prev ? {
+        ...prev,
+        merchant: {
+          ...prev.merchant,
+          displayName: json.data.displayName,
+          slug: json.data.slug,
+          description: json.data.description ?? null,
+          profileImageUrl: json.data.profileImageUrl ?? null,
+        },
+      } : prev);
+    } catch (caughtError: unknown) {
+      const message = caughtError instanceof Error ? caughtError.message : "Gagal menyimpan profil merchant";
+      showError(message);
+    } finally {
+      setSavingProfile(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#f5f7fb] text-slate-900">
@@ -114,8 +167,31 @@ export default function MerchantDashboardPage() {
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div>
                         <p className="text-sm font-semibold text-slate-500">Ringkasan Merchant</p>
-                        <h2 className="mt-2 text-xl font-bold text-slate-900">{data.merchant.displayName}</h2>
-                        <p className="mt-1 text-sm text-slate-500">Slug toko: /seller/{data.merchant.slug}</p>
+                        <div className="mt-3 flex items-center gap-3">
+                          <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-emerald-50 ring-1 ring-emerald-100">
+                            {data.merchant.profileImageUrl ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={data.merchant.profileImageUrl}
+                                alt={data.merchant.displayName}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-base font-bold text-emerald-700">
+                                {data.merchant.displayName
+                                  .split(" ")
+                                  .map((part: string) => part[0])
+                                  .slice(0, 2)
+                                  .join("")
+                                  .toUpperCase()}
+                              </span>
+                            )}
+                          </div>
+                          <div>
+                            <h2 className="text-xl font-bold text-slate-900">{data.merchant.displayName}</h2>
+                            <p className="mt-1 text-sm text-slate-500">Slug toko: /seller/{data.merchant.slug}</p>
+                          </div>
+                        </div>
                       </div>
                       <a
                         href={`/seller/${data.merchant.slug}`}
@@ -133,6 +209,89 @@ export default function MerchantDashboardPage() {
                       <div className="rounded-2xl bg-slate-50 p-4 sm:rounded-3xl">
                         <p className="text-sm text-slate-500">Total Omzet</p>
                         <p className="mt-2 text-2xl font-bold text-slate-900">{rupiah(data.summary.totalOmzet)}</p>
+                      </div>
+                    </div>
+
+                    <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                      <div className="mb-4">
+                        <p className="text-sm font-semibold text-slate-800">Profil Storefront</p>
+                        <p className="text-xs text-slate-400">Gambar ini akan tampil di daftar merchant dan halaman storefront merchant.</p>
+                      </div>
+
+                      <div className="grid gap-3">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200">
+                            {profileForm.profileImageUrl ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={profileForm.profileImageUrl}
+                                alt={profileForm.displayName || "Merchant"}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-base font-bold text-slate-500">
+                                {(profileForm.displayName || data.merchant.displayName || "M")
+                                  .split(" ")
+                                  .map((part: string) => part[0])
+                                  .slice(0, 2)
+                                  .join("")
+                                  .toUpperCase()}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <label className="mb-1 block text-xs font-semibold text-slate-500">URL Gambar Profile Merchant</label>
+                            <input
+                              type="url"
+                              value={profileForm.profileImageUrl}
+                              onChange={(e) => setProfileForm((prev) => ({ ...prev, profileImageUrl: e.target.value }))}
+                              placeholder="https://example.com/profile-merchant.png"
+                              className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-emerald-400"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <label className="block">
+                            <span className="mb-1 block text-xs font-semibold text-slate-500">Nama Toko</span>
+                            <input
+                              type="text"
+                              value={profileForm.displayName}
+                              onChange={(e) => setProfileForm((prev) => ({ ...prev, displayName: e.target.value }))}
+                              className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-emerald-400"
+                            />
+                          </label>
+                          <label className="block">
+                            <span className="mb-1 block text-xs font-semibold text-slate-500">Slug Toko</span>
+                            <input
+                              type="text"
+                              value={profileForm.slug}
+                              onChange={(e) => setProfileForm((prev) => ({ ...prev, slug: e.target.value }))}
+                              className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-emerald-400"
+                            />
+                          </label>
+                        </div>
+
+                        <label className="block">
+                          <span className="mb-1 block text-xs font-semibold text-slate-500">Deskripsi Toko</span>
+                          <textarea
+                            value={profileForm.description}
+                            onChange={(e) => setProfileForm((prev) => ({ ...prev, description: e.target.value }))}
+                            rows={3}
+                            className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-emerald-400"
+                          />
+                        </label>
+
+                        <div className="flex justify-end">
+                          <button
+                            type="button"
+                            onClick={saveProfile}
+                            disabled={savingProfile}
+                            className="rounded-2xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-60"
+                          >
+                            {savingProfile ? "Menyimpan..." : "Simpan Profil"}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </section>

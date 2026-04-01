@@ -12,6 +12,7 @@ export async function GET() {
         slug: true,
         displayName: true,
         description: true,
+        profileImageUrl: true,
         userId: true,
       },
       orderBy: { displayName: "asc" },
@@ -55,6 +56,7 @@ export async function GET() {
           slug: seller.slug,
           displayName: seller.displayName,
           description: seller.description,
+          profileImageUrl: seller.profileImageUrl,
           productCount: stats?.productCount ?? 0,
           brandCount: stats?.brands.size ?? 0,
         };

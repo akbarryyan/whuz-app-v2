@@ -105,6 +105,8 @@ export async function GET() {
           id: merchant.sellerProfile.id,
           slug: merchant.sellerProfile.slug,
           displayName: merchant.sellerProfile.displayName,
+          description: merchant.sellerProfile.description,
+          profileImageUrl: merchant.sellerProfile.profileImageUrl,
         },
         summary: {
           saldo: Number(wallet?.balance ?? 0),

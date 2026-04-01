@@ -67,6 +67,7 @@ export async function GET(
       slug: seller.slug,
       displayName: seller.displayName,
       description: seller.description,
+      profileImageUrl: seller.profileImageUrl ?? null,
     },
     data: products.map((item) => ({
       sellerProductId: item.id,

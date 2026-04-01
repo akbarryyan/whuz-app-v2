@@ -8,6 +8,7 @@ const SellerProfileSchema = z.object({
   displayName: z.string().min(3).max(120),
   slug: z.string().min(3).max(80).optional(),
   description: z.string().max(1000).optional(),
+  profileImageUrl: z.string().url().max(2048).optional().or(z.literal("")),
 });
 
 export const dynamic = "force-dynamic";
@@ -59,12 +60,14 @@ export async function POST(req: NextRequest) {
         slug: requestedSlug,
         displayName: parsed.data.displayName.trim(),
         description: parsed.data.description?.trim() || null,
+        profileImageUrl: parsed.data.profileImageUrl?.trim() || null,
         isActive: true,
       },
       update: {
         slug: requestedSlug,
         displayName: parsed.data.displayName.trim(),
         description: parsed.data.description?.trim() || null,
+        profileImageUrl: parsed.data.profileImageUrl?.trim() || null,
       },
     });
 

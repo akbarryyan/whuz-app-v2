@@ -16,6 +16,7 @@ interface FormState {
   displayName: string;
   slug: string;
   description: string;
+  profileImageUrl: string;
 }
 
 function slugify(input: string) {
@@ -39,6 +40,7 @@ export default function MerchantRegisterPage() {
     displayName: "",
     slug: "",
     description: "",
+    profileImageUrl: "",
   });
 
   useEffect(() => {
@@ -88,6 +90,7 @@ export default function MerchantRegisterPage() {
       displayName: form.displayName.trim(),
       slug: slugify(form.slug || form.displayName),
       description: form.description.trim() || undefined,
+      profileImageUrl: form.profileImageUrl.trim() || undefined,
     };
 
     setSubmitting(true);
@@ -180,6 +183,20 @@ export default function MerchantRegisterPage() {
                   rows={4}
                   className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-400"
                 />
+              </label>
+
+              <label className="block">
+                <span className="mb-2 block text-sm font-semibold text-slate-700">URL Gambar Profile Merchant</span>
+                <input
+                  type="url"
+                  value={form.profileImageUrl}
+                  onChange={(e) => setForm((prev) => ({ ...prev, profileImageUrl: e.target.value }))}
+                  placeholder="https://example.com/profile-merchant.png"
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-400"
+                />
+                <p className="mt-2 text-xs text-slate-400">
+                  Opsional. Gambar ini akan tampil di daftar merchant dan halaman storefront toko.
+                </p>
               </label>
             </div>
 
