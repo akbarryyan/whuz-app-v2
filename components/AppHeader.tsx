@@ -38,7 +38,7 @@ export default function AppHeader({ onBack }: AppHeaderProps) {
 
   return (
     <header
-      className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-40"
+      className="fixed inset-x-0 top-0 mx-auto w-full max-w-[480px] z-40"
       style={{ backgroundColor: "#003D99" }}
     >
       <div className="flex items-center px-3 py-3 gap-2">

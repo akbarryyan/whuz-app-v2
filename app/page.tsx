@@ -122,10 +122,10 @@ export default function Home() {
   }, []);
 
   return (
-    <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5]`}>
+    <div className={`${quicksand.className} flex min-h-screen w-full overflow-x-hidden justify-center bg-[#F5F5F5]`}>
       {/* Skeleton — fades out */}
       <div
-        className={`absolute inset-0 flex justify-center z-50 transition-opacity duration-500 ${
+        className={`absolute inset-0 flex w-full overflow-x-hidden justify-center z-50 transition-opacity duration-500 ${
           ready ? "opacity-0 pointer-events-none" : "opacity-100"
         }`}
       >
@@ -134,7 +134,7 @@ export default function Home() {
 
       {/* Mobile Container — Fades in */}
       <div
-        className={`relative w-full max-w-[480px] min-h-screen bg-[#F5F5F5] shadow-2xl flex flex-col gap-0 transition-opacity duration-500 ${
+        className={`relative w-full max-w-[480px] min-h-screen overflow-x-hidden bg-[#F5F5F5] shadow-2xl flex flex-col gap-0 transition-opacity duration-500 ${
           ready ? "opacity-100" : "opacity-0"
         }`}
       >

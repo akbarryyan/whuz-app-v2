@@ -1,7 +1,15 @@
 @import "tailwindcss";
 
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+}
+
 html {
-  overflow-x: clip;
+  overflow-x: hidden;
 }
 
 :root {
@@ -45,6 +53,8 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-body), "Helvetica Neue", sans-serif;
+  overflow-x: hidden;
+  position: relative;
 }
 
 .text-balance {
