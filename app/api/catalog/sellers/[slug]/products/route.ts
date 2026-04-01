@@ -52,6 +52,14 @@ export async function GET(
     take: 300,
   });
 
+  const brandNames = Array.from(new Set(products.map((item) => item.product.brand)));
+  const brandMetas = await prisma.brandMeta.findMany({
+    where: { brand: { in: brandNames } },
+    select: { brand: true, imageUrl: true },
+  });
+  const brandImageMap: Record<string, string | null> = {};
+  for (const meta of brandMetas) brandImageMap[meta.brand] = meta.imageUrl ?? null;
+
   return NextResponse.json({
     success: true,
     seller: {
@@ -73,6 +81,7 @@ export async function GET(
         providerCode: item.product.providerCode,
         name: item.product.name,
         brand: item.product.brand,
+        brandImageUrl: brandImageMap[item.product.brand] ?? null,
         category: item.product.category,
         type: item.product.type,
         providerPrice: Number(item.product.providerPrice),

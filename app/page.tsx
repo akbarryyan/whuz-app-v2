@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Quicksand } from "next/font/google";
 import Header from "@/components/home/Header";
 import BannerCarousel from "@/components/home/BannerCarousel";
@@ -146,6 +147,26 @@ export default function Home() {
 
         {/* Main Content */}
         <div className="flex-1 px-4 py-6 bg-slate-50 pb-24">
+          <Link
+            href="/seller"
+            className="mb-4 flex items-center justify-between rounded-3xl bg-white px-4 py-4 shadow-sm transition hover:shadow-md"
+          >
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#003D99]">
+                Merchant
+              </p>
+              <h2 className="mt-1 text-lg font-bold text-slate-800">Lihat Merchant Tersedia</h2>
+              <p className="mt-1 text-sm text-slate-500">
+                Buka toko merchant aktif dan lihat produk yang mereka jual.
+              </p>
+            </div>
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#003D99] text-white">
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </Link>
+
           <GameGrid category={activeTypeGroup} />
           <AboutFAQ />
         </div>

@@ -23,6 +23,7 @@ interface SellerCatalogItem {
     providerCode: string;
     name: string;
     brand: string;
+    brandImageUrl?: string | null;
     category: string;
     type: string;
     providerPrice: number;
@@ -100,24 +101,13 @@ export default function SellerStorefrontPage({
     };
   }, [params, toast]);
 
-  const groupedByBrand = useMemo(() => {
+  const productGrid = useMemo(() => {
     if (!data) return [];
-
-    const groups = new Map<string, SellerCatalogItem[]>();
-    for (const item of data.data) {
-      const key = item.product.brand;
-      const existing = groups.get(key) ?? [];
-      existing.push(item);
-      groups.set(key, existing);
-    }
-
-    return Array.from(groups.entries())
-      .map(([brand, items]) => ({
-        brand,
-        brandSlug: slugifyBrand(brand),
-        items: items.sort((a, b) => a.sellingPrice - b.sellingPrice),
-      }))
-      .sort((a, b) => a.brand.localeCompare(b.brand));
+    return [...data.data].sort((a, b) => {
+      if (a.product.brand !== b.product.brand) return a.product.brand.localeCompare(b.product.brand);
+      if (a.sellingPrice !== b.sellingPrice) return a.sellingPrice - b.sellingPrice;
+      return a.product.name.localeCompare(b.product.name);
+    });
   }, [data]);
 
   if (loading) {
@@ -186,7 +176,7 @@ export default function SellerStorefrontPage({
                 /seller/{data.seller.slug}
               </div>
               <div className="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                {groupedByBrand.length} brand aktif
+                {new Set(productGrid.map((item) => item.product.brand)).size} brand aktif
               </div>
               <div className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
                 {data.data.length} produk tersedia
@@ -195,69 +185,55 @@ export default function SellerStorefrontPage({
           </div>
 
           <div className="mt-5 space-y-5">
-            {groupedByBrand.length === 0 ? (
+            {productGrid.length === 0 ? (
               <div className="rounded-[28px] border border-slate-200 bg-white px-5 py-10 text-center shadow-sm">
                 <p className="text-sm font-medium text-slate-600">Merchant ini belum memilih produk untuk dijual</p>
                 <p className="mt-1 text-xs text-slate-400">Coba lagi nanti saat katalog merchant sudah diperbarui.</p>
               </div>
             ) : (
-              groupedByBrand.map((group) => (
-                <section key={group.brand} className="rounded-[28px] border border-slate-200 bg-white p-4 shadow-sm">
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-lg font-bold text-slate-900">{group.brand}</p>
-                      <p className="text-sm text-slate-500">{group.items.length} produk tersedia</p>
+              <div className="grid grid-cols-2 gap-3">
+                {productGrid.map((item) => (
+                  <button
+                    key={item.sellerProductId}
+                    type="button"
+                    onClick={() => router.push(`/brand/${slugifyBrand(item.product.brand)}?seller=${encodeURIComponent(slug)}&sellerProductId=${encodeURIComponent(item.sellerProductId)}`)}
+                    className="rounded-[26px] border border-slate-200 bg-white p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                  >
+                    <div className="aspect-square overflow-hidden rounded-[20px] bg-gradient-to-br from-slate-100 to-slate-200">
+                      {item.product.brandImageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={item.product.brandImageUrl}
+                          alt={item.product.brand}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-500 to-teal-600">
+                          <span className="text-xl font-bold text-white">
+                            {item.product.brand
+                              .split(" ")
+                              .map((part) => part[0])
+                              .slice(0, 2)
+                              .join("")
+                              .toUpperCase()}
+                          </span>
+                        </div>
+                      )}
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const first = group.items[0];
-                        router.push(`/brand/${group.brandSlug}?seller=${encodeURIComponent(slug)}&sellerProductId=${encodeURIComponent(first.sellerProductId)}`);
-                      }}
-                      className="rounded-2xl border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
-                    >
-                      Lihat Brand
-                    </button>
-                  </div>
 
-                  <div className="mt-4 grid gap-3">
-                    {group.items.map((item) => (
-                      <div key={item.sellerProductId} className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="line-clamp-2 text-sm font-semibold text-slate-900">{item.product.name}</p>
-                            <p className="mt-1 text-xs text-slate-500">
-                              {item.product.provider} • {item.product.providerCode}
-                            </p>
-                            <div className="mt-3 flex flex-wrap gap-2">
-                              <span className="rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-slate-600 ring-1 ring-slate-200">
-                                {item.product.category}
-                              </span>
-                              <span className="rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-emerald-700 ring-1 ring-emerald-100">
-                                Margin {rupiah(Math.max(0, item.sellingPrice - item.product.providerPrice))}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-base font-bold text-slate-900">{rupiah(item.sellingPrice)}</p>
-                            <p className="mt-1 text-[11px] text-slate-400">Harga dasar {rupiah(item.product.providerPrice)}</p>
-                          </div>
-                        </div>
-
-                        <div className="mt-4 flex items-center justify-end gap-3">
-                          <button
-                            type="button"
-                            onClick={() => router.push(`/brand/${group.brandSlug}?seller=${encodeURIComponent(slug)}&sellerProductId=${encodeURIComponent(item.sellerProductId)}`)}
-                            className="rounded-2xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-600"
-                          >
-                            Beli Produk
-                          </button>
-                        </div>
+                    <div className="mt-3">
+                      <p className="line-clamp-2 text-sm font-bold leading-snug text-slate-900">{item.product.name}</p>
+                      <p className="mt-1 line-clamp-1 text-xs font-medium text-slate-500">{item.product.brand}</p>
+                      <div className="mt-3 flex items-center justify-between gap-2">
+                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                          {item.product.category}
+                        </span>
+                        <span className="text-sm font-bold text-emerald-600">{rupiah(item.sellingPrice)}</span>
                       </div>
-                    ))}
-                  </div>
-                </section>
-              ))
+                    </div>
+                  </button>
+                ))}
+              </div>
             )}
           </div>
         </div>
