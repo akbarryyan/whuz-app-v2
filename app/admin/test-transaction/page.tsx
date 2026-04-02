@@ -40,7 +40,7 @@ interface Step {
   step: string;
   status: "ok" | "error" | "skip";
   durationMs: number;
-  detail?: any;
+  detail?: unknown;
 }
 
 interface TestResult {
@@ -52,8 +52,6 @@ interface TestResult {
   mode: string;
   paymentUrl?: string;
   paymentNumber?: string;
-  simulateUrl?: string;
-  simulateBody?: { order_id: string; amount: number };
 }
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
@@ -73,7 +71,7 @@ const STEP_LABELS: Record<string, string> = {
   mark_processing: "Proses Provider",
   provider_purchase: "Transaksi Provider",
   finalize_order: "Finalisasi Order",
-  create_invoice: "Buat Invoice Pakasir",
+  create_invoice: "Buat Invoice Poppay",
 };
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -101,7 +99,6 @@ export default function TestTransactionPage() {
   const [steps, setSteps] = useState<Step[]>([]);
   const [result, setResult] = useState<TestResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [simulating, setSimulating] = useState(false);
 
   // ── Load modes ──────────────────────────────────────────────────────────────
   const loadModes = useCallback(async () => {
@@ -198,30 +195,10 @@ export default function TestTransactionPage() {
       setSteps(json.steps ?? []);
       if (json.result) setResult(json.result);
       if (!json.success) setError(json.error || "Test failed");
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Test transaction gagal");
     } finally {
       setRunning(false);
-    }
-  };
-
-  // ── Simulate PG payment ─────────────────────────────────────────────────────────
-  const simulatePayment = async () => {
-    if (!result?.simulateBody) return;
-    setSimulating(true);
-    try {
-      const res = await fetch("/api/dev/pakasir/simulate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(result.simulateBody),
-      });
-      const json = await res.json();
-      if (!json.success) setError(json.error || "Simulasi gagal");
-      else setError(null);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setSimulating(false);
     }
   };
 
@@ -491,7 +468,7 @@ export default function TestTransactionPage() {
               {paymentMethod === "PAYMENT_GATEWAY" && (
                 <div>
                   <label className="mb-1.5 block text-xs font-medium text-slate-500 uppercase tracking-wide">
-                    Metode Pakasir
+                    Metode Poppay
                   </label>
                   <select
                     value={pgMethod}
@@ -499,24 +476,14 @@ export default function TestTransactionPage() {
                     className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="qris">QRIS</option>
-                    <option value="bni_va">BNI Virtual Account</option>
-                    <option value="bri_va">BRI Virtual Account</option>
-                    <option value="cimb_niaga_va">CIMB Niaga VA</option>
-                    <option value="permata_va">Permata VA</option>
-                    <option value="maybank_va">Maybank VA</option>
-                    <option value="bnc_va">BNC VA</option>
-                    <option value="sampoerna_va">Sampoerna VA</option>
-                    <option value="artha_graha_va">Artha Graha VA</option>
-                    <option value="atm_bersama_va">ATM Bersama VA</option>
-                    <option value="paypal">PayPal</option>
                   </select>
                 </div>
               )}
 
               {paymentMethod === "PAYMENT_GATEWAY" && (
                 <p className="mt-2 text-xs text-slate-400">
-                  Invoice dibuat di Pakasir — webhook akan masuk ke{" "}
-                  <code className="font-mono">/api/webhooks/payment</code> setelah bayar.
+                  Invoice QRIS dibuat di Poppay — callback akan masuk ke{" "}
+                  <code className="font-mono">/api/webhook/poppay</code> setelah bayar.
                 </p>
               )}
             </div>
@@ -684,7 +651,7 @@ export default function TestTransactionPage() {
                     <span className="text-xs text-slate-400">Mode</span>
                     <span
                       className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold mt-0.5 ${
-                        result.mode === "real"
+                        result.mode === "poppay" || result.mode === "real"
                           ? "bg-emerald-100 text-emerald-700"
                           : "bg-amber-100 text-amber-700"
                       }`}
@@ -710,24 +677,8 @@ export default function TestTransactionPage() {
                         Buka Halaman Pembayaran
                       </a>
                     )}
-                    <button
-                      onClick={simulatePayment}
-                      disabled={simulating}
-                      className="flex items-center justify-center gap-2 rounded-xl bg-emerald-50 px-4 py-2.5 text-sm font-semibold text-emerald-700 hover:bg-emerald-100 transition disabled:opacity-50"
-                    >
-                      {simulating ? (
-                        <svg className="h-4 w-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
-                      ) : (
-                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      )}
-                      Simulasi Pembayaran Berhasil
-                    </button>
                     <p className="text-center text-xs text-slate-400">
-                      Setelah simulasi, Pakasir akan kirim webhook ke <code className="font-mono">/api/webhooks/payment</code>
+                      Setelah customer membayar, Poppay akan mengirim callback ke <code className="font-mono">/api/webhook/poppay</code>.
                     </p>
                   </div>
                 )}

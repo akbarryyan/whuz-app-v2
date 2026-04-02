@@ -17,6 +17,7 @@ import {
  *   PAKASIR_API_KEY  — API key
  */
 export class PakasirAdapter implements IPaymentGatewayPort {
+  gatewayName = "PAKASIR";
   private readonly client: Pakasir;
   private readonly mode: "sandbox" | "production";
 

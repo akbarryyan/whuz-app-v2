@@ -56,14 +56,8 @@ function formatPrice(n: number): string {
 }
 
 function estimatePgFee(methodKey: string, amount: number): number {
-  if (methodKey === "qris") {
-    return amount > 105000
-      ? Math.ceil(amount * 0.01)
-      : Math.ceil(amount * 0.007) + 310;
-  }
-  const va2500 = ["artha_graha_va", "sampoerna_va"];
-  if (va2500.includes(methodKey)) return 2500;
-  if (methodKey.endsWith("_va")) return 3500;
+  void methodKey;
+  void amount;
   return 0;
 }
 

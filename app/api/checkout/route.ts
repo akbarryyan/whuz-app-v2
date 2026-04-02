@@ -9,9 +9,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { CreateCheckoutService } from "@/src/core/services/checkout/create-checkout.service";
 import { OrderRepository } from "@/src/infra/db/repositories/order.repository";
-import { PakasirAdapter } from "@/src/infra/payment/pakasir/pakasir.adapter";
+import { PoppayAdapter } from "@/src/infra/payment/poppay/poppay.adapter";
 import { getSession } from "@/lib/session";
-import { getPakasirMode } from "@/lib/site-config";
 import { prisma } from "@/src/infra/db/prisma";
 import {
   ValidationError,
@@ -137,9 +136,8 @@ export async function POST(request: Request) {
       userId
     );
 
-    // ── 5. Buat Pakasir adapter sesuai mode ────────────────────────────────
-    const pakasirMode = await getPakasirMode();
-    const paymentGateway = new PakasirAdapter(pakasirMode);
+    // ── 5. Buat Poppay adapter ─────────────────────────────────────────────
+    const paymentGateway = new PoppayAdapter();
 
     // ── 6. Call service ────────────────────────────────────────────────────
     const checkoutService = new CreateCheckoutService(
@@ -160,7 +158,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { success: true, data: result, mode: pakasirMode },
+      { success: true, data: result, mode: "poppay" },
       { status: 201 }
     );
   } catch (err) {

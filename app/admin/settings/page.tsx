@@ -102,6 +102,16 @@ export default function SettingsPage() {
   const [smtpFrom, setSmtpFrom] = useState("");
   const [showSmtpPass, setShowSmtpPass] = useState(false);
   const [smtpTestSending, setSmtpTestSending] = useState(false);
+  const [poppayApiBaseUrl, setPoppayApiBaseUrl] = useState("");
+  const [poppayUrl, setPoppayUrl] = useState("");
+  const [poppayPort, setPoppayPort] = useState("");
+  const [poppayVersion, setPoppayVersion] = useState("");
+  const [poppayIntegratorToken, setPoppayIntegratorToken] = useState("");
+  const [poppayAggregatorCode, setPoppayAggregatorCode] = useState("");
+  const [poppaySecretKey, setPoppaySecretKey] = useState("");
+  const [poppayMerchantAccountNumber, setPoppayMerchantAccountNumber] = useState("");
+  const [showPoppayIntegratorToken, setShowPoppayIntegratorToken] = useState(false);
+  const [showPoppaySecretKey, setShowPoppaySecretKey] = useState(false);
 
   const toast = useToast();
 
@@ -141,6 +151,14 @@ export default function SettingsPage() {
         setSmtpUser(raw.SMTP_USER ?? "");
         setSmtpPass(raw.SMTP_PASS ?? "");
         setSmtpFrom(raw.SMTP_FROM ?? "");
+        setPoppayApiBaseUrl(raw.POPPAY_API_BASE_URL ?? "");
+        setPoppayUrl(raw.POPPAY_URL ?? "");
+        setPoppayPort(raw.POPPAY_PORT ?? "");
+        setPoppayVersion(raw.POPPAY_VERSION ?? "");
+        setPoppayIntegratorToken(raw.POPPAY_INTEGRATOR_TOKEN ?? "");
+        setPoppayAggregatorCode(raw.POPPAY_AGGREGATOR_CODE ?? "");
+        setPoppaySecretKey(raw.POPPAY_SECRET_KEY ?? "");
+        setPoppayMerchantAccountNumber(raw.POPPAY_MERCHANT_ACCOUNT_NUMBER ?? "");
       })
       .catch(() => {});
   }, []);
@@ -274,6 +292,40 @@ export default function SettingsPage() {
       toast.error("Gagal mengirim email test");
     } finally {
       setSmtpTestSending(false);
+    }
+  }
+
+  async function savePoppaySettings() {
+    setSiteSaving("poppay_all");
+    try {
+      const pairs: { key: string; value: string }[] = [
+        { key: "POPPAY_API_BASE_URL", value: poppayApiBaseUrl },
+        { key: "POPPAY_URL", value: poppayUrl },
+        { key: "POPPAY_PORT", value: poppayPort },
+        { key: "POPPAY_VERSION", value: poppayVersion },
+        { key: "POPPAY_INTEGRATOR_TOKEN", value: poppayIntegratorToken },
+        { key: "POPPAY_AGGREGATOR_CODE", value: poppayAggregatorCode },
+        { key: "POPPAY_SECRET_KEY", value: poppaySecretKey },
+        { key: "POPPAY_MERCHANT_ACCOUNT_NUMBER", value: poppayMerchantAccountNumber },
+      ];
+      for (const { key, value } of pairs) {
+        const res = await fetch("/api/admin/site-config", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ key, value }),
+        });
+        const data = await res.json();
+        if (!data.success) {
+          toast.error(`Gagal menyimpan ${key}`);
+          setSiteSaving(null);
+          return;
+        }
+      }
+      toast.success("Konfigurasi Poppay berhasil disimpan");
+    } catch {
+      toast.error("Gagal menyimpan konfigurasi Poppay");
+    } finally {
+      setSiteSaving(null);
     }
   }
 
@@ -800,6 +852,168 @@ export default function SettingsPage() {
                     {siteSaving === "smtp_all" ? "Menyimpan…" : "💾 Simpan Semua"}
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="px-5 py-4 border-b border-slate-100">
+              <h2 className="text-sm font-bold text-slate-700">💠 Poppay QRIS</h2>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Kredensial Poppay disimpan di database dan akan override nilai di `.env`. Saat Poppay aktif, metode pembayaran public akan dibatasi ke QRIS.
+              </p>
+            </div>
+
+            <div className="px-5 py-4 space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">
+                  API Base URL
+                </label>
+                <input
+                  type="text"
+                  value={poppayApiBaseUrl}
+                  onChange={(e) => setPoppayApiBaseUrl(e.target.value)}
+                  placeholder="https://api.example.com:443"
+                  className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400 font-mono text-xs"
+                />
+                <p className="text-[10px] text-slate-400 mt-1">
+                  Jika diisi, sistem langsung pakai base URL ini. Jika kosong, sistem akan memakai Host + Port di bawah.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">
+                    Host / URL
+                  </label>
+                  <input
+                    type="text"
+                    value={poppayUrl}
+                    onChange={(e) => setPoppayUrl(e.target.value)}
+                    placeholder="api.example.com"
+                    className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400 font-mono text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">
+                    Port
+                  </label>
+                  <input
+                    type="text"
+                    value={poppayPort}
+                    onChange={(e) => setPoppayPort(e.target.value)}
+                    placeholder="443"
+                    className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400 font-mono text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">
+                    Version
+                  </label>
+                  <input
+                    type="text"
+                    value={poppayVersion}
+                    onChange={(e) => setPoppayVersion(e.target.value)}
+                    placeholder="v1"
+                    className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400 font-mono text-xs"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">
+                  Integrator Token
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPoppayIntegratorToken ? "text" : "password"}
+                    value={poppayIntegratorToken}
+                    onChange={(e) => setPoppayIntegratorToken(e.target.value)}
+                    placeholder="Bearer token dari Poppay"
+                    className="w-full px-3 py-2.5 pr-14 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400 font-mono text-xs"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPoppayIntegratorToken((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium text-slate-400 hover:text-slate-600 transition"
+                    tabIndex={-1}
+                  >
+                    {showPoppayIntegratorToken ? "Hide" : "Show"}
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">
+                    Aggregator Code
+                  </label>
+                  <input
+                    type="text"
+                    value={poppayAggregatorCode}
+                    onChange={(e) => setPoppayAggregatorCode(e.target.value)}
+                    placeholder="3BnbE0lmRLRL1GltciUlTaVqbCV"
+                    className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400 font-mono text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">
+                    Merchant Account Number
+                  </label>
+                  <input
+                    type="text"
+                    value={poppayMerchantAccountNumber}
+                    onChange={(e) => setPoppayMerchantAccountNumber(e.target.value)}
+                    placeholder="1775127696315"
+                    className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400 font-mono text-xs"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">
+                  Secret Key
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPoppaySecretKey ? "text" : "password"}
+                    value={poppaySecretKey}
+                    onChange={(e) => setPoppaySecretKey(e.target.value)}
+                    placeholder="Secret key untuk verifikasi callback/signature"
+                    className="w-full px-3 py-2.5 pr-14 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400 font-mono text-xs"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPoppaySecretKey((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium text-slate-400 hover:text-slate-600 transition"
+                    tabIndex={-1}
+                  >
+                    {showPoppaySecretKey ? "Hide" : "Show"}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t border-slate-100">
+                <div>
+                  {poppayIntegratorToken && poppayAggregatorCode && poppayMerchantAccountNumber ? (
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />
+                      <span className="text-[10px] text-green-600 font-medium">Poppay sudah dikonfigurasi di database</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0" />
+                      <span className="text-[10px] text-amber-600 font-medium">Konfigurasi Poppay belum lengkap</span>
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={savePoppaySettings}
+                  disabled={siteSaving === "poppay_all"}
+                  className="px-4 py-2 rounded-xl bg-[#2563eb] text-white text-xs font-bold hover:bg-blue-700 transition disabled:opacity-50 flex-shrink-0"
+                >
+                  {siteSaving === "poppay_all" ? "Menyimpan…" : "💾 Simpan Konfigurasi Poppay"}
+                </button>
               </div>
             </div>
           </div>

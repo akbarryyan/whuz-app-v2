@@ -14,19 +14,19 @@ import crypto from "crypto";
 import { prisma } from "@/src/infra/db/prisma";
 import { OrderRepository } from "@/src/infra/db/repositories/order.repository";
 import { ProviderFactory } from "@/src/infra/providers/provider.factory";
-import { PakasirAdapter } from "@/src/infra/payment/pakasir/pakasir.adapter";
+import { PoppayAdapter } from "@/src/infra/payment/poppay/poppay.adapter";
 import { ProviderType } from "@/src/core/domain/enums/provider.enum";
-import { OrderStatus, PaymentMethod } from "@/src/core/domain/enums/order.enum";
+import { OrderStatus } from "@/src/core/domain/enums/order.enum";
 
 export const dynamic = "force-dynamic";
 
 const Schema = z.object({
   productId: z.string().min(1),
   targetNumber: z.string().min(1),
-  targetData: z.record(z.string(), z.any()).optional(),
+  targetData: z.record(z.string(), z.unknown()).optional(),
   /** WALLET (default) or PAYMENT_GATEWAY (skips provider, only creates order+invoice) */
   paymentMethod: z.enum(["WALLET", "PAYMENT_GATEWAY"]).default("WALLET"),
-  /** Metode PG: qris, bni_va, bri_va, dll. Default: qris */
+  /** Metode PG saat ini QRIS-only. */
   pgMethod: z.string().optional(),
   /** userId opsional — jika tidak diisi, pakai user pertama di DB */
   userId: z.string().optional(),
@@ -36,7 +36,7 @@ type Step = {
   step: string;
   status: "ok" | "error" | "skip";
   durationMs: number;
-  detail?: any;
+  detail?: unknown;
 };
 
 export async function POST(request: Request) {
@@ -69,7 +69,7 @@ export async function POST(request: Request) {
   let t = Date.now();
 
   // ── Helper ────────────────────────────────────────────────────────────────
-  const addStep = (step: string, status: Step["status"], detail?: any) => {
+  const addStep = (step: string, status: Step["status"], detail?: unknown) => {
     const durationMs = Date.now() - t;
     steps.push({ step, status, durationMs, detail });
     t = Date.now();
@@ -155,21 +155,22 @@ export async function POST(request: Request) {
     // Update status order ke WAITING_PAYMENT terlebih dahulu
     await orderRepo.updateStatus(order.id, OrderStatus.WAITING_PAYMENT);
 
-    // Panggil Pakasir untuk buat invoice
-    const pakasir = new PakasirAdapter();
+    // Panggil Poppay untuk buat invoice QRIS
+    const poppay = new PoppayAdapter();
     let pgResult;
     try {
-      pgResult = await pakasir.createPayment({
+      pgResult = await poppay.createPayment({
         orderId: orderCode,
         amount,
-        method: (pgMethod ?? "qris") as any,
+        method: pgMethod ?? "qris",
         description: `${product.name} — ${targetNumber}`,
       });
-    } catch (err: any) {
-      await orderRepo.updateStatus(order.id, OrderStatus.FAILED, { notes: err.message });
-      addStep("create_invoice", "error", { error: err.message });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      await orderRepo.updateStatus(order.id, OrderStatus.FAILED, { notes: message });
+      addStep("create_invoice", "error", { error: message });
       return NextResponse.json(
-        { success: false, error: `Pakasir error: ${err.message}`, steps },
+        { success: false, error: `Poppay error: ${message}`, steps },
         { status: 502 }
       );
     }
@@ -181,7 +182,7 @@ export async function POST(request: Request) {
     });
     await orderRepo.createInvoice({
       orderId: order.id,
-      gatewayName: "PAKASIR",
+      gatewayName: "POPPAY",
       invoiceId: pgResult.invoiceId,
       amount: pgResult.amount,
       fee: pgResult.fee,
@@ -210,11 +211,9 @@ export async function POST(request: Request) {
         amount: pgResult.totalPayment,
         serialNumber: null,
         providerRef: pgResult.invoiceId,
-        mode: "real",
+        mode: "poppay",
         paymentUrl: pgResult.paymentUrl,
         paymentNumber: pgResult.paymentNumber,
-        simulateUrl: `/api/dev/pakasir/simulate`,
-        simulateBody: { order_id: orderCode, amount: pgResult.totalPayment },
       },
     });
   }
@@ -236,12 +235,13 @@ export async function POST(request: Request) {
   let providerResult;
   try {
     providerResult = await provider.purchase(purchaseReq);
-  } catch (err: any) {
-    await orderRepo.updateStatus(order.id, OrderStatus.FAILED, { notes: err.message });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown provider error";
+    await orderRepo.updateStatus(order.id, OrderStatus.FAILED, { notes: message });
     await orderRepo.releaseWalletHold(userId, amount, order.id);
-    addStep("provider_purchase", "error", { error: err.message, mode: effectiveMode });
+    addStep("provider_purchase", "error", { error: message, mode: effectiveMode });
     return NextResponse.json(
-      { success: false, error: `Provider error: ${err.message}`, steps },
+      { success: false, error: `Provider error: ${message}`, steps },
       { status: 502 }
     );
   }

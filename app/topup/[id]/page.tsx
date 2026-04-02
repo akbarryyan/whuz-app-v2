@@ -51,7 +51,7 @@ function TopupStatusPageContent({
   const { id } = use(params);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const returnStatus = searchParams.get("status"); // "return" when coming back from Pakasir
+  const returnStatus = searchParams.get("status"); // "return" when coming back from the QRIS page
 
   const [topup, setTopup] = useState<TopupDetail | null>(null);
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
@@ -185,7 +185,7 @@ function TopupStatusPageContent({
                     ? "Kami sedang menunggu konfirmasi dari payment gateway..."
                     : timedOut
                     ? "Belum ada konfirmasi pembayaran. Cek kembali beberapa saat lagi."
-                    : "Selesaikan pembayaran di halaman Pakasir."}
+                    : "Selesaikan pembayaran di halaman QRIS Poppay."}
                 </p>
               </div>
 

@@ -1,7 +1,7 @@
 /**
  * POST /api/wallet/topup
  *
- * Initiates a wallet top-up via Pakasir payment gateway.
+ * Initiates a wallet top-up via Poppay QRIS payment gateway.
  * Returns payment URL to redirect the user to.
  */
 
@@ -9,8 +9,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/src/infra/db/prisma";
 import { getSession } from "@/lib/session";
-import { PakasirAdapter } from "@/src/infra/payment/pakasir/pakasir.adapter";
-import { getPakasirMode } from "@/lib/site-config";
+import { PoppayAdapter } from "@/src/infra/payment/poppay/poppay.adapter";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +20,7 @@ const TopupSchema = z.object({
     (v) => ALLOWED_AMOUNTS.includes(v),
     { message: `Amount harus salah satu dari: ${ALLOWED_AMOUNTS.map((a) => a.toLocaleString("id-ID")).join(", ")}` }
   ),
-  paymentMethod: z.string().min(1).optional(),  // e.g. "qris", "bni_va"
+  paymentMethod: z.string().min(1).optional(),  // QRIS only
   redirectUrl: z.string().url().optional(),
 });
 
@@ -82,27 +81,22 @@ export async function POST(request: Request) {
       },
     });
 
-    // ── Create Pakasir invoice ─────────────────────────────────────────────
-    const pakasirMode = await getPakasirMode();
-    const gateway = new PakasirAdapter(pakasirMode);
-
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
-    const returnUrl =
-      redirectUrl ??
-      `${baseUrl}/topup/${topup.id}?code=${topupCode}&status=return`;
+    // ── Create Poppay QRIS invoice ─────────────────────────────────────────
+    const gateway = new PoppayAdapter();
 
     let paymentResult;
     try {
       paymentResult = await gateway.createPayment({
-        orderId: topupCode,           // topupCode as order_id in Pakasir
+        orderId: topupCode,
         amount,
-        method: paymentMethod ?? "all",
-        redirectUrl: returnUrl,
+        method: paymentMethod ?? "qris",
+        redirectUrl,
+        description: `Top up saldo ${session.userId}`,
       });
     } catch (err: unknown) {
       // Roll back the pending record
       await prisma.walletTopup.delete({ where: { id: topup.id } });
-      console.error("[Wallet Topup] Pakasir createPayment failed:", err);
+      console.error("[Wallet Topup] Poppay createPayment failed:", err);
       return NextResponse.json(
         { success: false, error: "Gagal membuat invoice pembayaran. Coba lagi." },
         { status: 502 }
@@ -138,7 +132,7 @@ export async function POST(request: Request) {
           expiredAt: updated.expiredAt,
           status: updated.status,
         },
-        mode: pakasirMode,
+        mode: "poppay",
       },
       { status: 201 }
     );

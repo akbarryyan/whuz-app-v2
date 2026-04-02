@@ -248,7 +248,7 @@ export class CreateCheckoutService {
     // Create payment invoice
     await this.orderRepo.createInvoice({
       orderId: order.id,
-      gatewayName: "PAKASIR",
+      gatewayName: this.paymentGateway.gatewayName,
       invoiceId: pgResult.invoiceId,
       amount: pgResult.amount,
       fee: pgResult.fee,

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
+import { isPoppayConfigured } from "@/src/infra/payment/poppay/poppay.client";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +36,24 @@ export async function GET() {
       select: { id: true, key: true, label: true, group: true, imageUrl: true },
     });
 
-    return NextResponse.json({ success: true, data: methods });
+    if (await isPoppayConfigured()) {
+      const qrisMethod =
+        methods.find((item) => item.key === "qris") ?? {
+          id: "poppay-qris",
+          key: "qris",
+          label: "QRIS",
+          group: "QRIS",
+          imageUrl: null,
+        };
+
+      return NextResponse.json({
+        success: true,
+        gateway: "POPPAY",
+        data: [qrisMethod],
+      });
+    }
+
+    return NextResponse.json({ success: true, gateway: "PAKASIR", data: methods });
   } catch (error) {
     console.error("[PAYMENT METHODS GET ERROR]", error);
     return NextResponse.json({ success: false, error: "Gagal memuat metode pembayaran." }, { status: 500 });

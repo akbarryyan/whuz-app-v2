@@ -29,7 +29,7 @@ export interface CreatePaymentResult {
   /** Expiry */
   expiredAt?: Date;
   /** Raw response from gateway */
-  raw: any;
+  raw: unknown;
 }
 
 export interface DetailPaymentResult {
@@ -41,10 +41,11 @@ export interface DetailPaymentResult {
   totalPayment: number;
   paidAt?: Date;
   method?: string;
-  raw: any;
+  raw: unknown;
 }
 
 export interface IPaymentGatewayPort {
+  gatewayName: string;
   /**
    * Create a new payment invoice
    */

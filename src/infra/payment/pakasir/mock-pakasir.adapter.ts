@@ -17,6 +17,7 @@ import {
  *   - cancelPayment: no-op
  */
 export class MockPakasirAdapter implements IPaymentGatewayPort {
+  gatewayName = "PAKASIR";
   async createPayment(input: CreatePaymentInput): Promise<CreatePaymentResult> {
     const delay = Number(process.env.MOCK_PROVIDER_DELAY_MS ?? 500);
     await new Promise((r) => setTimeout(r, delay));
