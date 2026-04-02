@@ -591,7 +591,7 @@ export default function TestTransactionPage() {
                           <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">skip</span>
                         )}
                       </div>
-                      {s.detail && (
+                      {s.detail != null && (
                         <pre className="mt-1 rounded-lg bg-slate-50 p-2 text-xs text-slate-500 overflow-x-auto whitespace-pre-wrap break-all">
                           {JSON.stringify(s.detail, null, 2)}
                         </pre>
