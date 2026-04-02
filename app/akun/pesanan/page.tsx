@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Quicksand } from "next/font/google";
+import { Quicksand } from "@/lib/fonts";
 import BottomNavigation from "@/components/BottomNavigation";
 
 const quicksand = Quicksand({

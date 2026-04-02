@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Quicksand } from "next/font/google";
+import { Quicksand } from "@/lib/fonts";
 import AppHeader from "@/components/AppHeader";
 import PageFooter from "@/components/PageFooter";
 import { useToast } from "@/hooks/useToast";

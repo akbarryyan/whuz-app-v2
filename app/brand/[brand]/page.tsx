@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Quicksand } from "next/font/google";
+import { Quicksand } from "@/lib/fonts";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/ui/Toast";
 import BannerCarousel from "@/components/home/BannerCarousel";

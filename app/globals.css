@@ -13,6 +13,8 @@ html {
 }
 
 :root {
+  --font-body: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
   --background: #f6f7fb;
   --foreground: #0e1117;
   --surface: #ffffff;

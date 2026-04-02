@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Quicksand } from "next/font/google";
+import { Quicksand } from "@/lib/fonts";
 import AppHeader from "@/components/AppHeader";
 import { ToastContainer } from "@/components/ui/Toast";
 import { useToast } from "@/hooks/useToast";

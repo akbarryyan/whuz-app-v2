@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Quicksand } from "next/font/google";
+import { Quicksand } from "@/lib/fonts";
 import Header from "@/components/home/Header";
 import BannerCarousel from "@/components/home/BannerCarousel";
 import FlashSale from "@/components/home/FlashSale";

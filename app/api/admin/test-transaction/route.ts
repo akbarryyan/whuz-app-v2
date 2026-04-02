@@ -9,6 +9,7 @@
  */
 
 import { NextResponse } from "next/server";
+import type { Prisma } from "@prisma/client";
 import { z } from "zod";
 import crypto from "crypto";
 import { prisma } from "@/src/infra/db/prisma";
@@ -53,6 +54,8 @@ export async function POST(request: Request) {
   }
 
   const { productId, targetNumber, targetData, paymentMethod, pgMethod, userId: bodyUserId } = parsed.data;
+  const normalizedTargetData = targetData as Prisma.InputJsonValue | undefined;
+  const providerTargetData = targetData;
 
   // Tentukan user yang dipakai: dari body, lalu cari ADMIN, lalu fallback ke user pertama di DB
   let userId = bodyUserId;
@@ -123,7 +126,7 @@ export async function POST(request: Request) {
     productId: product.id,
     provider: product.provider,
     targetNumber,
-    targetData,
+    targetData: normalizedTargetData,
     basePrice: Number(product.providerPrice),
     markup: Number(product.margin),
     fee: 0,
@@ -229,7 +232,7 @@ export async function POST(request: Request) {
   const purchaseReq = {
     productCode: product.providerCode,
     target: targetNumber,
-    additionalData: targetData,
+    additionalData: providerTargetData,
   };
 
   let providerResult;

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Sans, Space_Grotesk } from "next/font/google";
+import { IBM_Plex_Sans, Space_Grotesk } from "@/lib/fonts";
 import { getSiteConfig } from "@/lib/site-config";
 import "./globals.css";
 
