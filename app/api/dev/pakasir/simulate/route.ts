@@ -19,8 +19,6 @@ const Schema = z.object({
   status: z.enum(["completed", "expired"]).default("completed"),
 });
 
-const pakasir = new PakasirAdapter();
-
 export async function POST(request: Request) {
   if (process.env.APP_ENV === "production" || process.env.NODE_ENV === "production") {
     return NextResponse.json({ success: false, error: "Not available in production" }, { status: 403 });
@@ -42,6 +40,7 @@ export async function POST(request: Request) {
   }
 
   try {
+    const pakasir = new PakasirAdapter();
     await pakasir.simulatePayment(parsed.data.order_id, parsed.data.amount, parsed.data.status);
     return NextResponse.json({
       success: true,

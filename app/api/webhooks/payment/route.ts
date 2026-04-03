@@ -21,11 +21,6 @@ import { handleWalletTopupWebhook } from "@/lib/wallet-topup-webhook";
 
 export const dynamic = "force-dynamic";
 
-const webhookService = new HandlePakasirWebhookService(
-  new OrderRepository(),
-  new PakasirAdapter(),
-);
-
 export async function POST(request: Request) {
   let rawBody = "";
   try {
@@ -55,6 +50,10 @@ export async function POST(request: Request) {
 
   // ── Regular order purchase ─────────────────────────────────────────────────
   try {
+    const webhookService = new HandlePakasirWebhookService(
+      new OrderRepository(),
+      new PakasirAdapter(),
+    );
     const result = await webhookService.handle(payload, rawBody);
     console.log("[POST /api/webhooks/payment]", result);
     // Always acknowledge to gateway
@@ -65,4 +64,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ received: true, error: "Processing error" }, { status: 200 });
   }
 }
-
