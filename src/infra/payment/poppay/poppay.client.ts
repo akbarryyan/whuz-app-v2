@@ -44,6 +44,18 @@ interface PoppayCreateIncomingResponse {
   message?: string;
 }
 
+interface PoppayAuthLoginResponse {
+  success: boolean;
+  code: number;
+  data?: {
+    access_token?: string;
+    email?: string;
+    role_name?: string;
+    "2fa_status"?: string;
+  } | null;
+  message?: string;
+}
+
 interface PoppayIncomingInquiryResponse {
   success: boolean;
   code: number;
@@ -110,7 +122,17 @@ interface PoppayRuntimeConfig {
   aggregatorCode: string;
   merchantAccountNumber: string;
   secretKey: string;
+  email: string;
+  password: string;
 }
+
+const tokenCache = globalThis as unknown as {
+  _poppayAccessToken?: string;
+  _poppayAccessTokenAt?: number;
+  _poppayAccessTokenFor?: string;
+};
+
+const ACCESS_TOKEN_TTL_MS = 10 * 60 * 1000;
 
 function normalizeOrigin(raw: string): string {
   const trimmed = raw.trim().replace(/\/+$/, "");
@@ -149,6 +171,8 @@ async function getPoppayRuntimeConfig(): Promise<PoppayRuntimeConfig> {
     dbAggregatorCode,
     dbMerchantAccountNumber,
     dbSecretKey,
+    dbEmail,
+    dbPassword,
   ] = await Promise.all([
     getSiteConfig("POPPAY_API_BASE_URL"),
     getSiteConfig("POPPAY_URL"),
@@ -158,6 +182,8 @@ async function getPoppayRuntimeConfig(): Promise<PoppayRuntimeConfig> {
     getSiteConfig("POPPAY_AGGREGATOR_CODE"),
     getSiteConfig("POPPAY_MERCHANT_ACCOUNT_NUMBER"),
     getSiteConfig("POPPAY_SECRET_KEY"),
+    getSiteConfig("POPPAY_EMAIL"),
+    getSiteConfig("POPPAY_PASSWORD"),
   ]);
 
   const baseUrl = buildPoppayBaseUrlFromValues(
@@ -173,6 +199,8 @@ async function getPoppayRuntimeConfig(): Promise<PoppayRuntimeConfig> {
     aggregatorCode: (dbAggregatorCode || process.env.POPPAY_AGGREGATOR_CODE || "").trim(),
     merchantAccountNumber: (dbMerchantAccountNumber || process.env.POPPAY_MERCHANT_ACCOUNT_NUMBER || "").trim(),
     secretKey: (dbSecretKey || process.env.POPPAY_SECRET_KEY || "").trim(),
+    email: (dbEmail || process.env.POPPAY_EMAIL || "").trim(),
+    password: (dbPassword || process.env.POPPAY_PASSWORD || "").trim(),
   };
 }
 
@@ -183,19 +211,102 @@ export async function isPoppayConfigured(): Promise<boolean> {
     cfg.versionPath &&
     cfg.integratorToken &&
     cfg.aggregatorCode &&
-    cfg.merchantAccountNumber
+    cfg.merchantAccountNumber &&
+    cfg.email &&
+    cfg.password
   );
 }
 
 export class PoppayClient {
   private async requireConfig(): Promise<PoppayRuntimeConfig> {
     const cfg = await getPoppayRuntimeConfig();
-    if (!cfg.baseUrl || !cfg.versionPath || !cfg.integratorToken) {
+    if (!cfg.baseUrl || !cfg.versionPath || !cfg.integratorToken || !cfg.email || !cfg.password) {
       throw new Error(
-        "Poppay belum terkonfigurasi. Set POPPAY_API_BASE_URL atau POPPAY_URL/POPPAY_PORT, POPPAY_VERSION, dan POPPAY_INTEGRATOR_TOKEN."
+        "Poppay belum terkonfigurasi. Isi URL/API base, version, integrator token, login email, dan login password."
       );
     }
     return cfg;
+  }
+
+  private getCacheKey(config: PoppayRuntimeConfig): string {
+    return [config.baseUrl, config.versionPath, config.integratorToken, config.email].join("|");
+  }
+
+  private async login(config: PoppayRuntimeConfig): Promise<string> {
+    const endpoint = `${config.baseUrl}/${config.versionPath}/auth/login`;
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept-Language": "en",
+        Accept: "application/json; charset=UTF-8",
+        Authorization: `Bearer ${config.integratorToken}`,
+      },
+      body: JSON.stringify({
+        email: config.email,
+        password: config.password,
+      }),
+      cache: "no-store",
+    });
+
+    let json: PoppayAuthLoginResponse | null = null;
+    try {
+      json = (await res.json()) as PoppayAuthLoginResponse;
+    } catch {
+      throw new Error(`Respons login Poppay tidak valid (HTTP ${res.status}).`);
+    }
+
+    const accessToken = json?.data?.access_token?.trim();
+    if (!res.ok || !json?.success || !accessToken) {
+      throw new Error(json?.message || `Login Poppay gagal (HTTP ${res.status}).`);
+    }
+
+    tokenCache._poppayAccessToken = accessToken;
+    tokenCache._poppayAccessTokenAt = Date.now();
+    tokenCache._poppayAccessTokenFor = this.getCacheKey(config);
+    return accessToken;
+  }
+
+  private async getAccessToken(config: PoppayRuntimeConfig, forceRefresh = false): Promise<string> {
+    const cacheKey = this.getCacheKey(config);
+    const hasFreshCache =
+      !forceRefresh &&
+      tokenCache._poppayAccessToken &&
+      tokenCache._poppayAccessTokenFor === cacheKey &&
+      tokenCache._poppayAccessTokenAt &&
+      Date.now() - tokenCache._poppayAccessTokenAt < ACCESS_TOKEN_TTL_MS;
+
+    if (hasFreshCache) {
+      return tokenCache._poppayAccessToken!;
+    }
+
+    return this.login(config);
+  }
+
+  private async authorizedFetch(
+    config: PoppayRuntimeConfig,
+    endpoint: string,
+    init: RequestInit
+  ): Promise<Response> {
+    const makeRequest = async (forceRefresh = false) => {
+      const accessToken = await this.getAccessToken(config, forceRefresh);
+      const headers = new Headers(init.headers ?? {});
+      headers.set("Authorization", `Bearer ${accessToken}`);
+      headers.set("Accept-Language", headers.get("Accept-Language") ?? "en");
+      headers.set("Accept", headers.get("Accept") ?? "application/json; charset=UTF-8");
+
+      return fetch(endpoint, {
+        ...init,
+        headers,
+        cache: "no-store",
+      });
+    };
+
+    let res = await makeRequest(false);
+    if (res.status === 401) {
+      res = await makeRequest(true);
+    }
+    return res;
   }
 
   async listBanks(input: ListBanksInput = {}): Promise<{
@@ -212,16 +323,12 @@ export class PoppayClient {
       filters: input.filters ?? [{ key: "c", value: "IDR" }],
     };
 
-    const res = await fetch(endpoint, {
+    const res = await this.authorizedFetch(config, endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Accept-Language": "en",
-        Accept: "application/json; charset=UTF-8",
-        Authorization: `Bearer ${config.integratorToken}`,
       },
       body: JSON.stringify(payload),
-      cache: "no-store",
     });
 
     let json: PoppayBankListResponse | null = null;
@@ -275,16 +382,12 @@ export class PoppayClient {
       expiration_interval: input.expirationInterval ?? 30,
     };
 
-    const res = await fetch(endpoint, {
+    const res = await this.authorizedFetch(config, endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Accept-Language": "en",
-        Accept: "application/json; charset=UTF-8",
-        Authorization: `Bearer ${config.integratorToken}`,
       },
       body: JSON.stringify(payload),
-      cache: "no-store",
     });
 
     let json: PoppayCreateIncomingResponse | null = null;
@@ -320,15 +423,11 @@ export class PoppayClient {
     }
 
     const endpoint = `${config.baseUrl}/${config.versionPath}/transaction/in/inquiry/${encodeURIComponent(safeUid)}`;
-    const res = await fetch(endpoint, {
+    const res = await this.authorizedFetch(config, endpoint, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "Accept-Language": "en",
-        Accept: "application/json; charset=UTF-8",
-        Authorization: `Bearer ${config.integratorToken}`,
       },
-      cache: "no-store",
     });
 
     let json: PoppayIncomingInquiryResponse | null = null;

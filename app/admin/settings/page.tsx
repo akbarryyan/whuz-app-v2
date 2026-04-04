@@ -97,8 +97,11 @@ export default function SettingsPage() {
   const [poppayAggregatorCode, setPoppayAggregatorCode] = useState("");
   const [poppaySecretKey, setPoppaySecretKey] = useState("");
   const [poppayMerchantAccountNumber, setPoppayMerchantAccountNumber] = useState("");
+  const [poppayEmail, setPoppayEmail] = useState("");
+  const [poppayPassword, setPoppayPassword] = useState("");
   const [showPoppayIntegratorToken, setShowPoppayIntegratorToken] = useState(false);
   const [showPoppaySecretKey, setShowPoppaySecretKey] = useState(false);
+  const [showPoppayPassword, setShowPoppayPassword] = useState(false);
   const [digiflazzUsername, setDigiflazzUsername] = useState("");
   const [digiflazzApiKey, setDigiflazzApiKey] = useState("");
   const [digiflazzBaseUrl, setDigiflazzBaseUrl] = useState("https://api.digiflazz.com/v1");
@@ -133,14 +136,16 @@ export default function SettingsPage() {
         setSmtpUser(raw.SMTP_USER ?? "");
         setSmtpPass(raw.SMTP_PASS ?? "");
         setSmtpFrom(raw.SMTP_FROM ?? "");
-        setPoppayApiBaseUrl(raw.POPPAY_API_BASE_URL ?? "");
-        setPoppayUrl(raw.POPPAY_URL ?? "");
-        setPoppayPort(raw.POPPAY_PORT ?? "");
-        setPoppayVersion(raw.POPPAY_VERSION ?? "");
-        setPoppayIntegratorToken(raw.POPPAY_INTEGRATOR_TOKEN ?? "");
-        setPoppayAggregatorCode(raw.POPPAY_AGGREGATOR_CODE ?? "");
-        setPoppaySecretKey(raw.POPPAY_SECRET_KEY ?? "");
-        setPoppayMerchantAccountNumber(raw.POPPAY_MERCHANT_ACCOUNT_NUMBER ?? "");
+        setPoppayApiBaseUrl(raw.POPPAY_API_BASE_URL ?? envDefaults.POPPAY_API_BASE_URL ?? "");
+        setPoppayUrl(raw.POPPAY_URL ?? envDefaults.POPPAY_URL ?? "");
+        setPoppayPort(raw.POPPAY_PORT ?? envDefaults.POPPAY_PORT ?? "");
+        setPoppayVersion(raw.POPPAY_VERSION ?? envDefaults.POPPAY_VERSION ?? "");
+        setPoppayIntegratorToken(raw.POPPAY_INTEGRATOR_TOKEN ?? envDefaults.POPPAY_INTEGRATOR_TOKEN ?? "");
+        setPoppayAggregatorCode(raw.POPPAY_AGGREGATOR_CODE ?? envDefaults.POPPAY_AGGREGATOR_CODE ?? "");
+        setPoppaySecretKey(raw.POPPAY_SECRET_KEY ?? envDefaults.POPPAY_SECRET_KEY ?? "");
+        setPoppayMerchantAccountNumber(raw.POPPAY_MERCHANT_ACCOUNT_NUMBER ?? envDefaults.POPPAY_MERCHANT_ACCOUNT_NUMBER ?? "");
+        setPoppayEmail(raw.POPPAY_EMAIL ?? envDefaults.POPPAY_EMAIL ?? "");
+        setPoppayPassword(raw.POPPAY_PASSWORD ?? envDefaults.POPPAY_PASSWORD ?? "");
         setDigiflazzUsername(raw.DIGIFLAZZ_USERNAME ?? envDefaults.DIGIFLAZZ_USERNAME ?? "");
         setDigiflazzApiKey(raw.DIGIFLAZZ_API_KEY ?? envDefaults.DIGIFLAZZ_API_KEY ?? "");
         setDigiflazzBaseUrl(raw.DIGIFLAZZ_BASE_URL ?? envDefaults.DIGIFLAZZ_BASE_URL ?? "https://api.digiflazz.com/v1");
@@ -347,6 +352,8 @@ export default function SettingsPage() {
         { key: "POPPAY_AGGREGATOR_CODE", value: poppayAggregatorCode },
         { key: "POPPAY_SECRET_KEY", value: poppaySecretKey },
         { key: "POPPAY_MERCHANT_ACCOUNT_NUMBER", value: poppayMerchantAccountNumber },
+        { key: "POPPAY_EMAIL", value: poppayEmail },
+        { key: "POPPAY_PASSWORD", value: poppayPassword },
       ];
       for (const { key, value } of pairs) {
         const res = await fetch("/api/admin/site-config", {
@@ -1148,6 +1155,46 @@ export default function SettingsPage() {
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">
+                    Login Email
+                  </label>
+                  <input
+                    type="email"
+                    value={poppayEmail}
+                    onChange={(e) => setPoppayEmail(e.target.value)}
+                    placeholder="finance@poppay.com"
+                    className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400 font-mono text-xs"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    Email akun API/login Poppay untuk mengambil access token.
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">
+                    Login Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPoppayPassword ? "text" : "password"}
+                      value={poppayPassword}
+                      onChange={(e) => setPoppayPassword(e.target.value)}
+                      placeholder="Password akun Poppay"
+                      className="w-full px-3 py-2.5 pr-14 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400 font-mono text-xs"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPoppayPassword((v) => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium text-slate-400 hover:text-slate-600 transition"
+                      tabIndex={-1}
+                    >
+                      {showPoppayPassword ? "Hide" : "Show"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">
                   Secret Key
@@ -1173,7 +1220,7 @@ export default function SettingsPage() {
 
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t border-slate-100">
                 <div>
-                  {poppayIntegratorToken && poppayAggregatorCode && poppayMerchantAccountNumber ? (
+                  {poppayIntegratorToken && poppayAggregatorCode && poppayMerchantAccountNumber && poppayEmail && poppayPassword ? (
                     <div className="flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />
                       <span className="text-[10px] text-green-600 font-medium">Poppay sudah dikonfigurasi di database</span>
