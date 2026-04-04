@@ -15,6 +15,7 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
 
   useEffect(() => {
     let active = true;
+    const isRegisterPage = pathname === "/merchant/register";
 
     fetch("/api/auth/me")
       .then((res) => res.json())
@@ -26,7 +27,7 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
           return;
         }
 
-        if (!data?.seller?.isActive) {
+        if (!data?.seller?.isActive && !isRegisterPage) {
           router.replace("/akun");
           return;
         }
