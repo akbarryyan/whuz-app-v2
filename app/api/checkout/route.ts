@@ -10,6 +10,7 @@ import { z } from "zod";
 import { CreateCheckoutService } from "@/src/core/services/checkout/create-checkout.service";
 import { OrderRepository } from "@/src/infra/db/repositories/order.repository";
 import { PoppayAdapter } from "@/src/infra/payment/poppay/poppay.adapter";
+import { isPoppayConfigured } from "@/src/infra/payment/poppay/poppay.client";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/src/infra/db/prisma";
 import {
@@ -135,6 +136,16 @@ export async function POST(request: Request) {
       baseAmount,
       userId
     );
+
+    if (parsed.data.paymentMethod === "PAYMENT_GATEWAY" && !(await isPoppayConfigured())) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Poppay belum terkonfigurasi lengkap. Isi URL/API base, version, integrator token, aggregator code, dan merchant account number di Admin Settings.",
+        },
+        { status: 400 }
+      );
+    }
 
     // ── 5. Buat Poppay adapter ─────────────────────────────────────────────
     const paymentGateway = new PoppayAdapter();

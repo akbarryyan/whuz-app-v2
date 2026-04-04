@@ -227,46 +227,57 @@ export class CreateCheckoutService {
     }
 
     // ── 9. Payment Gateway path ────────────────────────────────────────────
-    const pgResult = await this.paymentGateway.createPayment({
-      orderId: orderCode,
-      amount,
-      method: input.paymentGatewayMethod,
-      redirectUrl: input.redirectUrl,
-      description: `${product.name} — ${input.targetNumber}`,
-    });
+    let pgResult;
+    try {
+      pgResult = await this.paymentGateway.createPayment({
+        orderId: orderCode,
+        amount,
+        method: input.paymentGatewayMethod,
+        redirectUrl: input.redirectUrl,
+        description: `${product.name} — ${input.targetNumber}`,
+      });
 
-    // Update order fee with actual gateway fee
-    const totalWithFee = pgResult.amount + pgResult.fee;
-    await prisma.order.update({
-      where: { id: order.id },
-      data: {
+      // Update order fee with actual gateway fee
+      const totalWithFee = pgResult.amount + pgResult.fee;
+      await prisma.order.update({
+        where: { id: order.id },
+        data: {
+          fee: pgResult.fee,
+          amount: totalWithFee,
+        },
+      });
+
+      // Create payment invoice
+      await this.orderRepo.createInvoice({
+        orderId: order.id,
+        gatewayName: this.paymentGateway.gatewayName,
+        invoiceId: pgResult.invoiceId,
+        amount: pgResult.amount,
         fee: pgResult.fee,
+        totalPayment: pgResult.totalPayment,
+        method: pgResult.method,
+        paymentNumber: pgResult.paymentNumber,
+        paymentUrl: pgResult.paymentUrl,
+        expiredAt: pgResult.expiredAt,
+      });
+
+      return {
+        orderCode,
+        status: OrderStatus.WAITING_PAYMENT,
         amount: totalWithFee,
-      },
-    });
+        paymentUrl: pgResult.paymentUrl,
+        viewToken,
+        invoiceId: pgResult.invoiceId,
+      };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Gagal membuat invoice pembayaran.";
 
-    // Create payment invoice
-    await this.orderRepo.createInvoice({
-      orderId: order.id,
-      gatewayName: this.paymentGateway.gatewayName,
-      invoiceId: pgResult.invoiceId,
-      amount: pgResult.amount,
-      fee: pgResult.fee,
-      totalPayment: pgResult.totalPayment,
-      method: pgResult.method,
-      paymentNumber: pgResult.paymentNumber,
-      paymentUrl: pgResult.paymentUrl,
-      expiredAt: pgResult.expiredAt,
-    });
+      await this.orderRepo.updateStatus(order.id, OrderStatus.FAILED, {
+        notes: `Gateway init error: ${message}`,
+      });
 
-    return {
-      orderCode,
-      status: OrderStatus.WAITING_PAYMENT,
-      amount: totalWithFee,
-      paymentUrl: pgResult.paymentUrl,
-      viewToken,
-      invoiceId: pgResult.invoiceId,
-    };
+      throw new ValidationError(message);
+    }
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
