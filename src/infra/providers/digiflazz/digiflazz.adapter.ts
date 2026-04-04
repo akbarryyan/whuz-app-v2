@@ -8,16 +8,23 @@ import {
 } from "@/src/core/ports/provider.port";
 import { ProviderType, ProviderStatus } from "@/src/core/domain/enums/provider.enum";
 import { ProviderError } from "@/src/core/domain/errors/provider.errors";
+import { getSiteConfigValue } from "@/lib/site-config";
 
 export class DigiflazzAdapter implements IProviderPort {
-  private apiKey: string;
-  private username: string;
-  private baseUrl: string;
+  private apiKey = "";
+  private username = "";
+  private baseUrl = "https://api.digiflazz.com/v1";
 
-  constructor() {
-    this.apiKey = process.env.DIGIFLAZZ_API_KEY || "";
-    this.username = process.env.DIGIFLAZZ_USERNAME || "";
-    this.baseUrl = process.env.DIGIFLAZZ_BASE_URL || "https://api.digiflazz.com/v1";
+  private async ensureConfig(): Promise<void> {
+    const [apiKey, username, baseUrl] = await Promise.all([
+      getSiteConfigValue("DIGIFLAZZ_API_KEY"),
+      getSiteConfigValue("DIGIFLAZZ_USERNAME"),
+      getSiteConfigValue("DIGIFLAZZ_BASE_URL", "https://api.digiflazz.com/v1"),
+    ]);
+
+    this.apiKey = apiKey;
+    this.username = username;
+    this.baseUrl = baseUrl || "https://api.digiflazz.com/v1";
   }
 
   getProviderType(): ProviderType {
@@ -26,6 +33,7 @@ export class DigiflazzAdapter implements IProviderPort {
 
   async checkBalance(): Promise<ProviderBalance> {
     try {
+      await this.ensureConfig();
       const response = await fetch(`${this.baseUrl}/cek-saldo`, {
         method: "POST",
         headers: {
@@ -63,6 +71,7 @@ export class DigiflazzAdapter implements IProviderPort {
 
   async getProducts(): Promise<ProviderProduct[]> {
     try {
+      await this.ensureConfig();
       const response = await fetch(`${this.baseUrl}/price-list`, {
         method: "POST",
         headers: {
@@ -108,6 +117,7 @@ export class DigiflazzAdapter implements IProviderPort {
 
   async purchase(request: ProviderPurchaseRequest): Promise<ProviderPurchaseResponse> {
     try {
+      await this.ensureConfig();
       const refId = `TRX-${Date.now()}`;
       
       const response = await fetch(`${this.baseUrl}/transaction`, {
@@ -158,6 +168,7 @@ export class DigiflazzAdapter implements IProviderPort {
   async checkStatus(providerRef: string): Promise<ProviderPurchaseResponse> {
     // Digiflazz is idempotent on ref_id — re-posting the same ref returns the current status
     try {
+      await this.ensureConfig();
       const response = await fetch(`${this.baseUrl}/transaction`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

@@ -13,7 +13,6 @@ interface SiteConfigData {
   modes: {
     DIGIFLAZZ: "mock" | "real";
     VIP_RESELLER: "mock" | "real";
-    PAKASIR: "sandbox" | "production";
   };
   envDefaults: Record<string, string>;
 }
@@ -60,18 +59,6 @@ const PROVIDERS: ProviderDef[] = [
     offLabel: "MOCK",
     onLabel: "REAL",
   },
-  {
-    key: "PROVIDER_PAKASIR_MODE",
-    label: "Pakasir (Payment Gateway)",
-    description: "Gateway pembayaran QRIS & VA — Keduanya call API Pakasir nyata",
-    icon: "💳",
-    modeKey: "PAKASIR",
-    envKey: "PROVIDER_PAKASIR_MODE",
-    offValue: "sandbox",
-    onValue: "production",
-    offLabel: "SANDBOX",
-    onLabel: "PRODUCTION",
-  },
 ];
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -112,6 +99,16 @@ export default function SettingsPage() {
   const [poppayMerchantAccountNumber, setPoppayMerchantAccountNumber] = useState("");
   const [showPoppayIntegratorToken, setShowPoppayIntegratorToken] = useState(false);
   const [showPoppaySecretKey, setShowPoppaySecretKey] = useState(false);
+  const [digiflazzUsername, setDigiflazzUsername] = useState("");
+  const [digiflazzApiKey, setDigiflazzApiKey] = useState("");
+  const [digiflazzBaseUrl, setDigiflazzBaseUrl] = useState("https://api.digiflazz.com/v1");
+  const [showDigiflazzApiKey, setShowDigiflazzApiKey] = useState(false);
+  const [vipApiId, setVipApiId] = useState("");
+  const [vipApiKey, setVipApiKey] = useState("");
+  const [vipSign, setVipSign] = useState("");
+  const [vipBaseUrl, setVipBaseUrl] = useState("https://vip-reseller.co.id/api");
+  const [showVipApiKey, setShowVipApiKey] = useState(false);
+  const [showVipSign, setShowVipSign] = useState(false);
 
   const toast = useToast();
 
@@ -120,26 +117,11 @@ export default function SettingsPage() {
     try {
       const res = await fetch("/api/admin/site-config");
       const data = await res.json();
-      if (data.success) setConfig(data.data);
-      else toast.error("Gagal memuat konfigurasi");
-    } catch {
-      toast.error("Tidak dapat terhubung ke server");
-    } finally {
-      setLoading(false);
-    }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+      if (data.success) {
+        setConfig(data.data);
+        const raw = data.data?.raw ?? {};
+        const envDefaults = data.data?.envDefaults ?? {};
 
-  useEffect(() => {
-    loadConfig();
-  }, [loadConfig]);
-
-  // Load website settings from site-config
-  useEffect(() => {
-    fetch("/api/admin/site-config")
-      .then((r) => r.json())
-      .then((d) => {
-        if (!d.success) return;
-        const raw = d.data?.raw ?? {};
         setSiteName(raw.site_name ?? "Whuzpay");
         setSiteLogo(raw.site_logo ?? "");
         setSiteFavicon(raw.site_favicon ?? "");
@@ -159,9 +141,26 @@ export default function SettingsPage() {
         setPoppayAggregatorCode(raw.POPPAY_AGGREGATOR_CODE ?? "");
         setPoppaySecretKey(raw.POPPAY_SECRET_KEY ?? "");
         setPoppayMerchantAccountNumber(raw.POPPAY_MERCHANT_ACCOUNT_NUMBER ?? "");
-      })
-      .catch(() => {});
-  }, []);
+        setDigiflazzUsername(raw.DIGIFLAZZ_USERNAME ?? envDefaults.DIGIFLAZZ_USERNAME ?? "");
+        setDigiflazzApiKey(raw.DIGIFLAZZ_API_KEY ?? envDefaults.DIGIFLAZZ_API_KEY ?? "");
+        setDigiflazzBaseUrl(raw.DIGIFLAZZ_BASE_URL ?? envDefaults.DIGIFLAZZ_BASE_URL ?? "https://api.digiflazz.com/v1");
+        setVipApiId(raw.VIP_API_ID ?? envDefaults.VIP_API_ID ?? "");
+        setVipApiKey(raw.VIP_API_KEY ?? envDefaults.VIP_API_KEY ?? "");
+        setVipSign(raw.VIP_SIGN ?? envDefaults.VIP_SIGN ?? "");
+        setVipBaseUrl(raw.VIP_BASE_URL ?? envDefaults.VIP_BASE_URL ?? "https://vip-reseller.co.id/api");
+      } else {
+        toast.error("Gagal memuat konfigurasi");
+      }
+    } catch {
+      toast.error("Tidak dapat terhubung ke server");
+    } finally {
+      setLoading(false);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    loadConfig();
+  }, [loadConfig]);
 
   async function toggleMode(provider: ProviderDef, currentMode: string) {
     const newMode = currentMode === provider.offValue ? provider.onValue : provider.offValue;
@@ -274,6 +273,47 @@ export default function SettingsPage() {
     }
   }
 
+  async function saveConfigPairs(pairs: { key: string; value: string }[], successMessage: string, savingKey: string) {
+    setSiteSaving(savingKey);
+    try {
+      for (const { key, value } of pairs) {
+        const res = await fetch("/api/admin/site-config", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ key, value }),
+        });
+        const data = await res.json();
+        if (!data.success) {
+          toast.error(`Gagal menyimpan ${key}`);
+          setSiteSaving(null);
+          return;
+        }
+      }
+      toast.success(successMessage);
+      await loadConfig();
+    } catch {
+      toast.error(`Gagal menyimpan ${successMessage.toLowerCase()}`);
+    } finally {
+      setSiteSaving(null);
+    }
+  }
+
+  async function saveProviderCredentials() {
+    await saveConfigPairs(
+      [
+        { key: "DIGIFLAZZ_USERNAME", value: digiflazzUsername },
+        { key: "DIGIFLAZZ_API_KEY", value: digiflazzApiKey },
+        { key: "DIGIFLAZZ_BASE_URL", value: digiflazzBaseUrl },
+        { key: "VIP_API_ID", value: vipApiId },
+        { key: "VIP_API_KEY", value: vipApiKey },
+        { key: "VIP_SIGN", value: vipSign },
+        { key: "VIP_BASE_URL", value: vipBaseUrl },
+      ],
+      "Kredensial provider berhasil disimpan",
+      "provider_credentials"
+    );
+  }
+
   async function sendTestEmail() {
     if (!smtpUser) {
       toast.error("Simpan konfigurasi SMTP terlebih dahulu");
@@ -342,7 +382,7 @@ export default function SettingsPage() {
           <div>
             <h1 className="text-xl font-bold text-slate-800">⚙️ Pengaturan Sistem</h1>
             <p className="text-sm text-slate-500 mt-0.5">
-              Kelola mode operasi provider &amp; payment gateway.<span className="hidden sm:inline"> Perubahan disimpan ke database dan berlaku segera tanpa perlu restart.</span>
+              Kelola mode operasi provider, kredensial API, dan pengaturan sistem.<span className="hidden sm:inline"> Perubahan disimpan ke database dan berlaku segera tanpa perlu restart.</span>
             </p>
           </div>
 
@@ -358,7 +398,7 @@ export default function SettingsPage() {
             <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-3.5 py-2.5">
               <span className="text-base">🌐</span>
               <div>
-                <p className="text-xs font-bold text-green-700">REAL / PRODUCTION</p>
+                <p className="text-xs font-bold text-green-700">REAL</p>
                 <p className="text-[11px] text-green-600">Live — call API nyata / transaksi sungguhan</p>
               </div>
             </div>
@@ -367,7 +407,7 @@ export default function SettingsPage() {
           {/* Provider cards */}
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 divide-y divide-slate-100">
             <div className="px-5 py-4">
-              <h2 className="text-sm font-bold text-slate-700">Mode Provider &amp; Payment Gateway</h2>
+              <h2 className="text-sm font-bold text-slate-700">Mode Provider</h2>
               <p className="text-[11px] text-slate-400 mt-0.5">
                 Toggle sakelar untuk beralih antara simulasi (mock) dan API nyata (real).
                 Nilai di database override nilai di file .env.
@@ -375,7 +415,7 @@ export default function SettingsPage() {
             </div>
 
             {loading ? (
-              Array.from({ length: 3 }).map((_, i) => (
+              Array.from({ length: 2 }).map((_, i) => (
                 <div key={i} className="px-5 py-4 flex items-center gap-4 animate-pulse">
                   <div className="w-10 h-10 bg-slate-200 rounded-xl flex-shrink-0" />
                   <div className="flex-1">
@@ -467,6 +507,144 @@ export default function SettingsPage() {
                 );
               })
             )}
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="px-5 py-4 border-b border-slate-100">
+              <h2 className="text-sm font-bold text-slate-700">🔑 Kredensial Provider</h2>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Kredensial Digiflazz dan VIP Reseller disimpan di database dan akan override nilai di `.env`.
+              </p>
+            </div>
+
+            <div className="px-5 py-4 space-y-6">
+              <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                <h3 className="text-sm font-bold text-slate-800">Digiflazz</h3>
+                <div className="mt-4 space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Username</label>
+                    <input
+                      type="text"
+                      value={digiflazzUsername}
+                      onChange={(e) => setDigiflazzUsername(e.target.value)}
+                      placeholder="username Digiflazz"
+                      className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400 font-mono text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">API Key</label>
+                    <div className="relative">
+                      <input
+                        type={showDigiflazzApiKey ? "text" : "password"}
+                        value={digiflazzApiKey}
+                        onChange={(e) => setDigiflazzApiKey(e.target.value)}
+                        placeholder="api key Digiflazz"
+                        className="w-full px-3 py-2.5 pr-14 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400 font-mono text-xs"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowDigiflazzApiKey((v) => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium text-slate-400 hover:text-slate-600 transition"
+                        tabIndex={-1}
+                      >
+                        {showDigiflazzApiKey ? "Hide" : "Show"}
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Base URL</label>
+                    <input
+                      type="text"
+                      value={digiflazzBaseUrl}
+                      onChange={(e) => setDigiflazzBaseUrl(e.target.value)}
+                      placeholder="https://api.digiflazz.com/v1"
+                      className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400 font-mono text-xs"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
+                <h3 className="text-sm font-bold text-slate-800">VIP Reseller</h3>
+                <div className="mt-4 space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">API ID</label>
+                    <input
+                      type="text"
+                      value={vipApiId}
+                      onChange={(e) => setVipApiId(e.target.value)}
+                      placeholder="api id VIP"
+                      className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400 font-mono text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">API Key</label>
+                    <div className="relative">
+                      <input
+                        type={showVipApiKey ? "text" : "password"}
+                        value={vipApiKey}
+                        onChange={(e) => setVipApiKey(e.target.value)}
+                        placeholder="api key VIP"
+                        className="w-full px-3 py-2.5 pr-14 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400 font-mono text-xs"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowVipApiKey((v) => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium text-slate-400 hover:text-slate-600 transition"
+                        tabIndex={-1}
+                      >
+                        {showVipApiKey ? "Hide" : "Show"}
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Sign</label>
+                    <div className="relative">
+                      <input
+                        type={showVipSign ? "text" : "password"}
+                        value={vipSign}
+                        onChange={(e) => setVipSign(e.target.value)}
+                        placeholder="static sign VIP (opsional)"
+                        className="w-full px-3 py-2.5 pr-14 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400 font-mono text-xs"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowVipSign((v) => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium text-slate-400 hover:text-slate-600 transition"
+                        tabIndex={-1}
+                      >
+                        {showVipSign ? "Hide" : "Show"}
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-slate-400 mt-1">Kosongkan jika ingin signature dihitung otomatis dari API ID + API Key.</p>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Base URL</label>
+                    <input
+                      type="text"
+                      value={vipBaseUrl}
+                      onChange={(e) => setVipBaseUrl(e.target.value)}
+                      placeholder="https://vip-reseller.co.id/api"
+                      className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400 font-mono text-xs"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t border-slate-100">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-blue-400 flex-shrink-0" />
+                  <span className="text-[10px] text-slate-500 font-medium">Prioritas pembacaan adapter: database → .env</span>
+                </div>
+                <button
+                  onClick={saveProviderCredentials}
+                  disabled={siteSaving === "provider_credentials"}
+                  className="px-4 py-2 rounded-xl bg-[#2563eb] text-white text-xs font-bold hover:bg-blue-700 transition disabled:opacity-50 flex-shrink-0"
+                >
+                  {siteSaving === "provider_credentials" ? "Menyimpan…" : "💾 Simpan Kredensial Provider"}
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* ─── Website Settings ──────────────────────────────────────────── */}

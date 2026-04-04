@@ -55,6 +55,15 @@ export async function getSiteConfig(key: string): Promise<string | null> {
   return all[key] ?? null;
 }
 
+/** Get one config value with env fallback. Priority: DB -> env -> fallback */
+export async function getSiteConfigValue(key: string, fallback = ""): Promise<string> {
+  const dbValue = await getSiteConfig(key);
+  if (dbValue !== null) return dbValue;
+
+  const envKey = ENV_KEY_MAP[key] ?? key;
+  return process.env[envKey] ?? fallback;
+}
+
 /** Upsert a config value and invalidate cache */
 export async function setSiteConfig(key: string, value: string): Promise<void> {
   await prisma.siteConfig.upsert({

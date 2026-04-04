@@ -8,18 +8,26 @@ import {
 } from "@/src/core/ports/provider.port";
 import { ProviderType, ProviderStatus } from "@/src/core/domain/enums/provider.enum";
 import { ProviderError } from "@/src/core/domain/errors/provider.errors";
+import { getSiteConfigValue } from "@/lib/site-config";
 
 export class VipResellerAdapter implements IProviderPort {
-  private apiKey: string;
-  private apiId: string;
-  private sign: string;
-  private baseUrl: string;
+  private apiKey = "";
+  private apiId = "";
+  private sign = "";
+  private baseUrl = "https://vip-reseller.co.id/api";
 
-  constructor() {
-    this.apiKey = process.env.VIP_API_KEY || "";
-    this.apiId = process.env.VIP_API_ID || "";
-    this.sign = process.env.VIP_SIGN || "";
-    this.baseUrl = process.env.VIP_BASE_URL || "https://vip-reseller.co.id/api";
+  private async ensureConfig(): Promise<void> {
+    const [apiKey, apiId, sign, baseUrl] = await Promise.all([
+      getSiteConfigValue("VIP_API_KEY"),
+      getSiteConfigValue("VIP_API_ID"),
+      getSiteConfigValue("VIP_SIGN"),
+      getSiteConfigValue("VIP_BASE_URL", "https://vip-reseller.co.id/api"),
+    ]);
+
+    this.apiKey = apiKey;
+    this.apiId = apiId;
+    this.sign = sign;
+    this.baseUrl = baseUrl || "https://vip-reseller.co.id/api";
   }
 
   getProviderType(): ProviderType {
@@ -28,6 +36,7 @@ export class VipResellerAdapter implements IProviderPort {
 
   async checkBalance(): Promise<ProviderBalance> {
     try {
+      await this.ensureConfig();
       // VIP Reseller: sign = MD5(API_ID + API_KEY)
       const sign = this.sign || this.generateSignature();
       
@@ -81,6 +90,7 @@ export class VipResellerAdapter implements IProviderPort {
   }
 
   async getProducts(): Promise<ProviderProduct[]> {
+    await this.ensureConfig();
     const sign = this.sign || this.generateSignature();
 
     const endpoints: Array<{ url: string; defaultType: string }> = [
@@ -162,6 +172,7 @@ export class VipResellerAdapter implements IProviderPort {
 
   async purchase(request: ProviderPurchaseRequest): Promise<ProviderPurchaseResponse> {
     try {
+      await this.ensureConfig();
       const sign = this.sign || this.generateSignature();
       const productType = request.additionalData?._productType as string | undefined;
       const isJoki = productType === "joki";
@@ -274,6 +285,7 @@ export class VipResellerAdapter implements IProviderPort {
       : `${this.baseUrl}/prepaid`;
 
     try {
+      await this.ensureConfig();
       const sign = this.sign || this.generateSignature();
 
       const response = await fetch(endpoint, {

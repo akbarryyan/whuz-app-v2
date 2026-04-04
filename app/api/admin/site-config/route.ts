@@ -34,7 +34,13 @@ export async function GET() {
       envDefaults: {
         PROVIDER_DIGIFLAZZ_MODE: process.env.PROVIDER_DIGIFLAZZ_MODE ?? "mock",
         PROVIDER_VIP_MODE: process.env.PROVIDER_VIP_MODE ?? "mock",
-        PROVIDER_PAKASIR_MODE: process.env.PROVIDER_PAKASIR_MODE ?? "sandbox",
+        DIGIFLAZZ_USERNAME: process.env.DIGIFLAZZ_USERNAME ?? "",
+        DIGIFLAZZ_API_KEY: process.env.DIGIFLAZZ_API_KEY ?? "",
+        DIGIFLAZZ_BASE_URL: process.env.DIGIFLAZZ_BASE_URL ?? "https://api.digiflazz.com/v1",
+        VIP_API_ID: process.env.VIP_API_ID ?? "",
+        VIP_API_KEY: process.env.VIP_API_KEY ?? "",
+        VIP_SIGN: process.env.VIP_SIGN ?? "",
+        VIP_BASE_URL: process.env.VIP_BASE_URL ?? "https://vip-reseller.co.id/api",
       },
     },
   });
