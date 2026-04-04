@@ -37,6 +37,7 @@ export default function MerchantRegisterPage() {
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [siteName, setSiteName] = useState("Whuzpay");
   const [form, setForm] = useState<FormState>({
     displayName: "",
     slug: "",
@@ -45,6 +46,15 @@ export default function MerchantRegisterPage() {
   });
 
   useEffect(() => {
+    fetch("/api/site-branding")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.data?.site_name) {
+          setSiteName(data.data.site_name);
+        }
+      })
+      .catch(() => {});
+
     fetch("/api/auth/me")
       .then((res) => res.json())
       .then((data) => {
@@ -137,24 +147,21 @@ export default function MerchantRegisterPage() {
 
       <div className="relative w-full max-w-[480px] min-h-screen bg-white shadow-2xl flex flex-col">
         <AppHeader onBack={() => router.back()} />
-        <div className="px-6 pt-20 pb-16 relative overflow-hidden" style={{ backgroundColor: "#003D99" }}>
-          <div className="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/10" />
-          <div className="absolute top-16 -right-6 h-20 w-20 rounded-full bg-white/5" />
-          <div className="absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-white/10" />
+        <div className="px-6 pt-20 pb-10 relative overflow-hidden" style={{ backgroundColor: "#003D99" }}>
+          <div className="absolute -top-10 -right-10 h-32 w-32 rounded-full bg-white/10" />
+          <div className="absolute top-14 -right-4 h-16 w-16 rounded-full bg-white/5" />
+          <div className="absolute -bottom-8 -left-8 h-24 w-24 rounded-full bg-white/10" />
 
           <div className="relative z-10">
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-blue-100/80">Perjalanan Merchant</p>
-            <h1 className="mt-3 text-2xl font-bold text-white">Buka toko kamu di Whuzpay</h1>
-            <p className="mt-2 max-w-[320px] text-sm leading-6 text-blue-100">
-              Daftarkan merchant kamu, atur etalase sendiri, lalu mulai jualan dari dashboard merchant.
-            </p>
+            <h1 className="mt-3 text-xl font-bold text-white">Daftarkan merchant kamu</h1>
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 -mt-10 pb-28 bg-[radial-gradient(circle_at_top,_#dbeafe,_#ffffff_55%)]">
+        <div className="flex-1 overflow-y-auto px-4 -mt-6 pb-28 bg-[radial-gradient(circle_at_top,_#dbeafe,_#ffffff_55%)]">
           <div className="rounded-[28px] bg-slate-950 px-5 py-6 text-white shadow-xl">
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-emerald-300">Daftar Merchant</p>
-            <h2 className="mt-3 text-2xl font-bold">Buka toko kamu di Whuzpay</h2>
+            <h2 className="mt-3 text-2xl font-bold">Buka toko kamu di {siteName}</h2>
             <p className="mt-2 text-sm leading-6 text-slate-300">
               Setelah toko aktif, kamu bisa pilih produk, atur harga jual sendiri, dan dapat saldo dari penjualan.
             </p>
@@ -169,7 +176,7 @@ export default function MerchantRegisterPage() {
                   value={form.displayName}
                   onChange={(e) => handleDisplayNameChange(e.target.value)}
                   placeholder="Contoh: Akbar Topup Store"
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-400"
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 placeholder:text-slate-300 outline-none transition focus:border-emerald-400 focus:bg-white"
                 />
               </label>
 
@@ -180,7 +187,7 @@ export default function MerchantRegisterPage() {
                   value={form.slug}
                   onChange={(e) => setForm((prev) => ({ ...prev, slug: slugify(e.target.value) }))}
                   placeholder="contoh: akbar-topup-store"
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-400"
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 placeholder:text-slate-300 outline-none transition focus:border-emerald-400 focus:bg-white"
                 />
                 <p className="mt-2 text-xs text-slate-400">
                   Link toko kamu akan menjadi `/seller/{slugify(form.slug || form.displayName || "nama-toko")}`
@@ -194,7 +201,7 @@ export default function MerchantRegisterPage() {
                   onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
                   placeholder="Jelaskan singkat toko kamu, misalnya fokus game atau layanan unggulan."
                   rows={4}
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-400"
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 placeholder:text-slate-300 outline-none transition focus:border-emerald-400 focus:bg-white"
                 />
               </label>
 
@@ -205,7 +212,7 @@ export default function MerchantRegisterPage() {
                   value={form.profileImageUrl}
                   onChange={(e) => setForm((prev) => ({ ...prev, profileImageUrl: e.target.value }))}
                   placeholder="https://example.com/profile-merchant.png"
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-400"
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 placeholder:text-slate-300 outline-none transition focus:border-emerald-400 focus:bg-white"
                 />
                 <p className="mt-2 text-xs text-slate-400">
                   Opsional. Gambar ini akan tampil di daftar merchant dan halaman storefront toko.
