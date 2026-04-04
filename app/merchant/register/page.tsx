@@ -158,7 +158,7 @@ export default function MerchantRegisterPage() {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 pt-3 -mt-3 pb-28 bg-[radial-gradient(circle_at_top,_#dbeafe,_#ffffff_55%)]">
+        <div className="flex-1 overflow-y-auto px-4 pt-5 -mt-1 pb-28 bg-[radial-gradient(circle_at_top,_#dbeafe,_#ffffff_55%)]">
           <div className="rounded-[28px] bg-slate-950 px-5 py-6 text-white shadow-xl">
             <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-emerald-300">Daftar Merchant</p>
             <h2 className="mt-3 text-2xl font-bold">Buka toko kamu di {siteName}</h2>
