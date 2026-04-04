@@ -120,7 +120,7 @@ export default function AdminPaymentMethodsPage() {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 className="text-xl font-bold text-slate-800">Metode Pembayaran</h1>
-              <p className="text-sm text-slate-500 mt-0.5">Kelola metode pembayaran Pakasir yang tampil di halaman produk.</p>
+              <p className="text-sm text-slate-500 mt-0.5">Kelola metode pembayaran aktif yang tampil di halaman produk.</p>
             </div>
             <button
               onClick={fetchMethods}

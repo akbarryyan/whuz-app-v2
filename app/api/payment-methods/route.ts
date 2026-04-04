@@ -1,22 +1,18 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
-import { isPoppayConfigured } from "@/src/infra/payment/poppay/poppay.client";
 
 export const dynamic = "force-dynamic";
 
 const DEFAULT_METHODS = [
-  { key: "qris",         label: "QRIS",                group: "QRIS",            imageUrl: null, sortOrder: 1 },
-  { key: "bni_va",       label: "BNI Virtual Account", group: "VIRTUAL_ACCOUNT", imageUrl: null, sortOrder: 2 },
-  { key: "bri_va",       label: "BRI Virtual Account", group: "VIRTUAL_ACCOUNT", imageUrl: null, sortOrder: 3 },
-  { key: "cimb_niaga_va",label: "CIMB Niaga VA",       group: "VIRTUAL_ACCOUNT", imageUrl: null, sortOrder: 4 },
-  { key: "maybank_va",   label: "Maybank VA",          group: "VIRTUAL_ACCOUNT", imageUrl: null, sortOrder: 5 },
-  { key: "permata_va",   label: "Permata VA",          group: "VIRTUAL_ACCOUNT", imageUrl: null, sortOrder: 6 },
-  { key: "bnc_va",       label: "Bank Neo VA",         group: "VIRTUAL_ACCOUNT", imageUrl: null, sortOrder: 7 },
+  { key: "qris", label: "QRIS", group: "QRIS", imageUrl: null, sortOrder: 1 },
 ];
+
+const STOREFRONT_SUPPORTED_KEYS = new Set(["qris"]);
 
 /**
  * GET /api/payment-methods
- * Returns active payment methods, seeding defaults if table is empty.
+ * Returns active storefront payment methods from DB, seeding current defaults if empty.
+ * Storefront currently exposes only methods supported by the active checkout flow.
  */
 export async function GET() {
   try {
@@ -36,24 +32,23 @@ export async function GET() {
       select: { id: true, key: true, label: true, group: true, imageUrl: true },
     });
 
-    if (await isPoppayConfigured()) {
-      const qrisMethod =
-        methods.find((item) => item.key === "qris") ?? {
-          id: "poppay-qris",
-          key: "qris",
-          label: "QRIS",
-          group: "QRIS",
-          imageUrl: null,
-        };
+    const storefrontMethods = methods.filter((item) => STOREFRONT_SUPPORTED_KEYS.has(item.key));
 
-      return NextResponse.json({
-        success: true,
-        gateway: "POPPAY",
-        data: [qrisMethod],
-      });
-    }
+    const qrisMethod =
+      storefrontMethods.find((item) => item.key === "qris") ??
+      methods.find((item) => item.key === "qris") ?? {
+        id: "poppay-qris",
+        key: "qris",
+        label: "QRIS",
+        group: "QRIS",
+        imageUrl: null,
+      };
 
-    return NextResponse.json({ success: true, gateway: "PAKASIR", data: methods });
+    return NextResponse.json({
+      success: true,
+      gateway: "POPPAY",
+      data: storefrontMethods.length > 0 ? storefrontMethods : [qrisMethod],
+    });
   } catch (error) {
     console.error("[PAYMENT METHODS GET ERROR]", error);
     return NextResponse.json({ success: false, error: "Gagal memuat metode pembayaran." }, { status: 500 });

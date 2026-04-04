@@ -4,18 +4,12 @@ import { prisma } from "@/src/infra/db/prisma";
 export const dynamic = "force-dynamic";
 
 const DEFAULT_METHODS = [
-  { key: "qris",          label: "QRIS",                group: "QRIS",            imageUrl: null, sortOrder: 1 },
-  { key: "bni_va",        label: "BNI Virtual Account", group: "VIRTUAL_ACCOUNT", imageUrl: null, sortOrder: 2 },
-  { key: "bri_va",        label: "BRI Virtual Account", group: "VIRTUAL_ACCOUNT", imageUrl: null, sortOrder: 3 },
-  { key: "cimb_niaga_va", label: "CIMB Niaga VA",       group: "VIRTUAL_ACCOUNT", imageUrl: null, sortOrder: 4 },
-  { key: "maybank_va",    label: "Maybank VA",          group: "VIRTUAL_ACCOUNT", imageUrl: null, sortOrder: 5 },
-  { key: "permata_va",    label: "Permata VA",          group: "VIRTUAL_ACCOUNT", imageUrl: null, sortOrder: 6 },
-  { key: "bnc_va",        label: "Bank Neo VA",         group: "VIRTUAL_ACCOUNT", imageUrl: null, sortOrder: 7 },
+  { key: "qris", label: "QRIS", group: "QRIS", imageUrl: null, sortOrder: 1 },
 ];
 
 /**
  * GET /api/admin/payment-methods
- * Returns ALL payment methods (active + inactive), seeding defaults if empty.
+ * Returns ALL payment methods (active + inactive), seeding current defaults if empty.
  */
 export async function GET() {
   try {

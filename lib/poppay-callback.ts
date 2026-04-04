@@ -2,6 +2,7 @@ import { prisma } from "@/src/infra/db/prisma";
 import { OrderRepository } from "@/src/infra/db/repositories/order.repository";
 import { ExecuteProviderPurchaseService } from "@/src/core/services/provider/execute-provider-purchase.service";
 import { InvoiceStatus, OrderStatus, WebhookSource } from "@/src/core/domain/enums/order.enum";
+import { PoppayClient } from "@/src/infra/payment/poppay/poppay.client";
 
 export interface PoppayCallbackPayload {
   refid: string;
@@ -24,10 +25,22 @@ export interface PoppayCallbackResult {
     | "already_completed"
     | "ignored"
     | "not_found"
-    | "execute_failed";
+    | "execute_failed"
+    | "inquiry_mismatch";
   orderId?: string;
   topupId?: string;
   executeError?: string;
+}
+
+async function confirmCompletedViaInquiry(refId: string): Promise<boolean> {
+  try {
+    const client = new PoppayClient();
+    const inquiry = await client.inquireIncoming(refId);
+    return inquiry.status === "completed";
+  } catch (error) {
+    console.error("[Poppay Callback] Inquiry verification failed:", error);
+    return false;
+  }
 }
 
 function resolveTopupTerminalStatus(status: number): "COMPLETED" | "EXPIRED" | "FAILED" | null {
@@ -133,6 +146,11 @@ async function handlePoppayTopup(
     };
   }
 
+  const inquiryConfirmed = await confirmCompletedViaInquiry(payload.refid);
+  if (!inquiryConfirmed) {
+    return { action: "inquiry_mismatch", topupId: topup.id };
+  }
+
   await prisma.$transaction(async (tx) => {
     const wallet = await tx.wallet.upsert({
       where: { userId: topup.userId },
@@ -225,6 +243,11 @@ async function handlePoppayOrder(
       action: orderStatus === OrderStatus.EXPIRED ? "expired_order" : "failed_order",
       orderId: order.id,
     };
+  }
+
+  const inquiryConfirmed = await confirmCompletedViaInquiry(payload.refid);
+  if (!inquiryConfirmed) {
+    return { action: "inquiry_mismatch", orderId: order.id };
   }
 
   await orderRepo.updateStatus(order.id, OrderStatus.PAID);

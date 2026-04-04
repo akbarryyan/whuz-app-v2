@@ -1132,7 +1132,7 @@ export default function BrandDetailPage({
               );
             })()}
 
-            {/* Metode lainnya (Pakasir) — opens bottom sheet */}
+            {/* Metode pembayaran gateway — opens bottom sheet */}
             {(() => {
               const activePg = paymentMethod === "PAYMENT_GATEWAY" ? pgMethods.find((m) => m.key === pgMethod) : null;
               const abbr = activePg ? activePg.key.replace(/_va$/, "").toUpperCase().slice(0, 4) : null;
