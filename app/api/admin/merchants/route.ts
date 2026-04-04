@@ -45,10 +45,6 @@ export async function GET(request: NextRequest) {
         isActive: true,
         createdAt: true,
         updatedAt: true,
-        sellerProducts: {
-          where: { isActive: true },
-          select: { id: true },
-        },
         user: {
           select: {
             id: true,
@@ -56,6 +52,10 @@ export async function GET(request: NextRequest) {
             email: true,
             phone: true,
             isActive: true,
+            sellerProducts: {
+              where: { isActive: true },
+              select: { id: true },
+            },
             _count: {
               select: {
                 sellerProducts: true,
@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
       success: true,
       data: merchants.map((merchant) => ({
         ...merchant,
-        activeSellerProductsCount: merchant.sellerProducts.length,
+        activeSellerProductsCount: merchant.user.sellerProducts.length,
       })),
     });
   } catch (error) {
