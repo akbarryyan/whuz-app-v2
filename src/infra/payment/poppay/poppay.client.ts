@@ -238,6 +238,7 @@ export class PoppayClient {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "User-Agent": "insomnia/8.1.0",
         "Accept-Language": "en",
         Accept: "application/json; charset=UTF-8",
         Authorization: `Bearer ${config.integratorToken}`,
@@ -292,6 +293,7 @@ export class PoppayClient {
       const accessToken = await this.getAccessToken(config, forceRefresh);
       const headers = new Headers(init.headers ?? {});
       headers.set("Authorization", `Bearer ${accessToken}`);
+      headers.set("User-Agent", headers.get("User-Agent") ?? "insomnia/8.1.0");
       headers.set("Accept-Language", headers.get("Accept-Language") ?? "en");
       headers.set("Accept", headers.get("Accept") ?? "application/json; charset=UTF-8");
 
@@ -303,8 +305,20 @@ export class PoppayClient {
     };
 
     let res = await makeRequest(false);
+    const rotatedToken = res.headers.get("Nrt")?.trim();
+    if (rotatedToken) {
+      tokenCache._poppayAccessToken = rotatedToken;
+      tokenCache._poppayAccessTokenAt = Date.now();
+      tokenCache._poppayAccessTokenFor = this.getCacheKey(config);
+    }
     if (res.status === 401) {
       res = await makeRequest(true);
+      const retriedToken = res.headers.get("Nrt")?.trim();
+      if (retriedToken) {
+        tokenCache._poppayAccessToken = retriedToken;
+        tokenCache._poppayAccessTokenAt = Date.now();
+        tokenCache._poppayAccessTokenFor = this.getCacheKey(config);
+      }
     }
     return res;
   }
