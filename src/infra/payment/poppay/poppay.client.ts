@@ -126,6 +126,17 @@ interface PoppayRuntimeConfig {
   password: string;
 }
 
+export interface PoppayDebugConfigSummary {
+  baseUrl: string;
+  versionPath: string;
+  hasIntegratorToken: boolean;
+  hasAggregatorCode: boolean;
+  hasMerchantAccountNumber: boolean;
+  hasSecretKey: boolean;
+  hasEmail: boolean;
+  hasPassword: boolean;
+}
+
 const tokenCache = globalThis as unknown as {
   _poppayAccessToken?: string;
   _poppayAccessTokenAt?: number;
@@ -215,6 +226,20 @@ export async function isPoppayConfigured(): Promise<boolean> {
     cfg.email &&
     cfg.password
   );
+}
+
+export async function getPoppayDebugConfigSummary(): Promise<PoppayDebugConfigSummary> {
+  const cfg = await getPoppayRuntimeConfig();
+  return {
+    baseUrl: cfg.baseUrl,
+    versionPath: cfg.versionPath,
+    hasIntegratorToken: Boolean(cfg.integratorToken),
+    hasAggregatorCode: Boolean(cfg.aggregatorCode),
+    hasMerchantAccountNumber: Boolean(cfg.merchantAccountNumber),
+    hasSecretKey: Boolean(cfg.secretKey),
+    hasEmail: Boolean(cfg.email),
+    hasPassword: Boolean(cfg.password),
+  };
 }
 
 export class PoppayClient {
@@ -476,6 +501,20 @@ export class PoppayClient {
       status: mapPoppayStatusCode(rawStatusCode),
       statusCode: rawStatusCode ?? undefined,
       raw,
+    };
+  }
+
+  async testAuth(): Promise<{
+    email: string;
+    roleName: string | null;
+    tokenPreview: string;
+  }> {
+    const config = await this.requireConfig();
+    const token = await this.login(config);
+    return {
+      email: config.email,
+      roleName: null,
+      tokenPreview: `${token.slice(0, 10)}...`,
     };
   }
 }
