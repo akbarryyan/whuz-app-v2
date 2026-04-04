@@ -12,10 +12,10 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
   const pathname = usePathname();
   const router = useRouter();
   const [auth, setAuth] = useState<AuthState>({ loading: true, allowed: false });
+  const isRegisterPage = pathname === "/merchant/register";
 
   useEffect(() => {
     let active = true;
-    const isRegisterPage = pathname === "/merchant/register";
 
     fetch("/api/auth/me")
       .then((res) => res.json())
@@ -56,6 +56,10 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
   }
 
   if (!auth.allowed) return null;
+
+  if (isRegisterPage) {
+    return <>{children}</>;
+  }
 
   return <div className="lg:pl-64">{children}</div>;
 }
