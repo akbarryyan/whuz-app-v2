@@ -93,6 +93,11 @@ function resolvePaidAt(trxDate?: string): Date {
   return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
 }
 
+function resolveOrderCodeFromAggRefId(aggRefId: string): string {
+  const [orderCode] = String(aggRefId).split("__R");
+  return orderCode || String(aggRefId);
+}
+
 export async function handlePoppayCallback(
   payload: PoppayCallbackPayload,
   rawPayload: unknown
@@ -377,7 +382,8 @@ async function handlePoppayOrder(
 ): Promise<Omit<PoppayCallbackResult, "duplicate">> {
   const orderRepo = new OrderRepository();
   const executeService = new ExecuteProviderPurchaseService(orderRepo);
-  const order = await orderRepo.findByCode(payload.agg_refid);
+  const resolvedOrderCode = resolveOrderCodeFromAggRefId(payload.agg_refid);
+  const order = await orderRepo.findByCode(resolvedOrderCode);
 
   if (!order) {
     return { action: "not_found" };

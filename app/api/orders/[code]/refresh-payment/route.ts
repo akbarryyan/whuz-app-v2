@@ -16,6 +16,10 @@ function isInvoiceExpired(expiredAt: Date | string | null | undefined): boolean 
   return new Date(expiredAt).getTime() <= Date.now();
 }
 
+function buildReissuedOrderRef(orderCode: string): string {
+  return `${orderCode}__R${Date.now()}`;
+}
+
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ code: string }> }
@@ -99,7 +103,7 @@ export async function POST(
     const payableAmount = Math.max(1, Number(order.amount) - Number(order.fee));
 
     const paymentResult = await paymentGateway.createPayment({
-      orderId: order.orderCode,
+      orderId: buildReissuedOrderRef(order.orderCode),
       amount: payableAmount,
       method: order.paymentInvoice.method ?? undefined,
       description: `${order.product.name} — ${order.targetNumber}`,
