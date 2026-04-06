@@ -106,6 +106,24 @@ function OrderDetailPageContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.code, token]);
 
+  useEffect(() => {
+    if (!order) return;
+
+    const shouldPoll =
+      order.status === "WAITING_PAYMENT" ||
+      order.status === "PAID" ||
+      order.status === "PROCESSING_PROVIDER";
+
+    if (!shouldPoll) return;
+
+    const interval = setInterval(() => {
+      fetchOrder();
+    }, 7000);
+
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [order?.status, order?.paymentInvoice?.status, params.code, token]);
+
   // ── Skeleton ──────────────────────────────────────────────────────────────
   if (loading) {
     return (

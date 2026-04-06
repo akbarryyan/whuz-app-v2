@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Header from "@/components/admin/Header";
 import Sidebar from "@/components/admin/Sidebar";
 
@@ -32,7 +32,11 @@ type GenericJson = {
   error?: string;
   message?: string;
   gateway?: string;
-  data?: unknown;
+  data?: {
+    refId?: string;
+    status?: string;
+    [key: string]: unknown;
+  } | unknown;
 };
 
 async function parseJsonSafely(response: Response): Promise<GenericJson> {
@@ -89,6 +93,24 @@ export default function AdminPoppayDebugPage() {
   const [amount, setAmount] = useState("10000");
   const [notes, setNotes] = useState("Admin Debug Poppay");
   const [inquiryUid, setInquiryUid] = useState("");
+
+  const createRefId =
+    createResult &&
+    typeof createResult.data === "object" &&
+    createResult.data !== null &&
+    "refId" in createResult.data &&
+    typeof createResult.data.refId === "string"
+      ? createResult.data.refId
+      : "";
+
+  const inquiryStatus =
+    inquiryResult &&
+    typeof inquiryResult.data === "object" &&
+    inquiryResult.data !== null &&
+    "status" in inquiryResult.data &&
+    typeof inquiryResult.data.status === "string"
+      ? inquiryResult.data.status
+      : "";
 
   const testAuth = async () => {
     setAuthLoading(true);
@@ -151,6 +173,31 @@ export default function AdminPoppayDebugPage() {
       setInquiryLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!createRefId) return;
+
+    const finalStatuses = new Set(["completed", "expired", "failed"]);
+    if (finalStatuses.has(inquiryStatus)) return;
+
+    setInquiryUid(createRefId);
+
+    const poll = async () => {
+      setInquiryLoading(true);
+      try {
+        const response = await fetch(
+          `/api/admin/payment-gateway/poppay/inquiry/${encodeURIComponent(createRefId)}`
+        );
+        setInquiryResult(await parseJsonSafely(response));
+      } finally {
+        setInquiryLoading(false);
+      }
+    };
+
+    poll();
+    const interval = setInterval(poll, 7000);
+    return () => clearInterval(interval);
+  }, [createRefId, inquiryStatus]);
 
   return (
     <div className="min-h-screen bg-[#f5f7fb] text-slate-900">
@@ -351,7 +398,18 @@ export default function AdminPoppayDebugPage() {
 
               <div className="mt-4">
                 {createResult ? (
-                  <PrettyJson value={createResult} />
+                  <div className="space-y-3">
+                    {createRefId ? (
+                      <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800">
+                        <p className="font-semibold">Auto inquiry aktif</p>
+                        <p className="mt-1">
+                          Ref ID: <span className="font-mono">{createRefId}</span>
+                          {inquiryStatus ? ` • Status terakhir: ${inquiryStatus}` : ""}
+                        </p>
+                      </div>
+                    ) : null}
+                    <PrettyJson value={createResult} />
+                  </div>
                 ) : (
                   <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
                     Belum ada hasil create incoming.
