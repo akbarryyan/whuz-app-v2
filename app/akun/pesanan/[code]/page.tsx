@@ -87,9 +87,11 @@ function OrderDetailPageContent() {
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [copyingQr, setCopyingQr] = useState(false);
   const [copyQrLabel, setCopyQrLabel] = useState("Salin String QRIS");
+  const [requestingNewQris, setRequestingNewQris] = useState(false);
   const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
 
   const fetchOrder = async (showSpinner = false) => {
@@ -101,6 +103,7 @@ function OrderDetailPageContent() {
       if (data.success) {
         setOrder(data.data as OrderDetail);
         setError(null);
+        setActionError(null);
       } else {
         setError(data.error ?? "Pesanan tidak ditemukan.");
       }
@@ -281,6 +284,26 @@ function OrderDetailPageContent() {
       window.setTimeout(() => setCopyQrLabel("Salin String QRIS"), 2000);
     } finally {
       setCopyingQr(false);
+    }
+  };
+
+  const handleRequestNewQris = async () => {
+    try {
+      setRequestingNewQris(true);
+      setActionError(null);
+      const qs = token ? `?token=${encodeURIComponent(token)}` : "";
+      const response = await fetch(`/api/orders/${encodeURIComponent(params.code)}/refresh-payment${qs}`, {
+        method: "POST",
+      });
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error(data.error || "Gagal meminta QRIS baru.");
+      }
+      await fetchOrder(true);
+    } catch (caughtError) {
+      setActionError(caughtError instanceof Error ? caughtError.message : "Gagal meminta QRIS baru.");
+    } finally {
+      setRequestingNewQris(false);
     }
   };
 
@@ -553,6 +576,11 @@ function OrderDetailPageContent() {
                           </p>
                         </div>
                       )}
+                      {actionError && (
+                        <div className="mt-3 rounded-2xl bg-red-50 px-3 py-2 text-[11px] text-red-700 ring-1 ring-red-200">
+                          {actionError}
+                        </div>
+                      )}
                       <div className="mt-4 flex justify-center">
                         <div className={`rounded-[28px] bg-white p-3 shadow-sm transition ${isQrisExpired ? "opacity-50 grayscale" : ""}`}>
                           <img
@@ -563,12 +591,21 @@ function OrderDetailPageContent() {
                         </div>
                       </div>
                       {isQrisExpired ? (
-                        <button
-                          onClick={() => router.push("/")}
-                          className="mt-4 w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
-                        >
-                          Buat Pesanan Baru
-                        </button>
+                        <div className="mt-4 space-y-2">
+                          <button
+                            onClick={handleRequestNewQris}
+                            disabled={requestingNewQris}
+                            className="w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+                          >
+                            {requestingNewQris ? "Meminta QRIS Baru..." : "Request QRIS Baru"}
+                          </button>
+                          <button
+                            onClick={() => router.push("/")}
+                            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                          >
+                            Buat Pesanan Baru
+                          </button>
+                        </div>
                       ) : (
                         <button
                           onClick={handleCopyQrString}
