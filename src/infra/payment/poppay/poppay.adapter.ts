@@ -15,7 +15,7 @@ export class PoppayAdapter implements IPaymentGatewayPort {
     const incoming = await this.client.createIncoming({
       aggRefId: input.orderId,
       amount: input.amount,
-      notes: input.description ?? input.orderId,
+      notes: input.orderId,
       payorName: input.payerName?.trim() || "Whuzpay Customer",
       payorEmail: input.payerEmail?.trim() || null,
       callbackUrl: this.resolveCallbackUrl(),
