@@ -28,6 +28,13 @@ function buildQrImageUrl(raw: string): string {
   return `https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${encodeURIComponent(raw)}`;
 }
 
+function formatCountdown(totalSeconds: number): string {
+  const safeSeconds = Math.max(0, totalSeconds);
+  const minutes = Math.floor(safeSeconds / 60);
+  const seconds = safeSeconds % 60;
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; cls: string }> = {
     SUCCESS:             { label: "Sukses",           cls: "bg-green-100 text-green-700" },
@@ -82,6 +89,8 @@ function OrderDetailPageContent() {
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [copyingQr, setCopyingQr] = useState(false);
+  const [copyQrLabel, setCopyQrLabel] = useState("Salin String QRIS");
+  const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
 
   const fetchOrder = async (showSpinner = false) => {
     if (showSpinner) setRefreshing(true);
@@ -125,6 +134,23 @@ function OrderDetailPageContent() {
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [order?.status, order?.paymentInvoice?.status, params.code, token]);
+
+  useEffect(() => {
+    if (!order?.paymentInvoice?.expiredAt || order.paymentInvoice.status !== "PENDING") {
+      setRemainingSeconds(null);
+      return;
+    }
+
+    const updateRemaining = () => {
+      const expiredAtMs = new Date(order.paymentInvoice!.expiredAt!).getTime();
+      const diffSeconds = Math.floor((expiredAtMs - Date.now()) / 1000);
+      setRemainingSeconds(Math.max(0, diffSeconds));
+    };
+
+    updateRemaining();
+    const interval = setInterval(updateRemaining, 1000);
+    return () => clearInterval(interval);
+  }, [order?.paymentInvoice?.expiredAt, order?.paymentInvoice?.status]);
 
   // ── Skeleton ──────────────────────────────────────────────────────────────
   if (loading) {
@@ -216,12 +242,43 @@ function OrderDetailPageContent() {
     order.paymentInvoice?.status === "PENDING" &&
     order.paymentInvoice?.method?.toLowerCase() === "qris" &&
     !!order.paymentInvoice?.paymentNumber;
+  const isQrisExpired =
+    order.paymentInvoice?.status === "PENDING" &&
+    remainingSeconds !== null &&
+    remainingSeconds <= 0;
 
   const handleCopyQrString = async () => {
     if (!order.paymentInvoice?.paymentNumber) return;
     try {
       setCopyingQr(true);
-      await navigator.clipboard.writeText(order.paymentInvoice.paymentNumber);
+      const rawQr = order.paymentInvoice.paymentNumber;
+
+      if (navigator.clipboard?.writeText && window.isSecureContext) {
+        await navigator.clipboard.writeText(rawQr);
+      } else {
+        const textArea = document.createElement("textarea");
+        textArea.value = rawQr;
+        textArea.setAttribute("readonly", "");
+        textArea.style.position = "fixed";
+        textArea.style.opacity = "0";
+        textArea.style.pointerEvents = "none";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        const copied = document.execCommand("copy");
+        document.body.removeChild(textArea);
+
+        if (!copied) {
+          throw new Error("Gagal menyalin string QRIS.");
+        }
+      }
+
+      setCopyQrLabel("String QRIS Tersalin");
+      window.setTimeout(() => setCopyQrLabel("Salin String QRIS"), 2000);
+    } catch {
+      setCopyQrLabel("Salin Gagal");
+      window.setTimeout(() => setCopyQrLabel("Salin String QRIS"), 2000);
     } finally {
       setCopyingQr(false);
     }
@@ -482,10 +539,22 @@ function OrderDetailPageContent() {
                         Scan QRIS untuk membayar
                       </p>
                       <p className="mt-1 text-[11px] text-slate-500">
-                        QR ditampilkan langsung di aplikasi supaya tidak perlu buka halaman gateway eksternal.
+                        QR ditampilkan langsung di aplikasi dan berlaku selama 30 menit sejak dibuat.
                       </p>
+                      {remainingSeconds !== null && (
+                        <div className={`mt-3 rounded-2xl px-3 py-2 text-center ${
+                          isQrisExpired ? "bg-red-50 text-red-700 ring-1 ring-red-200" : "bg-amber-50 text-amber-700 ring-1 ring-amber-200"
+                        }`}>
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.16em]">
+                            {isQrisExpired ? "QRIS Kedaluwarsa" : "Sisa Waktu Pembayaran"}
+                          </p>
+                          <p className="mt-1 text-xl font-black">
+                            {formatCountdown(remainingSeconds)}
+                          </p>
+                        </div>
+                      )}
                       <div className="mt-4 flex justify-center">
-                        <div className="rounded-[28px] bg-white p-3 shadow-sm">
+                        <div className={`rounded-[28px] bg-white p-3 shadow-sm transition ${isQrisExpired ? "opacity-50 grayscale" : ""}`}>
                           <img
                             src={buildQrImageUrl(order.paymentInvoice.paymentNumber)}
                             alt="QRIS Payment"
@@ -493,24 +562,22 @@ function OrderDetailPageContent() {
                           />
                         </div>
                       </div>
-                      <button
-                        onClick={handleCopyQrString}
-                        className="mt-4 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-                      >
-                        {copyingQr ? "Menyalin..." : "Salin String QRIS"}
-                      </button>
+                      {isQrisExpired ? (
+                        <button
+                          onClick={() => router.push("/")}
+                          className="mt-4 w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+                        >
+                          Buat Pesanan Baru
+                        </button>
+                      ) : (
+                        <button
+                          onClick={handleCopyQrString}
+                          className="mt-4 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                        >
+                          {copyingQr ? "Menyalin..." : copyQrLabel}
+                        </button>
+                      )}
                     </div>
-                  )}
-
-                  {order.paymentInvoice.paymentUrl && (
-                    <a
-                      href={order.paymentInvoice.paymentUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="block w-full text-center py-3 rounded-xl bg-purple-600 text-white text-sm font-bold hover:bg-purple-700 active:scale-[0.98] transition-all shadow"
-                    >
-                      Buka Halaman Gateway →
-                    </a>
                   )}
                 </div>
               )}
