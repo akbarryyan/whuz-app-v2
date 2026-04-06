@@ -25,7 +25,7 @@ export class PoppayAdapter implements IPaymentGatewayPort {
     return {
       invoiceId: incoming.refId,
       paymentUrl: incoming.checkoutUrl,
-      paymentNumber: undefined,
+      paymentNumber: incoming.rawQr,
       method: "qris",
       amount: input.amount,
       fee: 0,

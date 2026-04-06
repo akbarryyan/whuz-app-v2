@@ -258,7 +258,7 @@ function PesananPageContent() {
             )}
             {order.paymentInvoice.paymentUrl && order.paymentInvoice.status === "PENDING" && (
               <a
-                href={order.paymentInvoice.paymentUrl}
+                href={`/akun/pesanan/${encodeURIComponent(order.orderCode)}`}
                 className="mt-1 block w-full text-center py-2.5 rounded-xl bg-purple-600 text-white text-sm font-bold hover:bg-purple-700 transition-colors"
               >
                 Selesaikan Pembayaran →

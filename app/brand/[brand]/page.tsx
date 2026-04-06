@@ -500,25 +500,12 @@ export default function BrandDetailPage({
         viewToken?: string;
       };
 
-      if (paymentMethod === "PAYMENT_GATEWAY" && result.paymentUrl) {
-        let finalPaymentUrl = result.paymentUrl;
+      if (paymentMethod === "PAYMENT_GATEWAY") {
+        const orderUrl = result.viewToken
+          ? `/akun/pesanan/${encodeURIComponent(result.orderCode)}?token=${encodeURIComponent(result.viewToken)}`
+          : `/akun/pesanan/${encodeURIComponent(result.orderCode)}`;
 
-        // Jika guest (ada viewToken), inject redirectUrl ke halaman detail pesanan langsung
-        // URL: /akun/pesanan/[code]?token=... — tidak perlu search form
-        if (result.viewToken) {
-          try {
-            const pesananUrl = `${window.location.origin}/akun/pesanan/${encodeURIComponent(result.orderCode)}?token=${encodeURIComponent(result.viewToken)}`;
-            const u = new URL(
-              result.paymentUrl.startsWith("http")
-                ? result.paymentUrl
-                : `${window.location.origin}${result.paymentUrl}`
-            );
-            u.searchParams.set("redirectUrl", pesananUrl);
-            finalPaymentUrl = u.toString();
-          } catch { /* keep original */ }
-        }
-
-        window.location.href = finalPaymentUrl;
+        window.location.href = orderUrl;
         return;
       }
 

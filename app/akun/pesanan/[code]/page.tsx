@@ -24,6 +24,10 @@ function formatDate(d: string | Date) {
   }).format(new Date(d));
 }
 
+function buildQrImageUrl(raw: string): string {
+  return `https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${encodeURIComponent(raw)}`;
+}
+
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; cls: string }> = {
     SUCCESS:             { label: "Sukses",           cls: "bg-green-100 text-green-700" },
@@ -59,6 +63,7 @@ interface OrderDetail {
     status: string;
     method: string | null;
     paymentUrl: string | null;
+    paymentNumber: string | null;
     expiredAt: string | null;
     paidAt: string | null;
   } | null;
@@ -74,6 +79,7 @@ function OrderDetailPageContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [copyingQr, setCopyingQr] = useState(false);
 
   const fetchOrder = async (showSpinner = false) => {
     if (showSpinner) setRefreshing(true);
@@ -171,7 +177,22 @@ function OrderDetailPageContent() {
   if (!order) return null;
 
   const isPendingPayment =
-    order.paymentInvoice?.status === "PENDING" && !!order.paymentInvoice?.paymentUrl;
+    order.paymentInvoice?.status === "PENDING" &&
+    (!!order.paymentInvoice?.paymentUrl || !!order.paymentInvoice?.paymentNumber);
+  const hasInternalQris =
+    order.paymentInvoice?.status === "PENDING" &&
+    order.paymentInvoice?.method?.toLowerCase() === "qris" &&
+    !!order.paymentInvoice?.paymentNumber;
+
+  const handleCopyQrString = async () => {
+    if (!order.paymentInvoice?.paymentNumber) return;
+    try {
+      setCopyingQr(true);
+      await navigator.clipboard.writeText(order.paymentInvoice.paymentNumber);
+    } finally {
+      setCopyingQr(false);
+    }
+  };
 
   return (
     <div className={`${quicksand.className} min-h-screen bg-[#f5f7fb] flex justify-center`}>
@@ -394,13 +415,43 @@ function OrderDetailPageContent() {
 
               {/* CTA — only show when still PENDING */}
               {isPendingPayment && (
-                <div className="px-4 pb-4">
-                  <a
-                    href={order.paymentInvoice.paymentUrl!}
-                    className="block w-full text-center py-3 rounded-xl bg-purple-600 text-white text-sm font-bold hover:bg-purple-700 active:scale-[0.98] transition-all shadow"
-                  >
-                    Selesaikan Pembayaran →
-                  </a>
+                <div className="px-4 pb-4 space-y-3">
+                  {hasInternalQris && order.paymentInvoice.paymentNumber && (
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                      <p className="text-xs font-bold text-slate-700">
+                        Scan QRIS untuk membayar
+                      </p>
+                      <p className="mt-1 text-[11px] text-slate-500">
+                        QR ditampilkan langsung di aplikasi supaya tidak perlu buka halaman gateway eksternal.
+                      </p>
+                      <div className="mt-4 flex justify-center">
+                        <div className="rounded-[28px] bg-white p-3 shadow-sm">
+                          <img
+                            src={buildQrImageUrl(order.paymentInvoice.paymentNumber)}
+                            alt="QRIS Payment"
+                            className="h-64 w-64 rounded-2xl border border-slate-100"
+                          />
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleCopyQrString}
+                        className="mt-4 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                      >
+                        {copyingQr ? "Menyalin..." : "Salin String QRIS"}
+                      </button>
+                    </div>
+                  )}
+
+                  {order.paymentInvoice.paymentUrl && (
+                    <a
+                      href={order.paymentInvoice.paymentUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block w-full text-center py-3 rounded-xl bg-purple-600 text-white text-sm font-bold hover:bg-purple-700 active:scale-[0.98] transition-all shadow"
+                    >
+                      Buka Halaman Gateway →
+                    </a>
+                  )}
                 </div>
               )}
             </div>
