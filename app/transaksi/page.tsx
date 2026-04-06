@@ -424,7 +424,10 @@ export default function TransaksiPage() {
                     {/* CTA for waiting payment */}
                     {(order.status === "WAITING_PAYMENT" || order.status === "CREATED") && (
                       <div className="px-4 pb-4">
-                        <button className="w-full bg-[#003D99] hover:bg-blue-800 active:bg-blue-900 text-white text-xs font-semibold py-2.5 rounded-xl transition">
+                        <button
+                          onClick={() => router.push(`/akun/pesanan/${encodeURIComponent(order.orderCode)}`)}
+                          className="w-full bg-[#003D99] hover:bg-blue-800 active:bg-blue-900 text-white text-xs font-semibold py-2.5 rounded-xl transition"
+                        >
                           Bayar Sekarang
                         </button>
                       </div>
