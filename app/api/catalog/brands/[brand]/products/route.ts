@@ -3,6 +3,58 @@ import { prisma } from "@/src/infra/db/prisma";
 
 export const dynamic = "force-dynamic";
 
+type InputFieldDef = {
+  key: string;
+  label: string;
+  placeholder: string;
+  required: boolean;
+  width: "flex" | "fixed";
+};
+
+const DEFAULT_GAME_INPUT_FIELDS: InputFieldDef[] = [
+  {
+    key: "userId",
+    label: "User ID",
+    placeholder: "Masukkan User ID",
+    required: true,
+    width: "flex",
+  },
+];
+
+function isGameLikeValue(value: string | null | undefined): boolean {
+  const normalized = (value ?? "").trim().toLowerCase();
+  if (!normalized) return false;
+
+  return /(game|joki|diamond|membership|server|zone|uid|user id|game id)/i.test(
+    normalized
+  );
+}
+
+function buildSingleTargetField(brand: string, categories: string[]): InputFieldDef {
+  const joined = `${brand} ${categories.join(" ")}`.toLowerCase();
+  const isPhoneLike = /(pulsa|data|paket data|voucher data|telkomsel|indosat|xl|axis|tri|three|smartfren|by\.u|token listrik|pln)/i.test(
+    joined
+  );
+
+  if (isPhoneLike) {
+    return {
+      key: "targetNumber",
+      label: "Nomor Tujuan",
+      placeholder: "Masukkan nomor tujuan",
+      required: true,
+      width: "flex",
+    };
+  }
+
+  return {
+    key: "targetNumber",
+    label: "Tujuan",
+    placeholder: "Masukkan tujuan / nomor akun",
+    required: true,
+    width: "flex",
+  };
+}
+
 /**
  * GET /api/catalog/brands/[brand]/products
  * Return merchant-selected products for a specific brand slug (public, no auth).
@@ -113,11 +165,22 @@ export async function GET(
       typeGroups[p.type].push(p);
     });
 
+    const brandCategories = Array.from(
+      new Set(productsData.map((item) => item.category).filter(Boolean))
+    );
+    const hasGameLikeProducts = productsData.some(
+      (item) => isGameLikeValue(item.type) || isGameLikeValue(item.category)
+    );
+    const resolvedInputFields =
+      hasGameLikeProducts
+        ? ((brandMeta?.inputFields as InputFieldDef[] | null) ?? DEFAULT_GAME_INPUT_FIELDS)
+        : [buildSingleTargetField(matchedBrand, brandCategories)];
+
     return NextResponse.json({
       success: true,
       brand: matchedBrand,
       imageUrl: brandMeta?.imageUrl ?? null,
-      inputFields: brandMeta?.inputFields ?? null,
+      inputFields: resolvedInputFields,
       hasMerchantProducts: productsData.length > 0,
       types: Object.keys(typeGroups),
       data: productsData,
