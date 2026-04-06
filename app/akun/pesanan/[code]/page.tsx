@@ -58,6 +58,8 @@ interface OrderDetail {
   serialNumber: string | null;
   createdAt: string;
   updatedAt: string;
+  targetNumber: string;
+  targetData: Record<string, unknown> | null;
   product: { name: string; brand: string; category: string };
   paymentInvoice: {
     status: string;
@@ -193,6 +195,19 @@ function OrderDetailPageContent() {
   }
 
   if (!order) return null;
+
+  const extraTargetEntries = Object.entries(order.targetData ?? {}).filter(([key, value]) => {
+    if (key === "targetNumber") return false;
+    if (value == null) return false;
+    const normalized = String(value).trim();
+    return normalized.length > 0 && normalized !== order.targetNumber;
+  });
+
+  const formatTargetLabel = (key: string) =>
+    key
+      .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+      .replace(/[_-]+/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase());
 
   const isPendingPayment =
     order.paymentInvoice?.status === "PENDING" &&
@@ -376,6 +391,33 @@ function OrderDetailPageContent() {
                 <span className="text-xs text-slate-500">Waktu</span>
                 <span className="text-xs text-slate-600">{formatDate(order.createdAt)}</span>
               </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-100">
+            <div className="px-4 pt-4 pb-3 border-b border-slate-100">
+              <p className="text-xs font-bold text-slate-600">Data Tujuan</p>
+            </div>
+            <div className="px-4 py-3 space-y-3">
+              <div className="flex justify-between items-start gap-3">
+                <span className="text-xs text-slate-500">Tujuan Utama</span>
+                <span className="text-xs font-semibold text-slate-700 text-right break-all max-w-[65%]">
+                  {order.targetNumber}
+                </span>
+              </div>
+
+              {extraTargetEntries.length > 0 && (
+                <div className="space-y-2 border-t border-slate-100 pt-3">
+                  {extraTargetEntries.map(([key, value]) => (
+                    <div key={key} className="flex justify-between items-start gap-3">
+                      <span className="text-xs text-slate-500">{formatTargetLabel(key)}</span>
+                      <span className="text-xs font-medium text-slate-700 text-right break-all max-w-[65%]">
+                        {String(value)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
