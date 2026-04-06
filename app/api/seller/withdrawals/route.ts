@@ -201,9 +201,10 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: unknown) {
     if (createdRequestId && !payoutSubmitted) {
+      const requestId = createdRequestId;
       await prisma.$transaction(async (tx) => {
         const request = await tx.sellerWithdrawalRequest.findUnique({
-          where: { id: createdRequestId },
+          where: { id: requestId },
         });
 
         if (!request || request.status !== "PENDING") return;
