@@ -311,6 +311,10 @@ export class PoppayClient {
     return this.login(config);
   }
 
+  private async getFreshAccessToken(config: PoppayRuntimeConfig): Promise<string> {
+    return this.login(config);
+  }
+
   private async authorizedFetch(
     config: PoppayRuntimeConfig,
     endpoint: string,
@@ -340,6 +344,45 @@ export class PoppayClient {
     }
     if (res.status === 401) {
       res = await makeRequest(true);
+      const retriedToken = res.headers.get("Nrt")?.trim();
+      if (retriedToken) {
+        tokenCache._poppayAccessToken = retriedToken;
+        tokenCache._poppayAccessTokenAt = Date.now();
+        tokenCache._poppayAccessTokenFor = this.getCacheKey(config);
+      }
+    }
+    return res;
+  }
+
+  private async oneShotAuthorizedFetch(
+    config: PoppayRuntimeConfig,
+    endpoint: string,
+    init: RequestInit
+  ): Promise<Response> {
+    const makeRequest = async () => {
+      const accessToken = await this.getFreshAccessToken(config);
+      const headers = new Headers(init.headers ?? {});
+      headers.set("Authorization", `Bearer ${accessToken}`);
+      headers.set("User-Agent", headers.get("User-Agent") ?? "insomnia/8.1.0");
+      headers.set("Accept-Language", headers.get("Accept-Language") ?? "en");
+      headers.set("Accept", headers.get("Accept") ?? "application/json; charset=UTF-8");
+
+      return fetch(endpoint, {
+        ...init,
+        headers,
+        cache: "no-store",
+      });
+    };
+
+    let res = await makeRequest();
+    const rotatedToken = res.headers.get("Nrt")?.trim();
+    if (rotatedToken) {
+      tokenCache._poppayAccessToken = rotatedToken;
+      tokenCache._poppayAccessTokenAt = Date.now();
+      tokenCache._poppayAccessTokenFor = this.getCacheKey(config);
+    }
+    if (res.status === 401) {
+      res = await makeRequest();
       const retriedToken = res.headers.get("Nrt")?.trim();
       if (retriedToken) {
         tokenCache._poppayAccessToken = retriedToken;
@@ -423,7 +466,7 @@ export class PoppayClient {
       expiration_interval: input.expirationInterval ?? 30,
     };
 
-    const res = await this.authorizedFetch(config, endpoint, {
+    const res = await this.oneShotAuthorizedFetch(config, endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
