@@ -31,6 +31,14 @@ function resolvePoppayCallbackUrl(): string | null {
   return `${baseUrl.replace(/\/+$/, "")}/api/webhook/poppay`;
 }
 
+function toPrismaJson(
+  value: Record<string, unknown> | null | undefined
+): Prisma.InputJsonValue | typeof Prisma.JsonNull {
+  return value
+    ? (value as Prisma.InputJsonValue)
+    : Prisma.JsonNull;
+}
+
 async function resolvePoppayBankCode(explicitBankCode: string | null | undefined, bankName: string): Promise<string> {
   if (explicitBankCode?.trim()) return explicitBankCode.trim();
 
@@ -101,7 +109,7 @@ export async function PATCH(
           payoutGateway: "POPPAY",
           payoutRefId: payout.refId,
           payoutAggRefId: payout.aggregatorRefId,
-          payoutRawPayload: payout.raw ?? Prisma.JsonNull,
+          payoutRawPayload: toPrismaJson(payout.raw),
           processedNote: parsed.data.processedNote?.trim() || null,
           processedAt: new Date(),
         },
