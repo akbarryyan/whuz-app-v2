@@ -143,7 +143,9 @@ const tokenCache = globalThis as unknown as {
   _poppayAccessTokenFor?: string;
 };
 
-const ACCESS_TOKEN_TTL_MS = 10 * 60 * 1000;
+// Client Poppay menginfokan access token berlaku 30 menit.
+// Kita refresh sedikit lebih cepat agar request create/inquiry tidak mepet expiry.
+const ACCESS_TOKEN_TTL_MS = 25 * 60 * 1000;
 
 function normalizeOrigin(raw: string): string {
   const trimmed = raw.trim().replace(/\/+$/, "");
