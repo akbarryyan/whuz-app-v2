@@ -219,16 +219,20 @@ export default function MerchantWalletPage() {
 
               <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
                 <section className="rounded-2xl bg-white p-4 shadow-sm sm:rounded-3xl sm:p-6">
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <h2 className="text-lg font-bold text-slate-900">Ajukan Withdraw</h2>
                       <p className="mt-1 text-sm text-slate-500">
                         Withdraw akan langsung diproses ke Poppay setelah kamu kirim request.
                       </p>
                     </div>
-                    <div className="rounded-2xl bg-emerald-50 px-3 py-2 text-right ring-1 ring-emerald-100">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-600">Saldo Tersedia</p>
-                      <p className="mt-1 text-sm font-bold text-emerald-700">{rupiah(data.balance)}</p>
+                    <div className="w-full rounded-2xl bg-emerald-50 px-3 py-2 ring-1 ring-emerald-100 sm:w-auto sm:max-w-[220px] sm:text-right">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-600 sm:tracking-[0.18em]">
+                        Saldo Tersedia
+                      </p>
+                      <p className="mt-1 break-words text-sm font-bold text-emerald-700 sm:text-base">
+                        {rupiah(data.balance)}
+                      </p>
                     </div>
                   </div>
 
@@ -321,7 +325,7 @@ export default function MerchantWalletPage() {
                     </div>
 
                     <div className="rounded-2xl bg-slate-50 px-4 py-3 text-xs leading-relaxed text-slate-500 ring-1 ring-slate-200">
-                      Request withdraw akan langsung mengirim payout ke Poppay. Kalau payout gagal, saldo hold akan otomatis dikembalikan ke wallet merchant.
+                      Pastikan data rekening tujuan sudah benar. Status pencairan dan riwayat withdraw akan diperbarui otomatis di halaman ini.
                     </div>
 
                     <div className="flex justify-end">
