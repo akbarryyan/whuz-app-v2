@@ -283,7 +283,7 @@ model PaymentInvoice {
   fee           Decimal   @default(0) @db.Decimal(15, 2)
   totalPayment  Decimal   @default(0) @db.Decimal(15, 2)
   method        String? // Payment method chosen (QRIS, VA_BCA, etc.)
-  paymentNumber String?   @db.VarChar(255) // VA number, QRIS string, etc.
+  paymentNumber String?   @db.Text // VA number, raw QRIS string, etc.
   paymentUrl    String?   @db.Text
   status        String // PENDING, PAID, EXPIRED, CANCELLED
   rawPayload    Json? // Last raw webhook payload
@@ -396,7 +396,7 @@ model WalletTopup {
   status        String // PENDING, COMPLETED, EXPIRED, FAILED
   paymentMethod String?
   paymentUrl    String?   @db.Text
-  paymentNumber String?   @db.VarChar(255)
+  paymentNumber String?   @db.Text
   invoiceId     String?   @unique
   paidAt        DateTime?
   expiredAt     DateTime?
