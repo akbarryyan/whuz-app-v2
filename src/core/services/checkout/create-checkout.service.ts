@@ -229,12 +229,24 @@ export class CreateCheckoutService {
     // ── 9. Payment Gateway path ────────────────────────────────────────────
     let pgResult;
     try {
+      const payer = input.userId
+        ? await prisma.user.findUnique({
+            where: { id: input.userId },
+            select: { name: true, email: true, phone: true },
+          })
+        : null;
+
       pgResult = await this.paymentGateway.createPayment({
         orderId: orderCode,
         amount,
         method: input.paymentGatewayMethod,
         redirectUrl: input.redirectUrl,
         description: `${product.name} — ${input.targetNumber}`,
+        payerName:
+          payer?.name?.trim() ||
+          input.whatsapp?.trim() ||
+          input.targetNumber,
+        payerEmail: payer?.email?.trim() || undefined,
       });
 
       // Update order fee with actual gateway fee

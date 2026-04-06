@@ -9,6 +9,10 @@ export interface CreatePaymentInput {
   redirectUrl?: string;
   /** Customer description / item name */
   description?: string;
+  /** Optional payer/customer name for gateways that require it */
+  payerName?: string;
+  /** Optional payer/customer email for gateways that require it */
+  payerEmail?: string;
 }
 
 export interface CreatePaymentResult {
