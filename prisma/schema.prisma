@@ -258,10 +258,15 @@ model SellerWithdrawalRequest {
   userId        String
   amount        Decimal   @db.Decimal(15, 2)
   status        String    @default("PENDING") // PENDING | APPROVED | REJECTED | PAID | CANCELLED
+  bankCode      String?   @db.VarChar(40)
   accountName   String    @db.VarChar(120)
   accountNumber String    @db.VarChar(80)
   bankName      String    @db.VarChar(120)
   note          String?   @db.Text
+  payoutGateway String?   @db.VarChar(40)
+  payoutRefId   String?   @db.VarChar(120)
+  payoutAggRefId String?  @db.VarChar(120)
+  payoutRawPayload Json?
   processedNote String?   @db.Text
   processedAt   DateTime?
   createdAt     DateTime  @default(now())

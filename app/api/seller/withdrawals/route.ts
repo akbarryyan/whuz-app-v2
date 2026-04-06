@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 
 const WithdrawalSchema = z.object({
   amount: z.number().positive(),
+  bankCode: z.string().trim().max(40).optional(),
   accountName: z.string().min(2).max(120),
   accountNumber: z.string().min(3).max(80),
   bankName: z.string().min(2).max(120),
@@ -93,6 +94,7 @@ export async function POST(req: NextRequest) {
           userId: seller.session.userId!,
           amount: new Prisma.Decimal(parsed.data.amount),
           status: "PENDING",
+          bankCode: parsed.data.bankCode?.trim() || null,
           accountName: parsed.data.accountName.trim(),
           accountNumber: parsed.data.accountNumber.trim(),
           bankName: parsed.data.bankName.trim(),

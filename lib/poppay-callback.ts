@@ -18,10 +18,16 @@ export interface PoppayCallbackResult {
   action:
     | "completed_topup"
     | "completed_order"
+    | "completed_withdrawal"
     | "expired_topup"
     | "expired_order"
+    | "expired_withdrawal"
     | "failed_topup"
     | "failed_order"
+    | "failed_withdrawal"
+    | "cancelled_withdrawal"
+    | "rejected_withdrawal"
+    | "obscure_withdrawal"
     | "already_completed"
     | "ignored"
     | "not_found"
@@ -29,6 +35,7 @@ export interface PoppayCallbackResult {
     | "inquiry_mismatch";
   orderId?: string;
   topupId?: string;
+  withdrawalId?: string;
   executeError?: string;
 }
 
@@ -47,6 +54,21 @@ function resolveTopupTerminalStatus(status: number): "COMPLETED" | "EXPIRED" | "
   if (status === 5) return "COMPLETED";
   if (status === 3) return "EXPIRED";
   if (status === 1 || status === 2 || status === 4) return "FAILED";
+  return null;
+}
+
+function resolveWithdrawalCallbackOutcome(status: number):
+  | { kind: "COMPLETED"; requestStatus: "PAID"; action: "completed_withdrawal"; shouldRelease: false }
+  | { kind: "REJECTED"; requestStatus: "REJECTED"; action: "rejected_withdrawal"; shouldRelease: true }
+  | { kind: "CANCELLED"; requestStatus: "CANCELLED"; action: "cancelled_withdrawal"; shouldRelease: true }
+  | { kind: "EXPIRED"; requestStatus: "CANCELLED"; action: "expired_withdrawal"; shouldRelease: true }
+  | { kind: "OBSCURE"; requestStatus: "APPROVED"; action: "obscure_withdrawal"; shouldRelease: false }
+  | null {
+  if (status === 5) return { kind: "COMPLETED", requestStatus: "PAID", action: "completed_withdrawal", shouldRelease: false };
+  if (status === 1) return { kind: "REJECTED", requestStatus: "REJECTED", action: "rejected_withdrawal", shouldRelease: true };
+  if (status === 2) return { kind: "CANCELLED", requestStatus: "CANCELLED", action: "cancelled_withdrawal", shouldRelease: true };
+  if (status === 3) return { kind: "EXPIRED", requestStatus: "CANCELLED", action: "expired_withdrawal", shouldRelease: true };
+  if (status === 4) return { kind: "OBSCURE", requestStatus: "APPROVED", action: "obscure_withdrawal", shouldRelease: false };
   return null;
 }
 
@@ -97,6 +119,12 @@ export async function handlePoppayCallback(
       return { duplicate: false, ...result };
     }
 
+    if (String(payload.agg_refid).startsWith("withdraw-")) {
+      const result = await handlePoppayWithdrawal(payload);
+      await orderRepo.markWebhookProcessed(eventId);
+      return { duplicate: false, ...result };
+    }
+
     const result = await handlePoppayOrder(payload, paidAt);
     await orderRepo.markWebhookProcessed(eventId);
     return { duplicate: false, ...result };
@@ -107,6 +135,154 @@ export async function handlePoppayCallback(
     );
     throw error;
   }
+}
+
+async function handlePoppayWithdrawal(
+  payload: PoppayCallbackPayload
+): Promise<Omit<PoppayCallbackResult, "duplicate">> {
+  const withdrawal = await prisma.sellerWithdrawalRequest.findFirst({
+    where: {
+      OR: [
+        { payoutAggRefId: payload.agg_refid },
+        { payoutRefId: payload.refid },
+        { id: String(payload.agg_refid).replace(/^withdraw-/, "") },
+      ],
+    },
+  });
+
+  if (!withdrawal) {
+    return { action: "not_found" };
+  }
+
+  if (withdrawal.status === "PAID") {
+    return { action: "already_completed", withdrawalId: withdrawal.id };
+  }
+
+  const outcome = resolveWithdrawalCallbackOutcome(payload.status);
+  if (!outcome) {
+    return { action: "ignored", withdrawalId: withdrawal.id };
+  }
+
+  if (outcome.kind === "OBSCURE") {
+    await prisma.sellerWithdrawalRequest.update({
+      where: { id: withdrawal.id },
+      data: {
+        payoutRefId: payload.refid,
+        payoutAggRefId: payload.agg_refid,
+        payoutRawPayload: rawPayloadJson(payload),
+        processedNote: `Poppay callback status=4 (Obscure). Perlu review manual.`,
+        processedAt: new Date(),
+      },
+    });
+
+    return { action: outcome.action, withdrawalId: withdrawal.id };
+  }
+
+  if (outcome.kind === "COMPLETED") {
+    await prisma.$transaction(async (tx) => {
+      const wallet = await tx.wallet.findUnique({ where: { userId: withdrawal.userId } });
+      const existingPaidLedger = wallet
+        ? await tx.ledgerEntry.findFirst({
+            where: {
+              walletId: wallet.id,
+              type: "WITHDRAW_PAID",
+              reference: withdrawal.id,
+            },
+            select: { id: true },
+          })
+        : null;
+
+      if (wallet && !existingPaidLedger) {
+        await tx.ledgerEntry.create({
+          data: {
+            walletId: wallet.id,
+            type: "WITHDRAW_PAID",
+            amount: withdrawal.amount,
+            balanceBefore: wallet.balance,
+            balanceAfter: wallet.balance,
+            reference: withdrawal.id,
+            description: `Withdraw seller dibayar ${withdrawal.id}`,
+          },
+        });
+      }
+
+      await tx.sellerWithdrawalRequest.update({
+        where: { id: withdrawal.id },
+        data: {
+          status: outcome.requestStatus,
+          payoutRefId: payload.refid,
+          payoutAggRefId: payload.agg_refid,
+          payoutRawPayload: rawPayloadJson(payload),
+          processedAt: new Date(),
+        },
+      });
+    });
+
+    return { action: outcome.action, withdrawalId: withdrawal.id };
+  }
+
+  await prisma.$transaction(async (tx) => {
+    const current = await tx.sellerWithdrawalRequest.findUnique({
+      where: { id: withdrawal.id },
+    });
+
+    if (!current || current.status === "REJECTED" || current.status === "CANCELLED") {
+      return;
+    }
+
+    const wallet = await tx.wallet.findUnique({ where: { userId: withdrawal.userId } });
+    const hasReleaseLedger = wallet
+      ? await tx.ledgerEntry.findFirst({
+          where: {
+            walletId: wallet.id,
+            type: "WITHDRAW_RELEASE",
+            reference: withdrawal.id,
+          },
+          select: { id: true },
+        })
+      : null;
+
+    if (wallet && !hasReleaseLedger && outcome.shouldRelease) {
+      const balanceBefore = Number(wallet.balance);
+      const balanceAfter = balanceBefore + Number(withdrawal.amount);
+
+      await tx.wallet.update({
+        where: { id: wallet.id },
+        data: { balance: balanceAfter },
+      });
+
+      await tx.ledgerEntry.create({
+        data: {
+          walletId: wallet.id,
+          type: "WITHDRAW_RELEASE",
+          amount: withdrawal.amount,
+          balanceBefore,
+          balanceAfter,
+          reference: withdrawal.id,
+          description: `Release withdraw seller ${withdrawal.id} setelah payout gagal/expired`,
+        },
+      });
+    }
+
+    await tx.sellerWithdrawalRequest.update({
+      where: { id: withdrawal.id },
+      data: {
+        status: outcome.requestStatus,
+        payoutRefId: payload.refid,
+        payoutAggRefId: payload.agg_refid,
+        payoutRawPayload: rawPayloadJson(payload),
+        processedNote:
+          outcome.kind === "REJECTED"
+            ? "Poppay callback status=1 (Reject)."
+            : outcome.kind === "CANCELLED"
+            ? "Poppay callback status=2 (Cancel)."
+            : "Poppay callback status=3 (Expired).",
+        processedAt: new Date(),
+      },
+    });
+  });
+
+  return { action: outcome.action, withdrawalId: withdrawal.id };
 }
 
 async function handlePoppayTopup(
@@ -230,7 +406,7 @@ async function handlePoppayOrder(
         method: order.paymentInvoice.method ?? "qris",
         status: invoiceStatus,
         paidAt: invoiceStatus === InvoiceStatus.PAID ? paidAt : order.paymentInvoice.paidAt,
-        rawPayload: rawJson(payload),
+        rawPayload: rawPayloadJson(payload),
       },
     });
   }
@@ -264,7 +440,7 @@ async function handlePoppayOrder(
   }
 }
 
-function rawJson(payload: PoppayCallbackPayload) {
+function rawPayloadJson(payload: PoppayCallbackPayload) {
   return payload as unknown as NonNullable<
     Parameters<OrderRepository["updateInvoiceStatus"]>[2]
   >["rawPayload"];

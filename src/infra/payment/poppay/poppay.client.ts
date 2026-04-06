@@ -44,6 +44,17 @@ interface PoppayCreateIncomingResponse {
   message?: string;
 }
 
+interface PoppayCreateOutgoingResponse {
+  success: boolean;
+  code: number;
+  data?: {
+    ref_id: string;
+    agg_ref_id: string;
+    possible_after_balance?: number;
+  };
+  message?: string;
+}
+
 interface PoppayAuthLoginResponse {
   success: boolean;
   code: number;
@@ -104,6 +115,23 @@ export interface PoppayIncomingInquiryResult {
   uid: string;
   status: "pending" | "completed" | "expired" | "failed" | "unknown";
   statusCode?: number;
+  raw: Record<string, unknown> | null;
+}
+
+export interface CreateOutgoingInput {
+  aggRefId: string;
+  amount: number;
+  bankCode: string;
+  destinationAccountNumber: string;
+  destinationAccountName: string;
+  notes?: string | null;
+  callbackUrl?: string | null;
+}
+
+export interface PoppayOutgoingTransaction {
+  refId: string;
+  aggregatorRefId: string;
+  possibleAfterBalance?: number;
   raw: Record<string, unknown> | null;
 }
 
@@ -496,6 +524,56 @@ export class PoppayClient {
       checkoutUrl,
       expiredAt: json.data.expired_at,
       rawQr: json.data.raw_qr,
+    };
+  }
+
+  async createOutgoing(input: CreateOutgoingInput): Promise<PoppayOutgoingTransaction> {
+    const config = await this.requireConfig();
+    const endpoint = `${config.baseUrl}/${config.versionPath}/transaction/out/create`;
+    const aggCode = config.aggregatorCode;
+    const merchantAccNum = config.merchantAccountNumber;
+
+    if (!aggCode || !merchantAccNum) {
+      throw new Error("POPPAY_AGGREGATOR_CODE dan POPPAY_MERCHANT_ACCOUNT_NUMBER wajib diisi.");
+    }
+
+    const payload = {
+      agg_code: aggCode,
+      merchant_acc_num: Number(merchantAccNum),
+      bank_code: input.bankCode.trim(),
+      dst_acc_num: input.destinationAccountNumber.trim(),
+      dst_name: input.destinationAccountName.trim(),
+      agg_ref_id: input.aggRefId,
+      notes: input.notes?.trim() || null,
+      amount: input.amount,
+      callback_url: input.callbackUrl ?? null,
+    };
+
+    const res = await this.oneShotAuthorizedFetch(config, endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    let json: PoppayCreateOutgoingResponse | null = null;
+    try {
+      json = (await res.json()) as PoppayCreateOutgoingResponse;
+    } catch {
+      throw new Error(`Respons create outgoing Poppay tidak valid (HTTP ${res.status}).`);
+    }
+
+    if (!res.ok || !json?.success || !json.data) {
+      throw new Error(json?.message || `Gagal membuat payout Poppay (HTTP ${res.status}).`);
+    }
+
+    return {
+      refId: json.data.ref_id,
+      aggregatorRefId: json.data.agg_ref_id,
+      possibleAfterBalance:
+        typeof json.data.possible_after_balance === "number" ? json.data.possible_after_balance : undefined,
+      raw: (json.data as Record<string, unknown>) ?? null,
     };
   }
 
