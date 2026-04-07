@@ -11,6 +11,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { OrderRepository } from "@/src/infra/db/repositories/order.repository";
 import { getSession } from "@/lib/session";
+import { syncExpiredOrderByCode } from "@/src/core/services/order/sync-expired-orders.service";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,8 @@ export async function GET(
     const { code } = await params;
     const { searchParams } = new URL(request.url);
     const rawToken = searchParams.get("token");
+
+    await syncExpiredOrderByCode(code);
 
     // ── Fetch order ────────────────────────────────────────────────────────
     const order = await orderRepo.findByCode(code);

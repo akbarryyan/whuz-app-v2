@@ -8,6 +8,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
 import { getSession } from "@/lib/session";
+import { syncExpiredOrdersForUser } from "@/src/core/services/order/sync-expired-orders.service";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,8 @@ export async function GET(request: Request) {
     if (!session.isLoggedIn || !session.userId) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
+
+    await syncExpiredOrdersForUser(session.userId);
 
     const { searchParams } = new URL(request.url);
     const page = Math.max(1, Number(searchParams.get("page") ?? 1));

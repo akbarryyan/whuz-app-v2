@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/src/infra/db/prisma";
+import { syncExpiredOrdersForUser } from "@/src/core/services/order/sync-expired-orders.service";
 
 // Status grup per tab
 const TAB_STATUSES: Record<string, string[]> = {
@@ -17,6 +18,8 @@ export async function GET(req: NextRequest) {
     if (!session.isLoggedIn || !session.userId) {
       return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
     }
+
+    await syncExpiredOrdersForUser(session.userId);
 
     const { searchParams } = req.nextUrl;
     const tab = searchParams.get("tab") ?? "menunggu";
