@@ -138,7 +138,7 @@ export default function TransaksiPage() {
       try {
         const params = new URLSearchParams({ tab, page: String(pg) });
         if (q) params.set("q", q);
-        const res  = await fetch(`/api/transaksi?${params}`);
+        const res  = await fetch(`/api/transaksi?${params}`, { cache: "no-store" });
         const data = await res.json();
         if (data.success) {
           setOrders(data.data);

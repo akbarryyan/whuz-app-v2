@@ -99,7 +99,9 @@ function OrderDetailPageContent() {
     if (showSpinner) setRefreshing(true);
     try {
       const qs = token ? `?token=${encodeURIComponent(token)}` : "";
-      const res = await fetch(`/api/orders/${encodeURIComponent(params.code)}${qs}`);
+      const res = await fetch(`/api/orders/${encodeURIComponent(params.code)}${qs}`, {
+        cache: "no-store",
+      });
       const data = await res.json();
       if (data.success) {
         setOrder(data.data as OrderDetail);
