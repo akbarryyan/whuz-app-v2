@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/src/infra/db/prisma";
 import { InvoiceStatus, OrderStatus } from "@/src/core/domain/enums/order.enum";
 
@@ -34,7 +35,7 @@ async function expireOrdersByIds(orderIds: string[]) {
   return orderIds.length;
 }
 
-function buildExpiredOrderWhereClause() {
+function buildExpiredOrderWhereClause(): Prisma.OrderWhereInput {
   const now = new Date();
   const fallbackExpiryDate = new Date(now.getTime() - FALLBACK_EXPIRY_WINDOW_MS);
 
@@ -71,7 +72,7 @@ function buildExpiredOrderWhereClause() {
         createdAt: { lt: fallbackExpiryDate },
       },
     ],
-  } as const;
+  };
 }
 
 export async function syncExpiredOrdersForUser(userId: string) {
