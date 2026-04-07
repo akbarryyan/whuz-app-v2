@@ -325,6 +325,53 @@ export class OrderRepository {
     });
   }
 
+  /** Refund paid gateway order back to member wallet; idempotent per orderId */
+  async refundPaidOrderToWallet(userId: string, amount: number, orderId: string) {
+    return prisma.$transaction(async (tx) => {
+      let wallet = await tx.wallet.findUnique({ where: { userId } });
+      if (!wallet) {
+        wallet = await tx.wallet.create({
+          data: { userId, balance: 0 },
+        });
+      }
+
+      const existingRefund = await tx.ledgerEntry.findFirst({
+        where: {
+          walletId: wallet.id,
+          type: "REFUND",
+          reference: orderId,
+        },
+        select: { id: true },
+      });
+
+      if (existingRefund) {
+        return { duplicated: true, balanceAfter: Number(wallet.balance) };
+      }
+
+      const balanceBefore = Number(wallet.balance);
+      const balanceAfter = balanceBefore + amount;
+
+      await tx.wallet.update({
+        where: { id: wallet.id },
+        data: { balance: balanceAfter },
+      });
+
+      await tx.ledgerEntry.create({
+        data: {
+          walletId: wallet.id,
+          type: "REFUND",
+          amount,
+          balanceBefore,
+          balanceAfter,
+          reference: orderId,
+          description: `Refund order ${orderId} setelah provider gagal`,
+        },
+      });
+
+      return { duplicated: false, balanceAfter };
+    });
+  }
+
   async creditSellerCommission(orderId: string) {
     return prisma.$transaction(async (tx) => {
       const order = await tx.order.findUnique({

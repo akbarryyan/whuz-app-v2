@@ -69,6 +69,7 @@ export async function GET(
         },
         targetNumber: order.targetNumber,
         targetData: order.targetData,
+        notes: order.notes ?? null,
         amount: Number(order.amount),
         basePrice: Number(order.basePrice),
         markup: Number(order.markup),

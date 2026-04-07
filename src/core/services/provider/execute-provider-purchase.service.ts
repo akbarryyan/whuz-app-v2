@@ -24,6 +24,32 @@ export class ExecuteProviderPurchaseService {
     private readonly orderRepo: OrderRepository,
   ) {}
 
+  private async handleProviderFailure(
+    order: NonNullable<Awaited<ReturnType<OrderRepository["findById"]>>>,
+    notes: string,
+    providerRef?: string
+  ) {
+    if (order.paymentMethod === "WALLET" && order.userId) {
+      await this.orderRepo.updateStatus(order.id, OrderStatus.FAILED, { notes, providerRef });
+      await this.orderRepo.releaseWalletHold(order.userId, Number(order.amount), order.id);
+      return;
+    }
+
+    if (order.paymentMethod === "PAYMENT_GATEWAY" && order.userId) {
+      await this.orderRepo.refundPaidOrderToWallet(order.userId, Number(order.amount), order.id);
+      await this.orderRepo.updateStatus(order.id, OrderStatus.REFUNDED, {
+        notes: `${notes} Dana otomatis dikembalikan ke saldo akun.`,
+        providerRef,
+      });
+      return;
+    }
+
+    await this.orderRepo.updateStatus(order.id, OrderStatus.FAILED, {
+      notes: `${notes} Pembayaran sudah diterima. Hubungi CS untuk proses refund manual.`,
+      providerRef,
+    });
+  }
+
   async execute(orderId: string): Promise<void> {
     const order = await this.orderRepo.findById(orderId);
 
@@ -90,14 +116,7 @@ export class ExecuteProviderPurchaseService {
         errorMessage: message,
       });
 
-      await this.orderRepo.updateStatus(orderId, OrderStatus.FAILED, {
-        notes: `Provider error: ${message}`,
-      });
-
-      // Release wallet hold if applicable
-      if (order.paymentMethod === "WALLET" && order.userId) {
-        await this.orderRepo.releaseWalletHold(order.userId, Number(order.amount), orderId);
-      }
+      await this.handleProviderFailure(order, `Provider error: ${message}`);
 
       return;
     }
@@ -140,14 +159,7 @@ export class ExecuteProviderPurchaseService {
 
       console.log(`[Execute] Order ${orderId} PENDING — providerRef=${result.transactionId}. Admin bisa reconcile manual.`);
     } else {
-      await this.orderRepo.updateStatus(orderId, OrderStatus.FAILED, {
-        providerRef: result.transactionId,
-        notes: result.message,
-      });
-
-      if (order.paymentMethod === "WALLET" && order.userId) {
-        await this.orderRepo.releaseWalletHold(order.userId, Number(order.amount), orderId);
-      }
+      await this.handleProviderFailure(order, result.message, result.transactionId);
 
       console.log(`[Execute] Order ${orderId} FAILED — ${result.message}`);
     }

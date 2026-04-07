@@ -62,6 +62,7 @@ interface OrderDetail {
   amount: number;
   fee: number;
   paymentMethod: string;
+  notes: string | null;
   serialNumber: string | null;
   createdAt: string;
   updatedAt: string;
@@ -400,7 +401,25 @@ function OrderDetailPageContent() {
               </div>
               <div>
                 <p className="text-sm font-bold text-red-800">Transaksi Gagal</p>
-                <p className="text-[11px] text-red-600">Hubungi support jika saldo sudah terpotong.</p>
+                <p className="text-[11px] text-red-600">
+                  {order.notes ?? "Hubungi support jika saldo sudah terpotong."}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {order.status === "REFUNDED" && (
+            <div className="bg-teal-50 border border-teal-200 rounded-2xl px-4 py-3 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-teal-500 flex items-center justify-center flex-shrink-0">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-bold text-teal-800">Dana Sudah Dikembalikan</p>
+                <p className="text-[11px] text-teal-700">
+                  {order.notes ?? "Dana otomatis sudah masuk kembali ke saldo akun kamu."}
+                </p>
               </div>
             </div>
           )}

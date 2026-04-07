@@ -26,6 +26,27 @@ export class ReconcileOrderService {
     this.executeService = new ExecuteProviderPurchaseService(orderRepo);
   }
 
+  private async handleProviderFailure(order: NonNullable<Awaited<ReturnType<OrderRepository["findById"]>>>, notes: string) {
+    if (order.paymentMethod === "WALLET" && order.userId) {
+      await this.orderRepo.updateStatus(order.id, OrderStatus.FAILED, { notes });
+      await this.orderRepo.releaseWalletHold(order.userId, Number(order.amount), order.id);
+      return { status: "failed", message: "Order gagal dan hold wallet dilepas" };
+    }
+
+    if (order.paymentMethod === "PAYMENT_GATEWAY" && order.userId) {
+      await this.orderRepo.refundPaidOrderToWallet(order.userId, Number(order.amount), order.id);
+      await this.orderRepo.updateStatus(order.id, OrderStatus.REFUNDED, {
+        notes: `${notes} Dana otomatis dikembalikan ke saldo akun.`,
+      });
+      return { status: "refunded", message: "Order gagal dan dana dikembalikan ke wallet member" };
+    }
+
+    await this.orderRepo.updateStatus(order.id, OrderStatus.FAILED, {
+      notes: `${notes} Pembayaran sudah diterima. Hubungi CS untuk proses refund manual.`,
+    });
+    return { status: "manual_refund", message: "Order guest gagal dan perlu refund manual via CS" };
+  }
+
   async reconcile(orderId: string): Promise<{ status: string; message: string }> {
     const order = await this.orderRepo.findById(orderId);
 
@@ -103,16 +124,13 @@ export class ReconcileOrderService {
       return { status: "success", message: "Order reconciled to SUCCESS" };
 
     } else if (checkResult.status === "failed") {
-      await this.orderRepo.updateStatus(orderId, OrderStatus.FAILED, {
-        notes: `Reconcile: provider FAILED — ${checkResult.message}`,
-      });
-
-      if (order.paymentMethod === "WALLET" && order.userId) {
-        await this.orderRepo.releaseWalletHold(order.userId, Number(order.amount), orderId);
-      }
+      const failure = await this.handleProviderFailure(
+        order,
+        `Reconcile: provider FAILED — ${checkResult.message}`
+      );
 
       console.log(`[Reconcile] Order ${orderId} → FAILED.`);
-      return { status: "failed", message: "Order reconciled to FAILED" };
+      return failure;
 
     } else {
       // Masih pending — admin bisa coba reconcile lagi nanti
