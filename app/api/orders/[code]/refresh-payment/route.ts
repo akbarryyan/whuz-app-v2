@@ -70,17 +70,16 @@ export async function POST(
     }
 
     const invoiceExpired =
-      order.paymentInvoice.status === InvoiceStatus.EXPIRED ||
-      (order.paymentInvoice.status === InvoiceStatus.PENDING && isInvoiceExpired(order.paymentInvoice.expiredAt));
+      (order.paymentInvoice.status === InvoiceStatus.EXPIRED ||
+        order.paymentInvoice.status === InvoiceStatus.PENDING) &&
+      isInvoiceExpired(order.paymentInvoice.expiredAt);
 
-    const orderReissuable =
-      order.status === OrderStatus.WAITING_PAYMENT ||
-      order.status === OrderStatus.EXPIRED ||
-      order.status === OrderStatus.FAILED;
+    const orderReissuable = order.status === OrderStatus.WAITING_PAYMENT;
+    const hasNeverBeenPaid = !order.paymentInvoice.paidAt;
 
-    if (!invoiceExpired || !orderReissuable) {
+    if (!invoiceExpired || !orderReissuable || !hasNeverBeenPaid) {
       return NextResponse.json(
-        { success: false, error: "QRIS baru hanya bisa diminta untuk pesanan yang sudah kedaluwarsa." },
+        { success: false, error: "QRIS baru hanya bisa diminta untuk pesanan menunggu pembayaran yang sudah kedaluwarsa dan belum pernah dibayar." },
         { status: 400 }
       );
     }

@@ -239,15 +239,26 @@ function OrderDetailPageContent() {
       .replace(/[_-]+/g, " ")
       .replace(/\b\w/g, (char) => char.toUpperCase());
 
+  const canShowPaymentFlow = order.status === "WAITING_PAYMENT";
+  const hasEverBeenPaid = Boolean(order.paymentInvoice?.paidAt) || order.status === "PAID" || order.status === "PROCESSING_PROVIDER" || order.status === "SUCCESS" || order.status === "REFUNDED";
   const isPendingPayment =
+    canShowPaymentFlow &&
     order.paymentInvoice?.status === "PENDING" &&
     (!!order.paymentInvoice?.paymentUrl || !!order.paymentInvoice?.paymentNumber);
   const hasInternalQris =
+    canShowPaymentFlow &&
     order.paymentInvoice?.status === "PENDING" &&
     order.paymentInvoice?.method?.toLowerCase() === "qris" &&
     !!order.paymentInvoice?.paymentNumber;
   const isQrisExpired =
+    canShowPaymentFlow &&
     order.paymentInvoice?.status === "PENDING" &&
+    remainingSeconds !== null &&
+    remainingSeconds <= 0;
+  const canRequestNewQris =
+    order.status === "WAITING_PAYMENT" &&
+    !hasEverBeenPaid &&
+    !!order.paymentInvoice &&
     remainingSeconds !== null &&
     remainingSeconds <= 0;
 
@@ -609,7 +620,7 @@ function OrderDetailPageContent() {
                           />
                         </div>
                       </div>
-                      {isQrisExpired ? (
+                      {canRequestNewQris ? (
                         <div className="mt-4 space-y-2">
                           <button
                             onClick={handleRequestNewQris}
@@ -625,13 +636,17 @@ function OrderDetailPageContent() {
                             Buat Pesanan Baru
                           </button>
                         </div>
-                      ) : (
+                      ) : !isQrisExpired ? (
                         <button
                           onClick={handleCopyQrString}
                           className="mt-4 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
                         >
                           {copyingQr ? "Menyalin..." : copyQrLabel}
                         </button>
+                      ) : (
+                        <div className="mt-4 rounded-xl border border-slate-200 bg-white px-4 py-3 text-center text-sm font-semibold text-slate-500">
+                          QRIS ini sudah tidak aktif.
+                        </div>
                       )}
                     </div>
                   )}
