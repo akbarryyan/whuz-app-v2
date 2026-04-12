@@ -23,6 +23,10 @@ export async function POST() {
       process.env.SMTP_FROM ||
       user ||
       "noreply@whuzpay.com";
+    const brandName =
+      (await getSiteConfig("site_name")) ||
+      (await getSiteConfig("SITE_NAME")) ||
+      "Whuzpay";
 
     if (!host || !user || !pass) {
       return NextResponse.json(
@@ -45,7 +49,7 @@ export async function POST() {
     const htmlBody = `
       <div style="font-family: 'Segoe UI', Tahoma, sans-serif; max-width: 480px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0;">
         <div style="background: linear-gradient(135deg, #003D99, #0052CC); padding: 32px 24px; text-align: center;">
-          <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700;">Whuzpay</h1>
+          <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700;">${brandName}</h1>
           <p style="color: #94b8ff; margin: 8px 0 0; font-size: 14px;">SMTP Test Email</p>
         </div>
         <div style="padding: 32px 24px; text-align: center;">
@@ -57,15 +61,15 @@ export async function POST() {
           <p style="color: #94a3b8; font-size: 12px; margin: 0;">Dikirim pada: ${new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta" })}</p>
         </div>
         <div style="background: #f8fafc; padding: 16px 24px; text-align: center; border-top: 1px solid #e2e8f0;">
-          <p style="color: #94a3b8; font-size: 11px; margin: 0;">Email test dari Admin Dashboard Whuzpay.</p>
+          <p style="color: #94a3b8; font-size: 11px; margin: 0;">Email test dari Admin Dashboard ${brandName}.</p>
         </div>
       </div>
     `;
 
     await transporter.sendMail({
-      from: `"Whuzpay" <${from}>`,
+      from: `"${brandName}" <${from}>`,
       to: user, // send to the SMTP user's own email
-      subject: "[Whuzpay] ✅ Test SMTP — Konfigurasi Berhasil",
+      subject: `[${brandName}] ✅ Test SMTP — Konfigurasi Berhasil`,
       html: htmlBody,
     });
 

@@ -44,6 +44,14 @@ async function getSmtpConfig(): Promise<SmtpConfig | null> {
   return { host, port: parseInt(port, 10), user, pass, from };
 }
 
+async function getMailBrandName(): Promise<string> {
+  return (
+    (await getSiteConfig("site_name")) ||
+    (await getSiteConfig("SITE_NAME")) ||
+    "Whuzpay"
+  );
+}
+
 /**
  * Send OTP email
  */
@@ -53,6 +61,7 @@ export async function sendOtpEmail(
   purpose: "LOGIN" | "REGISTER" | "RESET_PASSWORD"
 ): Promise<{ success: boolean; detail?: string }> {
   const config = await getSmtpConfig();
+  const brandName = await getMailBrandName();
 
   if (!config) {
     console.error(
@@ -66,11 +75,11 @@ export async function sendOtpEmail(
   const htmlBody = `
     <div style="font-family: 'Segoe UI', Tahoma, sans-serif; max-width: 480px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0;">
       <div style="background: linear-gradient(135deg, #003D99, #0052CC); padding: 32px 24px; text-align: center;">
-        <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700;">Whuzpay</h1>
+        <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700;">${brandName}</h1>
         <p style="color: #94b8ff; margin: 8px 0 0; font-size: 14px;">Kode OTP untuk ${actionLabel}</p>
       </div>
       <div style="padding: 32px 24px; text-align: center;">
-        <p style="color: #475569; font-size: 14px; margin: 0 0 24px;">Gunakan kode berikut untuk ${actionLabel} ke akun Whuzpay Anda:</p>
+        <p style="color: #475569; font-size: 14px; margin: 0 0 24px;">Gunakan kode berikut untuk ${actionLabel} ke akun ${brandName} Anda:</p>
         <div style="background: #f1f5f9; border-radius: 12px; padding: 20px; margin: 0 0 24px;">
           <span style="font-size: 32px; font-weight: 800; letter-spacing: 8px; color: #003D99;">${code}</span>
         </div>
@@ -94,9 +103,9 @@ export async function sendOtpEmail(
     });
 
     await transporter.sendMail({
-      from: `"Whuzpay" <${config.from}>`,
+      from: `"${brandName}" <${config.from}>`,
       to: toEmail,
-      subject: `[Whuzpay] Kode OTP Anda: ${code}`,
+      subject: `[${brandName}] Kode OTP Anda: ${code}`,
       html: htmlBody,
     });
 
