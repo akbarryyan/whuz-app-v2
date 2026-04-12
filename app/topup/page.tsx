@@ -123,11 +123,10 @@ export default function TopupPage() {
         setSubmitting(false);
         return;
       }
-      // Redirect to payment URL
-      if (data.data.paymentUrl) {
-        window.location.href = data.data.paymentUrl;
+      if (data.data.id) {
+        router.push(`/topup/${encodeURIComponent(data.data.id)}`);
       } else {
-        setErrorMsg("Tidak ada URL pembayaran dari gateway.");
+        setErrorMsg("Tidak ada detail top up yang bisa dibuka.");
         setSubmitting(false);
       }
     } catch {

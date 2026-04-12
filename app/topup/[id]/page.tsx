@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, use, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Quicksand } from "@/lib/fonts";
 import AppHeader from "@/components/AppHeader";
 
@@ -19,6 +19,8 @@ interface TopupDetail {
   fee: number;
   totalPayment: number;
   paymentMethod: string | null;
+  paymentUrl: string | null;
+  paymentNumber: string | null;
   status: string; // PENDING | COMPLETED | EXPIRED | FAILED
   expiredAt: string | null;
   paidAt: string | null;
@@ -41,6 +43,10 @@ function formatDateTime(iso: string) {
   }).format(new Date(iso));
 }
 
+function buildQrImageUrl(raw: string) {
+  return `https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${encodeURIComponent(raw)}`;
+}
+
 // ── Page ───────────────────────────────────────────────────────────────────────
 
 function TopupStatusPageContent({
@@ -50,8 +56,6 @@ function TopupStatusPageContent({
 }) {
   const { id } = use(params);
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const returnStatus = searchParams.get("status"); // "return" when coming back from the QRIS page
 
   const [topup, setTopup] = useState<TopupDetail | null>(null);
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
@@ -70,7 +74,7 @@ function TopupStatusPageContent({
   // ── Fetch topup detail once ─────────────────────────────────────────────────
   const fetchDetail = useCallback(async (): Promise<TopupDetail | null> => {
     try {
-      const res = await fetch(`/api/wallet/topup/${id}`);
+      const res = await fetch(`/api/wallet/topup/${id}`, { cache: "no-store" });
       const data = await res.json();
       if (data.success) return data.data as TopupDetail;
     } catch {}
@@ -122,8 +126,7 @@ function TopupStatusPageContent({
       setTopup(detail);
       setLoading(false);
 
-      // If user just returned from payment page, start polling
-      if (returnStatus === "return" && detail.status === "PENDING") {
+      if (detail.status === "PENDING") {
         startPolling();
       }
       // If already completed, load fresh balance
@@ -131,7 +134,7 @@ function TopupStatusPageContent({
         refreshBalance();
       }
     });
-  }, [id, returnStatus, fetchDetail, startPolling, refreshBalance, router]);
+  }, [id, fetchDetail, startPolling, refreshBalance, router]);
 
   // ── Loading ─────────────────────────────────────────────────────────────────
   if (loading) {
@@ -151,6 +154,10 @@ function TopupStatusPageContent({
   }
 
   const status = topup?.status ?? "PENDING";
+  const hasInternalQris =
+    topup?.status === "PENDING" &&
+    topup?.paymentMethod?.toLowerCase() === "qris" &&
+    !!topup.paymentNumber;
 
   return (
     <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5]`}>
@@ -185,9 +192,25 @@ function TopupStatusPageContent({
                     ? "Kami sedang menunggu konfirmasi dari payment gateway..."
                     : timedOut
                     ? "Belum ada konfirmasi pembayaran. Cek kembali beberapa saat lagi."
-                    : "Selesaikan pembayaran di halaman QRIS Poppay."}
+                    : "Selesaikan pembayaran melalui QRIS di halaman ini."}
                 </p>
               </div>
+
+              {hasInternalQris && topup?.paymentNumber && (
+                <div className="w-full rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+                  <div className="flex flex-col items-center gap-4">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={buildQrImageUrl(topup.paymentNumber)}
+                      alt="QRIS Top Up Wallet"
+                      className="h-64 w-64 rounded-2xl border border-slate-200 bg-white p-3"
+                    />
+                    <p className="text-center text-xs leading-relaxed text-slate-500">
+                      Scan QRIS ini untuk melanjutkan deposit wallet. Status akan diperbarui otomatis setelah pembayaran diterima.
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {/* Detail card */}
               {topup && (
@@ -211,6 +234,12 @@ function TopupStatusPageContent({
                     <div className="flex justify-between text-sm border-t border-slate-200 pt-2.5">
                       <span className="font-bold text-slate-700">Total Bayar</span>
                       <span className="font-bold text-[#003D99]">{formatRp(topup.totalPayment)}</span>
+                    </div>
+                  )}
+                  {topup.expiredAt && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-500">Kedaluwarsa</span>
+                      <span className="font-semibold text-slate-700">{formatDateTime(topup.expiredAt)}</span>
                     </div>
                   )}
                 </div>
