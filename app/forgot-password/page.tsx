@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Quicksand } from "@/lib/fonts";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/ui/Toast";
-import { isOtpAuthEnabledClient } from "@/lib/auth-config";
 
 const quicksand = Quicksand({
   subsets: ["latin"],
@@ -181,7 +180,6 @@ const CheckCircleIcon = () => (
 export default function ForgotPasswordPage() {
   const router = useRouter();
   const toast = useToast();
-  const otpEnabled = isOtpAuthEnabledClient;
 
   const [step, setStep] = useState<Step>("identifier");
   const [method, setMethod] = useState<OtpTarget>("whatsapp");
@@ -213,11 +211,6 @@ export default function ForgotPasswordPage() {
 
     if (!identifier.trim()) {
       toast.error(method === "whatsapp" ? "Nomor WhatsApp wajib diisi." : "Email wajib diisi.");
-      return;
-    }
-
-    if (!otpEnabled) {
-      toast.error("Reset password saat ini masih membutuhkan OTP.");
       return;
     }
 
@@ -470,9 +463,9 @@ export default function ForgotPasswordPage() {
                       />
                     </div>
                     <p className="text-xs text-slate-400">
-                      {otpEnabled
-                        ? `Kode OTP akan dikirim ke ${method === "whatsapp" ? "WhatsApp" : "email"} kamu`
-                        : "OTP sedang dimatikan sementara. Reset password belum tersedia tanpa OTP."}
+                      {`Kode OTP reset password akan dikirim ke ${
+                        method === "whatsapp" ? "WhatsApp" : "email"
+                      } kamu`}
                     </p>
                   </div>
 

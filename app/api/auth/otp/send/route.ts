@@ -11,16 +11,6 @@ import { sendOtpEmail } from "@/lib/mailer";
 
 export async function POST(req: NextRequest) {
   try {
-    if (!isOtpAuthEnabled()) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Verifikasi OTP sedang dinonaktifkan sementara.",
-        },
-        { status: 503 }
-      );
-    }
-
     const body = await req.json();
     const { phone, email, purpose, target } = body;
     // target: "whatsapp" | "email"
@@ -37,6 +27,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { success: false, message: "Tujuan tidak valid." },
         { status: 400 }
+      );
+    }
+
+    if (purpose !== "RESET_PASSWORD" && !isOtpAuthEnabled()) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Verifikasi OTP sedang dinonaktifkan sementara.",
+        },
+        { status: 503 }
       );
     }
 
