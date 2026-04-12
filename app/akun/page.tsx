@@ -434,6 +434,43 @@ export default function AkunPage() {
         {/* ===== SCROLLABLE CONTENT ===== */}
         <div className="flex-1 overflow-y-auto px-5 -mt-10 pb-28 flex flex-col gap-4">
 
+          {user.role === "ADMIN" && (
+            <button
+              type="button"
+              onClick={() => router.push("/admin")}
+              className="group w-full rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-[#003D99] px-5 py-4 text-left shadow-lg shadow-slate-200 transition hover:shadow-xl"
+            >
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/12 text-white">
+                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.8}
+                      d="M3 12l9-8 9 8M5 10v9a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1v-9"
+                    />
+                  </svg>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-sky-200/90">
+                    Akses Admin
+                  </p>
+                  <p className="mt-1 text-base font-bold text-white">
+                    Buka Dashboard Admin
+                  </p>
+                  <p className="mt-1 text-xs leading-relaxed text-white/75">
+                    Kelola produk, transaksi, merchant, dan pengaturan website dari panel admin.
+                  </p>
+                </div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition group-hover:bg-white/20">
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+            </button>
+          )}
+
           {/* ---- WALLET CARD ---- */}
           <div className="bg-white rounded-t-3xl shadow-lg border border-slate-100 p-5 relative overflow-hidden">
             {/* background deco */}
