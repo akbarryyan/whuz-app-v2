@@ -23,6 +23,7 @@ interface Merchant {
     email: string | null;
     phone: string | null;
     isActive: boolean;
+    walletBalance: number;
     _count: {
       sellerProducts: number;
       sellerOrders: number;
@@ -36,6 +37,10 @@ function formatDate(value: string) {
     month: "short",
     year: "numeric",
   });
+}
+
+function formatRp(value: number) {
+  return "Rp " + value.toLocaleString("id-ID");
 }
 
 export default function AdminMerchantsPage() {
@@ -431,6 +436,13 @@ export default function AdminMerchantsPage() {
                           {merchant.user._count.sellerOrders} transaksi seller
                         </p>
 
+                        <p className="mt-1 text-[11px] text-slate-500">
+                          Saldo owner:{" "}
+                          <span className="font-semibold text-slate-700">
+                            {formatRp(merchant.user.walletBalance)}
+                          </span>
+                        </p>
+
                         {merchant.description && (
                           <p className="mt-2 line-clamp-2 text-[11px] leading-5 text-slate-500">
                             {merchant.description}
@@ -576,6 +588,10 @@ export default function AdminMerchantsPage() {
                 <div className="rounded-2xl bg-slate-50 p-4">
                   <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Transaksi</p>
                   <p className="mt-2 text-xl font-bold text-slate-800">{detailMerchant.user._count.sellerOrders}</p>
+                </div>
+                <div className="rounded-2xl bg-slate-50 p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Saldo Owner</p>
+                  <p className="mt-2 text-xl font-bold text-slate-800">{formatRp(detailMerchant.user.walletBalance)}</p>
                 </div>
               </div>
 

@@ -52,6 +52,11 @@ export async function GET(request: NextRequest) {
             email: true,
             phone: true,
             isActive: true,
+            wallet: {
+              select: {
+                balance: true,
+              },
+            },
             sellerProducts: {
               where: { isActive: true },
               select: { id: true },
@@ -71,6 +76,10 @@ export async function GET(request: NextRequest) {
       success: true,
       data: merchants.map((merchant) => ({
         ...merchant,
+        user: {
+          ...merchant.user,
+          walletBalance: merchant.user.wallet ? Number(merchant.user.wallet.balance) : 0,
+        },
         activeSellerProductsCount: merchant.user.sellerProducts.length,
       })),
     });

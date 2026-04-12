@@ -230,8 +230,18 @@ export default function MembersPage() {
                             </span>
                           )}
                         </div>
-                        <p className="text-[11px] text-slate-400 truncate mt-0.5">
-                          {member.email ?? member.phone ?? "—"} · {member.totalOrders} transaksi · {formatRp(member.balance)} · {formatDate(member.createdAt)}
+                        <p className="mt-0.5 text-[11px] text-slate-400 break-words">
+                          {member.email ?? member.phone ?? "—"}
+                        </p>
+                        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-500">
+                          <span>{member.totalOrders} transaksi</span>
+                          <span className="text-slate-300">•</span>
+                          <span className="font-semibold text-slate-700">{formatRp(member.balance)}</span>
+                          <span className="text-slate-300">•</span>
+                          <span>{formatDate(member.createdAt)}</span>
+                        </div>
+                        <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400 sm:hidden">
+                          Saldo: <span className="text-slate-700">{formatRp(member.balance)}</span>
                         </p>
                       </div>
 
