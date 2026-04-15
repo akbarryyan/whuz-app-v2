@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Sidebar from "@/components/admin/Sidebar";
 import Header from "@/components/admin/Header";
 import { ToastContainer } from "@/components/ui/Toast";
@@ -50,6 +50,8 @@ export default function MembersPage() {
   const [search, setSearch] = useState("");
   const [filterTier, setFilterTier] = useState<string>("all");
   const [changingTierId, setChangingTierId] = useState<string | null>(null);
+  const [importing, setImporting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const toast = useToast();
 
@@ -96,6 +98,35 @@ export default function MembersPage() {
       }
     } catch { toast.error("Gagal mengubah tier"); }
     finally { setChangingTierId(null); }
+  }
+
+  async function handleImportFile(file: File) {
+    setImporting(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/admin/users/import", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+
+      if (!data.success) {
+        toast.error(data.error ?? "Gagal mengimpor file Excel.");
+        return;
+      }
+
+      await load();
+      toast.success(
+        `Import selesai. ${data.data.createdCount} user dibuat, ${data.data.skippedCount} dilewati.`
+      );
+    } catch {
+      toast.error("Gagal mengimpor file Excel.");
+    } finally {
+      setImporting(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   }
 
   const filtered = members.filter((m) => {
@@ -165,6 +196,35 @@ export default function MembersPage() {
               ))}
               <option value="none">Tanpa Tier (Default)</option>
             </select>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleImportFile(file);
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={importing}
+              className="rounded-xl border border-blue-200 bg-blue-50 px-3.5 py-2.5 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 disabled:opacity-50"
+            >
+              {importing ? "Mengimpor..." : "Import Excel"}
+            </button>
+            <a
+              href="/api/admin/users/import/template"
+              className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              Download Template
+            </a>
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-xs text-slate-500 shadow-sm">
+            Format kolom import: <span className="font-semibold text-slate-700">name</span>, <span className="font-semibold text-slate-700">email</span>, <span className="font-semibold text-slate-700">phone</span>, <span className="font-semibold text-slate-700">password</span>, <span className="font-semibold text-slate-700">tier</span>, <span className="font-semibold text-slate-700">is_active</span>.
+            Untuk membuat merchant, tambahkan <span className="font-semibold text-slate-700">role</span> bernilai <span className="font-semibold text-slate-700">merchant</span> lalu isi <span className="font-semibold text-slate-700">merchant_name</span> atau <span className="font-semibold text-slate-700">store_name</span>. Kolom opsional merchant: <span className="font-semibold text-slate-700">merchant_slug</span>, <span className="font-semibold text-slate-700">merchant_description</span>, <span className="font-semibold text-slate-700">merchant_is_active</span>.
           </div>
 
           {/* Table */}
