@@ -87,6 +87,31 @@ function withdrawalStatusMeta(status: string) {
   return { label: status, className: "bg-slate-100 text-slate-700 ring-1 ring-slate-200" };
 }
 
+const BANK_OPTIONS = [
+  "BCA",
+  "BNI",
+  "BRI",
+  "Mandiri",
+  "CIMB Niaga",
+  "Permata",
+  "BSI",
+  "Danamon",
+  "BTN",
+  "Bank Jago",
+  "SeaBank",
+  "Neo Commerce",
+  "Bank Mega",
+  "Bank OCBC NISP",
+  "Bank Panin",
+  "Bank Sinarmas",
+  "Bank Muamalat",
+  "Bank Maybank",
+  "Gopay",
+  "OVO",
+  "DANA",
+  "ShopeePay",
+];
+
 export default function MerchantWalletPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [data, setData] = useState<WalletData | null>(null);
@@ -98,7 +123,6 @@ export default function MerchantWalletPage() {
     accountName: "",
     accountNumber: "",
     bankName: "",
-    bankCode: "",
     note: "",
   });
   const { toasts, removeToast, error: showError, success: showSuccess } = useToast();
@@ -152,7 +176,6 @@ export default function MerchantWalletPage() {
           accountName: form.accountName.trim(),
           accountNumber: form.accountNumber.trim(),
           bankName: form.bankName.trim(),
-          bankCode: form.bankCode.trim() || undefined,
           note: form.note.trim() || undefined,
         }),
       });
@@ -168,7 +191,6 @@ export default function MerchantWalletPage() {
         accountName: "",
         accountNumber: "",
         bankName: "",
-        bankCode: "",
         note: "",
       });
       await loadPageData();
@@ -286,30 +308,23 @@ export default function MerchantWalletPage() {
                         <span className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
                           Nama Bank
                         </span>
-                        <input
-                          type="text"
+                        <select
                           value={form.bankName}
                           onChange={(event) => setForm((prev) => ({ ...prev, bankName: event.target.value }))}
-                          placeholder="BCA"
                           className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-400 focus:bg-white"
                           required
-                        />
+                        >
+                          <option value="">Pilih bank / e-wallet tujuan</option>
+                          {BANK_OPTIONS.map((bank) => (
+                            <option key={bank} value={bank}>
+                              {bank}
+                            </option>
+                          ))}
+                        </select>
                       </label>
                     </div>
 
-                    <div className="grid gap-4 sm:grid-cols-[0.9fr_1.1fr]">
-                      <label className="block">
-                        <span className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                          Bank Code Poppay
-                        </span>
-                        <input
-                          type="text"
-                          value={form.bankCode}
-                          onChange={(event) => setForm((prev) => ({ ...prev, bankCode: event.target.value }))}
-                          placeholder="Opsional, mis. 014"
-                          className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-400 focus:bg-white"
-                        />
-                      </label>
+                    <div className="grid gap-4">
                       <label className="block">
                         <span className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
                           Catatan
