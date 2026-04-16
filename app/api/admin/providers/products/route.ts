@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ProviderRepository } from "@/src/infra/db/repositories/provider.repository";
+import { prisma } from "@/src/infra/db/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -9,12 +9,13 @@ export const dynamic = "force-dynamic";
  */
 export async function GET() {
   try {
-    const repo = new ProviderRepository();
-    
-    // Get all products from database
-    const allProducts = await repo.getProducts({
-      isActive: undefined, // Get all products regardless of status
-      limit: 10000, // Get all products
+    const allProducts = await prisma.product.findMany({
+      orderBy: [
+        { provider: "asc" },
+        { isActive: "desc" },
+        { category: "asc" },
+        { sellingPrice: "asc" },
+      ],
     });
 
     // Group by provider
@@ -35,6 +36,7 @@ export async function GET() {
         margin: Number(product.margin),
         sellingPrice: Number(product.sellingPrice),
         stock: product.stock,
+        isActive: product.isActive,
         description: product.description,
       });
     });

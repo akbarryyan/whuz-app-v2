@@ -32,6 +32,7 @@ interface ProductInfo {
   margin: number;
   sellingPrice: number;
   stock: boolean;
+  isActive?: boolean;
   description?: string;
 }
 
@@ -75,19 +76,27 @@ export default function ProvidersPage() {
       setLoading(true);
       
       // Only load products from database - no external API calls
-      const productsRes = await fetch("/api/admin/providers/products");
+      const productsRes = await fetch("/api/admin/providers/products", {
+        cache: "no-store",
+      });
       if (productsRes.ok) {
         const productsData = await productsRes.json();
         setProducts(productsData.data || {});
+      } else {
+        throw new Error("Gagal memuat daftar produk provider");
       }
 
       // Load provider settings (margin configuration and cached balance)
-      const settingsRes = await fetch("/api/admin/providers/settings");
+      const settingsRes = await fetch("/api/admin/providers/settings", {
+        cache: "no-store",
+      });
       let settings: ProviderSetting[] = [];
       if (settingsRes.ok) {
         const settingsData = await settingsRes.json();
         settings = settingsData.data || [];
         setProviderSettings(settings);
+      } else {
+        throw new Error("Gagal memuat pengaturan provider");
       }
 
       // Initialize providers with cached balance from database
@@ -141,21 +150,26 @@ export default function ProvidersPage() {
       setLoading(true);
       
       const [providersRes, productsRes] = await Promise.all([
-        fetch("/api/admin/providers"),
-        fetch("/api/admin/providers/products"),
+        fetch("/api/admin/providers", { cache: "no-store" }),
+        fetch("/api/admin/providers/products", { cache: "no-store" }),
       ]);
 
       if (providersRes.ok) {
         const providersData = await providersRes.json();
         setProviders(providersData.data || []);
+      } else {
+        throw new Error("Gagal memuat provider");
       }
 
       if (productsRes.ok) {
         const productsData = await productsRes.json();
         setProducts(productsData.data || {});
+      } else {
+        throw new Error("Gagal memuat daftar produk provider");
       }
     } catch (error) {
       console.error("Failed to fetch providers data:", error);
+      toast.error("Gagal memuat data provider");
     } finally {
       setLoading(false);
     }
@@ -226,10 +240,14 @@ export default function ProvidersPage() {
         const data = await response.json();
         
         // Refresh products from database
-        const productsRes = await fetch("/api/admin/providers/products");
+        const productsRes = await fetch("/api/admin/providers/products", {
+          cache: "no-store",
+        });
         if (productsRes.ok) {
           const productsData = await productsRes.json();
           setProducts(productsData.data || {});
+        } else {
+          throw new Error("Gagal memuat ulang daftar produk provider");
         }
         
         toast.success(`Berhasil sync ${data.data.syncedCount} produk dari ${providerType}`);

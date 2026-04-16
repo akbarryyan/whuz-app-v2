@@ -64,17 +64,22 @@ export default function ProductsPage() {
   const loadProducts = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/admin/products");
-      if (response.ok) {
-        const data = await response.json();
-        setProducts(data.data || []);
-        
-        // Extract unique categories and brands
-        const uniqueCategories = Array.from(new Set(data.data.map((p: Product) => p.category))).sort();
-        const uniqueBrands = Array.from(new Set(data.data.map((p: Product) => p.brand))).sort();
-        setCategories(uniqueCategories as string[]);
-        setBrands(uniqueBrands as string[]);
+      const response = await fetch("/api/admin/products", {
+        cache: "no-store",
+      });
+      if (!response.ok) {
+        throw new Error("Gagal memuat daftar produk");
       }
+
+      const data = await response.json();
+      const items = Array.isArray(data.data) ? data.data : [];
+      setProducts(items);
+
+      // Extract unique categories and brands
+      const uniqueCategories = Array.from(new Set(items.map((p: Product) => p.category))).sort();
+      const uniqueBrands = Array.from(new Set(items.map((p: Product) => p.brand))).sort();
+      setCategories(uniqueCategories as string[]);
+      setBrands(uniqueBrands as string[]);
     } catch (error) {
       console.error("Failed to load products:", error);
       toast.error("Gagal memuat data produk");
