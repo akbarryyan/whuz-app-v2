@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FooterLinkItem, normalizeFooterLinks } from "@/lib/footer-links";
+import { DEFAULT_FOOTER_COLUMNS, FooterColumnItem, normalizeFooterColumns } from "@/lib/footer-columns";
 
 interface PaymentMethod {
   name: string;
@@ -14,8 +14,12 @@ interface FooterBranding {
   footer_copyright?: string;
   footer_company_name?: string;
   footer_payment_methods?: string; // JSON
-  footer_info_links?: string;
-  footer_other_links?: string;
+  footer_columns?: string;
+  visitorStats?: {
+    visitorsToday: number;
+    totalVisits: number;
+    pagesToday: number;
+  };
 }
 
 function safeJSON<T>(raw: string, fallback: T): T {
@@ -42,17 +46,15 @@ export default function PageFooter() {
     { name: "OVO", img: "" },
     { name: "QRIS", img: "" },
   ]);
-  const infoLinks = normalizeFooterLinks(
-    safeJSON<FooterLinkItem[]>(branding.footer_info_links ?? "", []),
-    [
-      { label: "Tentang Kami", type: "page", slug: "tentang-kami", href: "/info/tentang-kami" },
-      { label: "Syarat dan Ketentuan", type: "page", slug: "syarat-dan-ketentuan", href: "/info/syarat-dan-ketentuan" },
-    ]
+  const footerColumns = normalizeFooterColumns(
+    safeJSON<FooterColumnItem[]>(branding.footer_columns ?? "", []),
+    DEFAULT_FOOTER_COLUMNS
   );
-  const otherLinks = normalizeFooterLinks(
-    safeJSON<FooterLinkItem[]>(branding.footer_other_links ?? "", []),
-    []
-  );
+  const visitorStats = branding.visitorStats ?? {
+    visitorsToday: 0,
+    totalVisits: 0,
+    pagesToday: 0,
+  };
 
   return (
     <footer className="bg-white border-t border-slate-100 px-5 pt-6 pb-28">
@@ -72,15 +74,40 @@ export default function PageFooter() {
         <p className="text-[11px] text-slate-500 font-semibold leading-snug">{tagline}</p>
       </div>
 
-      {(infoLinks.length > 0 || otherLinks.length > 0) && (
-        <div className="flex flex-wrap gap-4 mb-4">
-          {[...infoLinks, ...otherLinks].map((link) => (
-            <a key={`${link.label}-${link.href}`} href={link.href} className="text-[12px] font-semibold text-[#6A7389] hover:text-slate-700 transition-colors">
-              {link.label}
-            </a>
+      <div className="mb-5 space-y-4">
+        <div>
+          <p className="text-[11px] font-bold text-slate-700 mb-2">Pengunjung</p>
+          <div className="grid grid-cols-3 gap-2 text-[10px] text-slate-600">
+            <div className="rounded-xl bg-slate-50 px-3 py-2 text-center">
+              <p>Vis. today</p>
+              <p className="mt-1 font-bold text-slate-800">{visitorStats.visitorsToday.toLocaleString("id-ID")}</p>
+            </div>
+            <div className="rounded-xl bg-slate-50 px-3 py-2 text-center">
+              <p>Visits</p>
+              <p className="mt-1 font-bold text-slate-800">{visitorStats.totalVisits.toLocaleString("id-ID")}</p>
+            </div>
+            <div className="rounded-xl bg-slate-50 px-3 py-2 text-center">
+              <p>Pag. today</p>
+              <p className="mt-1 font-bold text-slate-800">{visitorStats.pagesToday.toLocaleString("id-ID")}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          {footerColumns.map((column) => (
+            <div key={column.title}>
+              <p className="text-[11px] font-bold text-slate-700 mb-1">{column.title}</p>
+              <div className="flex flex-col gap-1">
+                {column.links.map((link) => (
+                  <a key={`${column.title}-${link.label}-${link.href}`} href={link.href} className="text-[12px] font-semibold text-[#6A7389] hover:text-slate-700 transition-colors">
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
-      )}
+      </div>
 
       {/* Help card */}
       <a href="/pusat-bantuan" className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 mb-5 hover:bg-slate-100 transition-colors">

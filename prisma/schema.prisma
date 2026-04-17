@@ -372,6 +372,26 @@ model SiteConfig {
   @@map("site_configs")
 }
 
+model SiteVisitor {
+  id           String   @id @default(cuid())
+  visitorId    String   @unique
+  firstSeenAt  DateTime @default(now())
+  lastSeenAt   DateTime @updatedAt
+  lastPath     String?  @db.VarChar(255)
+
+  @@index([firstSeenAt])
+  @@map("site_visitors")
+}
+
+model SiteDailyMetric {
+  date           String   @id // YYYY-MM-DD (Asia/Jakarta)
+  uniqueVisitors Int      @default(0)
+  pageViews      Int      @default(0)
+  updatedAt      DateTime @updatedAt
+
+  @@map("site_daily_metrics")
+}
+
 // ============================================
 // BRAND METADATA (managed by admin, survives re-sync)
 // ============================================

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Sans, Space_Grotesk } from "@/lib/fonts";
 import { getSiteConfig } from "@/lib/site-config";
+import VisitorTracker from "@/components/VisitorTracker";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -67,6 +68,7 @@ export default function RootLayout({
       <body
         className={`${spaceGrotesk.variable} ${ibmPlexSans.variable} antialiased`}
       >
+        <VisitorTracker />
         {children}
       </body>
     </html>

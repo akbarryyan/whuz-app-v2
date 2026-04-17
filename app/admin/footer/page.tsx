@@ -10,9 +10,14 @@ import {
   FooterLinkItem,
   normalizeFooterLinks,
   normalizeFooterLink,
-  getFooterPageLinks,
   slugifyFooterLabel,
 } from "@/lib/footer-links";
+import {
+  DEFAULT_FOOTER_COLUMNS,
+  FooterColumnItem,
+  collectFooterColumnPageLinks,
+  normalizeFooterColumns,
+} from "@/lib/footer-columns";
 
 const RichTextEditor = dynamic(() => import("@/components/admin/RichTextEditor"), {
   ssr: false,
@@ -41,9 +46,17 @@ function reorderFooterLinks(items: FooterLinkItem[], fromIndex: number, toIndex:
   return next;
 }
 
+function reorderFooterColumns(items: FooterColumnItem[], fromIndex: number, toIndex: number) {
+  if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0) return items;
+  const next = [...items];
+  const [moved] = next.splice(fromIndex, 1);
+  next.splice(toIndex, 0, moved);
+  return next;
+}
+
 /* ─── LinkEditor (outside component to avoid re-mount) ────────────────────── */
 function FooterMenuEditor({
-  title, links, setLinks, configKey, saving, onSave, onPreview,
+  title, links, setLinks, configKey, saving, onSave, onPreview, showSaveButton = true,
 }: {
   title: string;
   links: FooterLinkItem[];
@@ -52,6 +65,7 @@ function FooterMenuEditor({
   saving: string | null;
   onSave: (key: string, value: string, label: string) => void;
   onPreview: (link: FooterLinkItem) => void;
+  showSaveButton?: boolean;
 }) {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dropIndex, setDropIndex] = useState<number | null>(null);
@@ -212,15 +226,17 @@ function FooterMenuEditor({
           <p className="text-xs text-slate-400">Belum ada menu. Klik &quot;+ Tambah&quot; untuk membuat halaman atau link.</p>
         )}
       </div>
-      <div className="px-5 pb-4">
-        <button
-          onClick={() => onSave(configKey, JSON.stringify(links.map((item) => normalizeFooterLink(item))), title)}
-          disabled={saving === configKey}
-          className="px-4 py-2 rounded-xl bg-[#2563eb] text-white text-xs font-bold hover:bg-blue-700 transition disabled:opacity-50"
-        >
-          {saving === configKey ? "Menyimpan..." : "💾 Simpan"}
-        </button>
-      </div>
+      {showSaveButton && (
+        <div className="px-5 pb-4">
+          <button
+            onClick={() => onSave(configKey, JSON.stringify(links.map((item) => normalizeFooterLink(item))), title)}
+            disabled={saving === configKey}
+            className="px-4 py-2 rounded-xl bg-[#2563eb] text-white text-xs font-bold hover:bg-blue-700 transition disabled:opacity-50"
+          >
+            {saving === configKey ? "Menyimpan..." : "💾 Simpan"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -251,6 +267,7 @@ export default function AdminFooterPage() {
     { label: "Kebijakan Privasi", type: "page", slug: "kebijakan-privasi", href: "/info/kebijakan-privasi" },
   ]);
   const [otherLinks,   setOtherLinks]   = useState<FooterLinkItem[]>([{ label: "Karir", type: "page", slug: "karir", href: "/info/karir" }]);
+  const [footerColumns, setFooterColumns] = useState<FooterColumnItem[]>(DEFAULT_FOOTER_COLUMNS);
   const [socialLinks,  setSocialLinks]  = useState<SocialLink[]>(
     SOCIAL_PLATFORMS.map((p) => ({ platform: p, href: "#" }))
   );
@@ -276,11 +293,19 @@ export default function AdminFooterPage() {
         setContactEmail(c.footer_contact_email ?? "");
         const loadedInfoLinks = normalizeFooterLinks(safeJSON(c.footer_info_links, infoLinks), infoLinks);
         const loadedOtherLinks = normalizeFooterLinks(safeJSON(c.footer_other_links, otherLinks), otherLinks);
+        const loadedColumns = normalizeFooterColumns(
+          safeJSON(c.footer_columns, []),
+          [
+            { title: "Informasi", links: loadedInfoLinks },
+            { title: "Lainnya", links: loadedOtherLinks },
+          ]
+        );
         setInfoLinks(loadedInfoLinks);
         setOtherLinks(loadedOtherLinks);
+        setFooterColumns(loadedColumns);
 
         // Load page content for every internal footer page
-        const slugsToLoad = getFooterPageLinks(loadedInfoLinks, loadedOtherLinks)
+        const slugsToLoad = collectFooterColumnPageLinks(loadedColumns)
           .map((l) => l.slug)
           .filter(Boolean) as string[];
         if (slugsToLoad.length > 0) {
@@ -543,18 +568,96 @@ export default function AdminFooterPage() {
           </div>
 
           {/* ── Informasi links ── */}
-          <FooterMenuEditor
-            title="Informasi (link navigasi)"
-            links={infoLinks}
-            setLinks={setInfoLinks}
-            configKey="footer_info_links"
-            saving={saving}
-            onSave={save}
-            onPreview={openLinkPreview}
-          />
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <h2 className="font-bold text-slate-700 text-sm">Kolom Footer</h2>
+                <p className="text-[11px] text-slate-400 mt-0.5">Atur judul kolom dan menu di setiap kolom footer seperti layout marketplace.</p>
+              </div>
+              <button
+                onClick={() => setFooterColumns((prev) => [...prev, { title: "", links: [] }])}
+                className="text-xs text-blue-600 font-semibold hover:underline"
+              >
+                + Tambah Kolom
+              </button>
+            </div>
+            <div className="px-5 py-4 space-y-4">
+              {footerColumns.map((column, index) => (
+                <div key={`${column.title}-${index}`} className="rounded-2xl border border-slate-200 bg-slate-50">
+                  <div className="flex items-center gap-2 border-b border-slate-200 px-4 py-3">
+                    <span className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-500">
+                      Kolom {index + 1}
+                    </span>
+                    <input
+                      value={column.title}
+                      onChange={(e) =>
+                        setFooterColumns((prev) =>
+                          prev.map((item, itemIndex) =>
+                            itemIndex === index ? { ...item, title: e.target.value } : item
+                          )
+                        )
+                      }
+                      placeholder="Judul kolom, mis. PEMBELI"
+                      className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-blue-400"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => index > 0 && setFooterColumns((prev) => reorderFooterColumns(prev, index, index - 1))}
+                      disabled={index === 0}
+                      className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-40"
+                    >
+                      Naik
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => index < footerColumns.length - 1 && setFooterColumns((prev) => reorderFooterColumns(prev, index, index + 1))}
+                      disabled={index === footerColumns.length - 1}
+                      className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-40"
+                    >
+                      Turun
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFooterColumns((prev) => prev.filter((_, itemIndex) => itemIndex !== index))}
+                      className="rounded-lg p-2 text-slate-400 transition hover:bg-rose-50 hover:text-rose-500"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="p-4">
+                    <FooterMenuEditor
+                      title={column.title || `Kolom ${index + 1}`}
+                      links={column.links}
+                      setLinks={(links) =>
+                        setFooterColumns((prev) =>
+                          prev.map((item, itemIndex) => (itemIndex === index ? { ...item, links } : item))
+                        )
+                      }
+                      configKey={`footer_column_${index}`}
+                      saving={saving}
+                      onSave={() => {}}
+                      onPreview={openLinkPreview}
+                      showSaveButton={false}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="px-5 pb-4">
+              <button
+                onClick={() => save("footer_columns", JSON.stringify(footerColumns), "Kolom Footer")}
+                disabled={saving === "footer_columns"}
+                className="px-4 py-2 rounded-xl bg-[#2563eb] text-white text-xs font-bold hover:bg-blue-700 transition disabled:opacity-50"
+              >
+                {saving === "footer_columns" ? "Menyimpan..." : "💾 Simpan Kolom Footer"}
+              </button>
+            </div>
+          </div>
 
           {/* ── Konten Halaman Informasi ── */}
-          {getFooterPageLinks(infoLinks, otherLinks)
+          {collectFooterColumnPageLinks(footerColumns)
             .map((link) => {
               const slug = link.slug!;
               const contentKey = `page_content_${slug}`;
@@ -612,16 +715,9 @@ export default function AdminFooterPage() {
             })
           }
 
-          {/* ── Lainnya links ── */}
-          <FooterMenuEditor
-            title="Lainnya (link navigasi)"
-            links={otherLinks}
-            setLinks={setOtherLinks}
-            configKey="footer_other_links"
-            saving={saving}
-            onSave={save}
-            onPreview={openLinkPreview}
-          />
+          <div className="rounded-2xl border border-blue-100 bg-blue-50 px-5 py-4 text-sm leading-6 text-blue-800">
+            Statistik pengunjung di footer tidak diinput manual. Angkanya diambil otomatis dari trafik website: visitor unik hari ini, total visitor, dan pageview hari ini.
+          </div>
 
           {/* ── Social Links ── */}
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">

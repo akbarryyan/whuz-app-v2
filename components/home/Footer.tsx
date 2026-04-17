@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { FooterLinkItem, normalizeFooterLinks } from "@/lib/footer-links";
+import { DEFAULT_FOOTER_COLUMNS, FooterColumnItem, normalizeFooterColumns } from "@/lib/footer-columns";
 
 interface PaymentMethod {
   name: string;
@@ -20,10 +20,14 @@ interface FooterConfig {
   footer_company_name: string;
   footer_contact_phone: string;
   footer_contact_email: string;
-  footer_info_links: string; // JSON
-  footer_other_links: string; // JSON
+  footer_columns?: string;
   footer_social_links: string; // JSON
   footer_copyright: string;
+  visitorStats?: {
+    visitorsToday: number;
+    totalVisits: number;
+    pagesToday: number;
+  };
 }
 
 function safeJSON<T>(raw: string, fallback: T): T {
@@ -80,17 +84,9 @@ export default function Footer() {
   const companyName   = cfg?.footer_company_name ?? "PT Whuzpay Digital Indonesia";
   const contactPhone  = cfg?.footer_contact_phone ?? "08123-456-7890";
   const contactEmail  = cfg?.footer_contact_email ?? "support@whuzpay.com";
-  const infoLinks = normalizeFooterLinks(
-    safeJSON<FooterLinkItem[]>(cfg?.footer_info_links ?? "", []),
-    [
-      { label: "Tentang Kami", type: "page", slug: "tentang-kami", href: "/info/tentang-kami" },
-      { label: "Syarat dan Ketentuan", type: "page", slug: "syarat-dan-ketentuan", href: "/info/syarat-dan-ketentuan" },
-      { label: "Kebijakan Privasi", type: "page", slug: "kebijakan-privasi", href: "/info/kebijakan-privasi" },
-    ]
-  );
-  const otherLinks = normalizeFooterLinks(
-    safeJSON<FooterLinkItem[]>(cfg?.footer_other_links ?? "", []),
-    [{ label: "Karir", type: "page", slug: "karir", href: "/info/karir" }]
+  const footerColumns = normalizeFooterColumns(
+    safeJSON<FooterColumnItem[]>(cfg?.footer_columns ?? "", []),
+    DEFAULT_FOOTER_COLUMNS
   );
   const socialLinks   = safeJSON<SocialLink[]>(cfg?.footer_social_links ?? "", [
     { platform: "instagram", href: "#" },
@@ -100,11 +96,17 @@ export default function Footer() {
     { platform: "tiktok",    href: "#" },
   ]);
   const copyright     = cfg?.footer_copyright ?? "Copyright ©2024 - 2026\nPT. Whuzpay Digital Indonesia - Whuzpay All Right Reserved";
+  const visitorStats = cfg?.visitorStats ?? {
+    visitorsToday: 0,
+    totalVisits: 0,
+    pagesToday: 0,
+  };
 
   return (
     <footer className="-mt-14 bg-white shadow-2xl overflow-hidden pb-24">
-      <div className="px-5 pt-6 pb-8">
-        {/* ---- Brand ---- */}
+      <div className="px-5 pt-6 pb-8 lg:px-8">
+        <div className="grid gap-8 lg:grid-cols-[1.2fr_1fr_0.9fr_repeat(3,1fr)]">
+        <div>
         <div className="flex items-center gap-2 mb-2">
           {logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -119,11 +121,10 @@ export default function Footer() {
           )}
         </div>
         <p className="text-slate-500 text-[13px]">{tagline}</p>
-      </div>
+        </div>
 
-      {/* ---- Pembayaran Lengkap ---- */}
-      <div className="px-5 mt-4">
-        <h3 className="text-[13px] font-bold text-[#262C3B] mb-3">Pembayaran Lengkap</h3>
+        <div>
+        <h3 className="text-[13px] font-bold text-[#262C3B] mb-3 uppercase tracking-wide">Pembayaran</h3>
         <div className="flex flex-wrap items-center gap-2">
           {paymentMethods.map((pm) => (
             pm.img ? (
@@ -145,107 +146,74 @@ export default function Footer() {
             )
           ))}
         </div>
-      </div>
-
-      {/* ---- Informasi ---- */}
-      {infoLinks.length > 0 && (
-        <div className="px-5 mt-8">
-          <h3 className="text-[13px] font-bold text-[#262C3B] mb-2">Informasi</h3>
-          <div className="flex flex-col gap-1">
-            {infoLinks.map((link) => (
-              <a key={link.label} href={link.href}
-                className="text-[12px] font-semibold text-[#6A7389] hover:text-purple-700 transition-colors">
-                {link.label}
-              </a>
-            ))}
-          </div>
-
-          <Link href="/seller" className="block mt-4 bg-blue-50 rounded-xl p-4 flex items-center gap-3 hover:bg-blue-100 transition-colors cursor-pointer">
-            <div className="w-10 h-10 rounded-full bg-[#003D99] flex items-center justify-center flex-shrink-0">
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M3 7.5l9-4 9 4m-18 0v9l9 4m-9-13l9 4m9-4l-9 4m0 9v-9" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-[13px] font-semibold text-slate-700">Cari Merchant?</p>
-              <p className="text-[13px] font-bold text-[#003D99]">
-                Lihat Semua Merchant{" "}
-                <svg className="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
-                </svg>
-              </p>
-            </div>
-          </Link>
-
-          {/* Pusat Bantuan card */}
-          <a href="/pusat-bantuan" className="block mt-4 bg-slate-50 rounded-xl p-4 flex items-center gap-3 hover:bg-slate-100 transition-colors cursor-pointer">
-            <div className="w-10 h-10 rounded-full bg-[#003D99] flex items-center justify-center flex-shrink-0">
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-[13px] font-semibold text-slate-700">Punya Pertanyaan?</p>
-              <p className="text-[13px] font-bold text-[#003D99]">
-                Cek Pusat Bantuan{" "}
-                <svg className="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
-                </svg>
-              </p>
-            </div>
-          </a>
         </div>
-      )}
 
-      {/* ---- Layanan Pengaduan Konsumen ---- */}
-      <div className="px-5 py-4">
-        <h3 className="text-[13px] font-bold text-[#262C3B] mb-2">Layanan Pengaduan Konsumen</h3>
-        <p className="text-[12px] text-[#6A7389] mb-1">{companyName}</p>
-        <div className="flex flex-col gap-1">
-          {contactPhone && (
-            <a href={`https://wa.me/${contactPhone.replace(/\D/g, "")}`}
-              className="inline-flex items-center gap-2 text-[13px] text-[#003D99] hover:text-purple-700 transition-colors">
-              <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-              </svg>
-              {contactPhone}
-            </a>
-          )}
-          {contactEmail && (
-            <a href={`mailto:${contactEmail}`}
-              className="inline-flex items-center gap-2 text-[13px] text-[#003D99] hover:text-purple-700 transition-colors">
-              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              {contactEmail}
-            </a>
-          )}
-        </div>
-      </div>
-
-      {/* ---- Lainnya ---- */}
-      {otherLinks.length > 0 && (
-        <div className="px-5 mt-4">
-          <h3 className="text-[13px] font-bold text-[#262C3B] mb-2">Lainnya</h3>
-          <div className="flex flex-col gap-1">
-            {otherLinks.map((link) => (
-              <a key={link.label} href={link.href}
-                className="text-[12px] font-semibold text-[#6A7389] hover:text-purple-700 transition-colors">
-                {link.label}
-              </a>
-            ))}
+        <div>
+          <h3 className="text-[13px] font-bold text-[#262C3B] mb-3 uppercase tracking-wide">Pengunjung</h3>
+          <div className="space-y-2 text-[13px] text-slate-700">
+            <div className="flex items-center justify-between gap-4">
+              <span>Vis. today</span>
+              <strong>{visitorStats.visitorsToday.toLocaleString("id-ID")}</strong>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <span>Visits</span>
+              <strong>{visitorStats.totalVisits.toLocaleString("id-ID")}</strong>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <span>Pag. today</span>
+              <strong>{visitorStats.pagesToday.toLocaleString("id-ID")}</strong>
+            </div>
           </div>
         </div>
-      )}
 
-      {/* ---- Ikuti Kami di ---- */}
-      {socialLinks.length > 0 && (
-        <div className="px-5 mt-4">
-          <h3 className="text-[13px] font-bold text-[#262C3B] mb-2">Ikuti Kami di</h3>
-          <div className="flex items-center gap-4">
+        {footerColumns.map((column) => (
+          <div key={column.title}>
+            <h3 className="text-[13px] font-bold text-[#262C3B] mb-3 uppercase tracking-wide">{column.title}</h3>
+            <ul className="space-y-2">
+              {column.links.map((link) => (
+                <li key={`${column.title}-${link.label}-${link.href}`} className="flex items-start gap-2 text-[13px]">
+                  <span className="pt-1 text-slate-400">•</span>
+                  <a href={link.href} className="font-semibold text-emerald-700 hover:text-emerald-800 transition-colors">
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+        </div>
+
+      <div className="mt-8 grid gap-6 border-t border-slate-100 pt-6 lg:grid-cols-[1.3fr_auto_auto]">
+        <div>
+          <h3 className="text-[13px] font-bold text-[#262C3B] mb-2">Layanan Pengaduan Konsumen</h3>
+          <p className="text-[12px] text-[#6A7389] mb-1">{companyName}</p>
+          <div className="flex flex-col gap-1">
+            {contactPhone && (
+              <a href={`https://wa.me/${contactPhone.replace(/\D/g, "")}`}
+                className="inline-flex items-center gap-2 text-[13px] text-[#003D99] hover:text-purple-700 transition-colors">
+                <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                </svg>
+                {contactPhone}
+              </a>
+            )}
+            {contactEmail && (
+              <a href={`mailto:${contactEmail}`}
+                className="inline-flex items-center gap-2 text-[13px] text-[#003D99] hover:text-purple-700 transition-colors">
+                <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                {contactEmail}
+              </a>
+            )}
+          </div>
+        </div>
+
+        {socialLinks.length > 0 && (
+          <div>
+            <h3 className="text-[13px] font-bold text-[#262C3B] mb-2">Ikuti Kami di</h3>
+            <div className="flex items-center gap-4">
             {socialLinks.map((s) =>
               SOCIAL_ICONS[s.platform] ? (
                 <a key={s.platform} href={s.href}
@@ -254,12 +222,24 @@ export default function Footer() {
                 </a>
               ) : null
             )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* ---- Copyright ---- */}
-      <div className="px-5 mt-6">
+        <div>
+          <Link href="/seller" className="block bg-blue-50 rounded-xl p-4 hover:bg-blue-100 transition-colors">
+            <p className="text-[13px] font-semibold text-slate-700">Cari Merchant?</p>
+            <p className="text-[13px] font-bold text-[#003D99] mt-1">Lihat Semua Merchant</p>
+          </Link>
+          <a href="/pusat-bantuan" className="mt-3 block bg-slate-50 rounded-xl p-4 hover:bg-slate-100 transition-colors">
+            <p className="text-[13px] font-semibold text-slate-700">Punya Pertanyaan?</p>
+            <p className="text-[13px] font-bold text-[#003D99] mt-1">Cek Pusat Bantuan</p>
+          </a>
+        </div>
+      </div>
+      </div>
+
+      <div className="mt-6 border-t border-slate-100 pt-5">
         {copyright.split("\n").map((line, i) => (
           <p key={i} className="text-[11px] text-slate-400 leading-relaxed">{line}</p>
         ))}

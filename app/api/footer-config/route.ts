@@ -5,6 +5,8 @@
 
 import { NextResponse } from "next/server";
 import { getAllSiteConfig } from "@/lib/site-config";
+import { getFooterVisitorStats } from "@/lib/analytics";
+import { DEFAULT_FOOTER_COLUMNS } from "@/lib/footer-columns";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +31,7 @@ export const FOOTER_DEFAULTS = {
   footer_other_links: JSON.stringify([
     { label: "Karir", type: "page", slug: "karir", href: "/info/karir" },
   ]),
+  footer_columns: JSON.stringify(DEFAULT_FOOTER_COLUMNS),
   footer_social_links: JSON.stringify([
     { platform: "instagram", href: "#" },
     { platform: "facebook",  href: "#" },
@@ -41,7 +44,10 @@ export const FOOTER_DEFAULTS = {
 
 export async function GET() {
   try {
-    const raw = await getAllSiteConfig();
+    const [raw, visitorStats] = await Promise.all([
+      getAllSiteConfig(),
+      getFooterVisitorStats(),
+    ]);
 
     // Merge DB values over defaults
     const config: Record<string, string> = { ...FOOTER_DEFAULTS };
@@ -49,9 +55,25 @@ export async function GET() {
       if (raw[key] != null) config[key] = raw[key];
     }
 
-    return NextResponse.json({ success: true, data: config });
+    return NextResponse.json({
+      success: true,
+      data: {
+        ...config,
+        visitorStats,
+      },
+    });
   } catch (err) {
     console.error("[GET /api/footer-config]", err);
-    return NextResponse.json({ success: true, data: FOOTER_DEFAULTS });
+    return NextResponse.json({
+      success: true,
+      data: {
+        ...FOOTER_DEFAULTS,
+        visitorStats: {
+          visitorsToday: 0,
+          totalVisits: 0,
+          pagesToday: 0,
+        },
+      },
+    });
   }
 }
