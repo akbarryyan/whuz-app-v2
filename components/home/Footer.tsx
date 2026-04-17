@@ -104,9 +104,9 @@ export default function Footer() {
 
   return (
     <footer className="-mt-14 overflow-hidden bg-white shadow-2xl pb-24">
-      <div className="mx-auto max-w-7xl px-5 pt-6 pb-8 lg:px-8">
-        <div className="grid gap-8 sm:grid-cols-2 xl:grid-cols-[1.3fr_1fr_0.9fr_repeat(3,minmax(0,1fr))]">
-          <div className="sm:col-span-2 xl:col-span-1">
+      <div className="mx-auto max-w-5xl px-5 pt-6 pb-8 lg:px-8">
+        <div className="space-y-8">
+          <div>
             <div className="mb-3 flex items-center gap-2">
               {logoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -166,8 +166,9 @@ export default function Footer() {
             </div>
           </div>
 
-          {footerColumns.map((column) => (
-            <div key={column.title}>
+          <div className="space-y-6">
+            {footerColumns.map((column) => (
+              <div key={column.title}>
               <h3 className="mb-3 text-[13px] font-bold uppercase tracking-wide text-[#262C3B]">{column.title}</h3>
               <ul className="space-y-2">
                 {column.links.map((link) => (
@@ -182,11 +183,12 @@ export default function Footer() {
                   </li>
                 ))}
               </ul>
-            </div>
-          ))}
+              </div>
+            ))}
+          </div>
         </div>
 
-        <div className="mt-8 grid gap-6 border-t border-slate-100 pt-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,0.9fr)]">
+        <div className="mt-8 space-y-6 border-t border-slate-100 pt-6">
           <div>
             <h3 className="mb-2 text-[13px] font-bold text-[#262C3B]">Layanan Pengaduan Konsumen</h3>
             <p className="mb-1 text-[12px] text-[#6A7389]">{companyName}</p>
