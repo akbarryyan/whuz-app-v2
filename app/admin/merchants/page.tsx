@@ -56,6 +56,9 @@ export default function AdminMerchantsPage() {
   const [bulkLoading, setBulkLoading] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [detailMerchant, setDetailMerchant] = useState<Merchant | null>(null);
+  const [showCopyProductsModal, setShowCopyProductsModal] = useState(false);
+  const [copySourceMerchantId, setCopySourceMerchantId] = useState("");
+  const [copyingProducts, setCopyingProducts] = useState(false);
   const toast = useToast();
 
   const loadMerchants = useCallback(async () => {
@@ -158,6 +161,48 @@ export default function AdminMerchantsPage() {
       toast.error("Gagal mengubah status merchant massal");
     } finally {
       setBulkLoading(false);
+    }
+  }
+
+  async function copyProductsToSelectedMerchants() {
+    if (!copySourceMerchantId) {
+      toast.error("Pilih merchant sumber terlebih dahulu.");
+      return;
+    }
+
+    if (selectedIds.length === 0) {
+      toast.error("Pilih merchant target terlebih dahulu.");
+      return;
+    }
+
+    setCopyingProducts(true);
+    try {
+      const res = await fetch("/api/admin/merchants/copy-products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sourceMerchantId: copySourceMerchantId,
+          targetMerchantIds: selectedIds,
+        }),
+      });
+      const data = await res.json();
+
+      if (!data.success) {
+        toast.error(data.error ?? "Gagal menyalin produk merchant");
+        return;
+      }
+
+      setShowCopyProductsModal(false);
+      setCopySourceMerchantId("");
+      setSelectedIds([]);
+      await loadMerchants();
+      toast.success(
+        `${data.data.createdCount} produk template berhasil ditambahkan ke ${data.data.targetCount} merchant target`
+      );
+    } catch {
+      toast.error("Gagal menyalin produk merchant");
+    } finally {
+      setCopyingProducts(false);
     }
   }
 
@@ -321,6 +366,13 @@ export default function AdminMerchantsPage() {
                 {selectedIds.length} merchant dipilih
               </span>
               <div className="ml-auto flex flex-wrap gap-2">
+                <button
+                  onClick={() => setShowCopyProductsModal(true)}
+                  disabled={selectedIds.length === 0}
+                  className="rounded-xl bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-100 disabled:opacity-50"
+                >
+                  Salin Produk ke Terpilih
+                </button>
                 <button
                   onClick={() => runBulkToggle(true)}
                   disabled={bulkLoading || selectedIds.length === 0}
@@ -656,6 +708,103 @@ export default function AdminMerchantsPage() {
                     : "Aktifkan Merchant"}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showCopyProductsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4">
+          <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  Duplikasi Produk Merchant
+                </p>
+                <h2 className="mt-1 text-lg font-bold text-slate-800">
+                  Salin produk aktif ke merchant terpilih
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-slate-500">
+                  Sistem hanya menyalin daftar produk aktif. Harga target akan kembali memakai harga dasar/default, jadi merchant target tetap bisa mengatur harga sendiri setelahnya.
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowCopyProductsModal(false);
+                  setCopySourceMerchantId("");
+                }}
+                className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="mt-5 space-y-4">
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Merchant sumber
+                </label>
+                <select
+                  value={copySourceMerchantId}
+                  onChange={(e) => setCopySourceMerchantId(e.target.value)}
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 transition focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                >
+                  <option value="">Pilih merchant sumber...</option>
+                  {merchants.map((merchant) => (
+                    <option key={merchant.id} value={merchant.id}>
+                      {merchant.displayName} ({merchant.activeSellerProductsCount} produk aktif)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Merchant target</p>
+                <div className="mt-3 space-y-2">
+                  {merchants.filter((merchant) => selectedIds.includes(merchant.id)).length === 0 ? (
+                    <p className="text-sm text-slate-500">Belum ada merchant target yang dipilih.</p>
+                  ) : (
+                    merchants
+                      .filter((merchant) => selectedIds.includes(merchant.id))
+                      .map((merchant) => (
+                        <div key={merchant.id} className="flex items-center justify-between rounded-xl bg-white px-3 py-2">
+                          <div>
+                            <p className="text-sm font-semibold text-slate-700">{merchant.displayName}</p>
+                            <p className="text-xs text-slate-400">/seller/{merchant.slug}</p>
+                          </div>
+                          <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-700">
+                            {merchant.activeSellerProductsCount} aktif
+                          </span>
+                        </div>
+                      ))
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-800">
+                Produk yang sudah lebih dulu dimiliki merchant target akan dilewati otomatis dan tidak ditimpa.
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-wrap justify-end gap-2">
+              <button
+                onClick={() => {
+                  setShowCopyProductsModal(false);
+                  setCopySourceMerchantId("");
+                }}
+                className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              >
+                Batal
+              </button>
+              <button
+                onClick={copyProductsToSelectedMerchants}
+                disabled={copyingProducts || !copySourceMerchantId || selectedIds.length === 0}
+                className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
+              >
+                {copyingProducts ? "Menyalin..." : "Salin Produk"}
+              </button>
             </div>
           </div>
         </div>
