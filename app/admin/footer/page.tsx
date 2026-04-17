@@ -6,6 +6,13 @@ import Sidebar from "@/components/admin/Sidebar";
 import Header from "@/components/admin/Header";
 import { ToastContainer } from "@/components/ui/Toast";
 import { useToast } from "@/hooks/useToast";
+import {
+  FooterLinkItem,
+  normalizeFooterLinks,
+  normalizeFooterLink,
+  getFooterPageLinks,
+  slugifyFooterLabel,
+} from "@/lib/footer-links";
 
 const RichTextEditor = dynamic(() => import("@/components/admin/RichTextEditor"), {
   ssr: false,
@@ -17,7 +24,6 @@ const RichTextEditor = dynamic(() => import("@/components/admin/RichTextEditor")
 });
 
 interface PaymentMethod { name: string; img: string; }
-interface NavLink       { label: string; href: string; }
 interface SocialLink    { platform: string; href: string; }
 
 const SOCIAL_PLATFORMS = ["instagram", "facebook", "youtube", "discord", "tiktok"];
@@ -27,58 +33,188 @@ function safeJSON<T>(raw: string, fallback: T): T {
   try { return JSON.parse(raw) as T; } catch { return fallback; }
 }
 
+function reorderFooterLinks(items: FooterLinkItem[], fromIndex: number, toIndex: number) {
+  if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0) return items;
+  const next = [...items];
+  const [moved] = next.splice(fromIndex, 1);
+  next.splice(toIndex, 0, moved);
+  return next;
+}
+
 /* ─── LinkEditor (outside component to avoid re-mount) ────────────────────── */
-function LinkEditor({
-  title, links, setLinks, configKey, saving, onSave,
+function FooterMenuEditor({
+  title, links, setLinks, configKey, saving, onSave, onPreview,
 }: {
   title: string;
-  links: NavLink[];
-  setLinks: (v: NavLink[]) => void;
+  links: FooterLinkItem[];
+  setLinks: (v: FooterLinkItem[]) => void;
   configKey: string;
   saving: string | null;
   onSave: (key: string, value: string, label: string) => void;
+  onPreview: (link: FooterLinkItem) => void;
 }) {
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dropIndex, setDropIndex] = useState<number | null>(null);
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
       <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-        <h2 className="font-bold text-slate-700 text-sm">{title}</h2>
+        <div>
+          <h2 className="font-bold text-slate-700 text-sm">{title}</h2>
+          <p className="mt-0.5 text-[11px] text-slate-400">Drag item untuk ubah urutan menu. Halaman internal bisa dipreview langsung dari sini.</p>
+        </div>
         <button
-          onClick={() => setLinks([...links, { label: "", href: "#" }])}
+          onClick={() => setLinks([...links, { label: "", type: "page", slug: "", href: "/info/" }])}
           className="text-xs text-blue-600 font-semibold hover:underline"
         >+ Tambah</button>
       </div>
       <div className="px-5 py-4 space-y-2">
         {links.map((link, i) => (
-          <div key={i} className="flex gap-2 items-center">
-            <input
-              value={link.label}
-              onChange={(e) => { const v = e.target.value; setLinks(links.map((l, j) => j === i ? { ...l, label: v } : l)); }}
-              placeholder="Label"
-              className="flex-1 px-3 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400"
-            />
-            <input
-              value={link.href}
-              onChange={(e) => { const v = e.target.value; setLinks(links.map((l, j) => j === i ? { ...l, href: v } : l)); }}
-              placeholder="URL / path"
-              className="flex-1 px-3 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400"
-            />
-            <button
-              onClick={() => setLinks(links.filter((_, j) => j !== i))}
-              className="p-1.5 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-500 transition"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+          <div
+            key={`${link.href}-${i}`}
+            draggable
+            onDragStart={() => {
+              setDragIndex(i);
+              setDropIndex(i);
+            }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              if (dropIndex !== i) setDropIndex(i);
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              if (dragIndex === null) return;
+              setLinks(reorderFooterLinks(links, dragIndex, i));
+              setDragIndex(null);
+              setDropIndex(null);
+            }}
+            onDragEnd={() => {
+              setDragIndex(null);
+              setDropIndex(null);
+            }}
+            className={`rounded-2xl border bg-slate-50 p-3 transition ${
+              dropIndex === i ? "border-blue-300 ring-2 ring-blue-100" : "border-slate-100"
+            }`}
+          >
+            <div className="mb-2 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-[11px] font-semibold text-slate-400">
+                <span className="cursor-grab rounded-lg bg-white px-2 py-1 text-slate-500 border border-slate-200 active:cursor-grabbing">
+                  Drag
+                </span>
+                <span>Urutan {i + 1}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => i > 0 && setLinks(reorderFooterLinks(links, i, i - 1))}
+                  disabled={i === 0}
+                  className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-40"
+                >
+                  Naik
+                </button>
+                <button
+                  type="button"
+                  onClick={() => i < links.length - 1 && setLinks(reorderFooterLinks(links, i, i + 1))}
+                  disabled={i === links.length - 1}
+                  className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-40"
+                >
+                  Turun
+                </button>
+              </div>
+            </div>
+
+            <div className="grid gap-2 sm:grid-cols-[1fr_150px_auto] sm:items-center">
+              <input
+                value={link.label}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setLinks(
+                    links.map((l, j) => {
+                      if (j !== i) return l;
+                      const nextSlug = (l.slug ?? "").trim() ? l.slug : slugifyFooterLabel(value);
+                      return normalizeFooterLink({ ...l, label: value, slug: nextSlug });
+                    })
+                  );
+                }}
+                placeholder="Label menu"
+                className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400"
+              />
+              <select
+                value={link.type ?? "link"}
+                onChange={(e) => {
+                  const type = e.target.value as "page" | "link";
+                  setLinks(
+                    links.map((l, j) =>
+                      j === i
+                        ? normalizeFooterLink({
+                            ...l,
+                            type,
+                            href: type === "page" ? `/info/${l.slug || slugifyFooterLabel(l.label)}` : l.href || "#",
+                            slug: type === "page" ? l.slug || slugifyFooterLabel(l.label) : undefined,
+                          })
+                        : l
+                    )
+                  );
+                }}
+                className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400"
+              >
+                <option value="page">Halaman Internal</option>
+                <option value="link">Link URL / Path</option>
+              </select>
+              <div className="justify-self-start flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => onPreview(link)}
+                  className="rounded-lg border border-blue-200 bg-blue-50 px-2 py-2 text-[11px] font-semibold text-blue-700 transition hover:bg-blue-100"
+                >
+                  Preview
+                </button>
+                <button
+                  onClick={() => setLinks(links.filter((_, j) => j !== i))}
+                  className="p-2 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-500 transition"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {(link.type ?? "link") === "page" ? (
+              <div className="mt-2 grid gap-2 sm:grid-cols-[200px_1fr]">
+                <input
+                  value={link.slug ?? ""}
+                  onChange={(e) => {
+                    const slug = slugifyFooterLabel(e.target.value);
+                    setLinks(links.map((l, j) => (j === i ? normalizeFooterLink({ ...l, slug }) : l)));
+                  }}
+                  placeholder="slug-halaman"
+                  className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400"
+                />
+                <div className="flex items-center rounded-xl bg-white px-3 text-xs text-slate-500 border border-slate-200">
+                  {link.href}
+                </div>
+              </div>
+            ) : (
+              <input
+                value={link.href}
+                onChange={(e) => {
+                  const href = e.target.value;
+                  setLinks(links.map((l, j) => (j === i ? normalizeFooterLink({ ...l, href, type: "link" }) : l)));
+                }}
+                placeholder="https://... atau /path"
+                className="mt-2 w-full px-3 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400"
+              />
+            )}
           </div>
         ))}
         {links.length === 0 && (
-          <p className="text-xs text-slate-400">Belum ada link. Klik &quot;+ Tambah&quot;.</p>
+          <p className="text-xs text-slate-400">Belum ada menu. Klik &quot;+ Tambah&quot; untuk membuat halaman atau link.</p>
         )}
       </div>
       <div className="px-5 pb-4">
         <button
-          onClick={() => onSave(configKey, JSON.stringify(links), title)}
+          onClick={() => onSave(configKey, JSON.stringify(links.map((item) => normalizeFooterLink(item))), title)}
           disabled={saving === configKey}
           className="px-4 py-2 rounded-xl bg-[#2563eb] text-white text-xs font-bold hover:bg-blue-700 transition disabled:opacity-50"
         >
@@ -109,17 +245,18 @@ export default function AdminFooterPage() {
   const [companyName,  setCompanyName]  = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [contactEmail, setContactEmail] = useState("");
-  const [infoLinks,    setInfoLinks]    = useState<NavLink[]>([
-    { label: "Tentang Kami",         href: "#" },
-    { label: "Syarat dan Ketentuan", href: "/info/syarat-dan-ketentuan" },
-    { label: "Kebijakan Privasi",    href: "/info/kebijakan-privasi" },
+  const [infoLinks,    setInfoLinks]    = useState<FooterLinkItem[]>([
+    { label: "Tentang Kami", type: "page", slug: "tentang-kami", href: "/info/tentang-kami" },
+    { label: "Syarat dan Ketentuan", type: "page", slug: "syarat-dan-ketentuan", href: "/info/syarat-dan-ketentuan" },
+    { label: "Kebijakan Privasi", type: "page", slug: "kebijakan-privasi", href: "/info/kebijakan-privasi" },
   ]);
-  const [otherLinks,   setOtherLinks]   = useState<NavLink[]>([{ label: "Karir", href: "#" }]);
+  const [otherLinks,   setOtherLinks]   = useState<FooterLinkItem[]>([{ label: "Karir", type: "page", slug: "karir", href: "/info/karir" }]);
   const [socialLinks,  setSocialLinks]  = useState<SocialLink[]>(
     SOCIAL_PLATFORMS.map((p) => ({ platform: p, href: "#" }))
   );
   const [pageContents, setPageContents] = useState<Record<string, string>>({});
   const [expandedSlug, setExpandedSlug] = useState<string | null>(null);
+  const [previewPage, setPreviewPage] = useState<{ title: string; href: string; html: string } | null>(null);
   const [copyright, setCopyright] = useState(
     "Copyright ©2024 - 2026\nPT. Whuzpay Digital Indonesia - Whuzpay All Right Reserved"
   );
@@ -137,13 +274,14 @@ export default function AdminFooterPage() {
         setCompanyName(c.footer_company_name ?? "");
         setContactPhone(c.footer_contact_phone ?? "");
         setContactEmail(c.footer_contact_email ?? "");
-        const loadedInfoLinks = safeJSON<NavLink[]>(c.footer_info_links, infoLinks);
+        const loadedInfoLinks = normalizeFooterLinks(safeJSON(c.footer_info_links, infoLinks), infoLinks);
+        const loadedOtherLinks = normalizeFooterLinks(safeJSON(c.footer_other_links, otherLinks), otherLinks);
         setInfoLinks(loadedInfoLinks);
-        setOtherLinks(safeJSON(c.footer_other_links, otherLinks));
+        setOtherLinks(loadedOtherLinks);
 
-        // Load page content for each info link that has /info/ href
-        const slugsToLoad = loadedInfoLinks
-          .map((l) => l.href.match(/^\/info\/(.+)$/)?.[1])
+        // Load page content for every internal footer page
+        const slugsToLoad = getFooterPageLinks(loadedInfoLinks, loadedOtherLinks)
+          .map((l) => l.slug)
           .filter(Boolean) as string[];
         if (slugsToLoad.length > 0) {
           Promise.all(
@@ -193,6 +331,22 @@ export default function AdminFooterPage() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const openLinkPreview = useCallback((link: FooterLinkItem) => {
+    const normalized = normalizeFooterLink(link);
+    if ((normalized.type ?? "link") === "page") {
+      setPreviewPage({
+        title: normalized.label || "Preview halaman",
+        href: normalized.href,
+        html: normalized.slug ? (pageContents[normalized.slug] ?? "") : "",
+      });
+      return;
+    }
+
+    if (typeof window !== "undefined") {
+      window.open(normalized.href, "_blank", "noopener,noreferrer");
+    }
+  }, [pageContents]);
 
   if (loading) {
     return (
@@ -389,20 +543,20 @@ export default function AdminFooterPage() {
           </div>
 
           {/* ── Informasi links ── */}
-          <LinkEditor
+          <FooterMenuEditor
             title="Informasi (link navigasi)"
             links={infoLinks}
             setLinks={setInfoLinks}
             configKey="footer_info_links"
             saving={saving}
             onSave={save}
+            onPreview={openLinkPreview}
           />
 
           {/* ── Konten Halaman Informasi ── */}
-          {infoLinks
-            .filter((l) => l.href.startsWith("/info/"))
+          {getFooterPageLinks(infoLinks, otherLinks)
             .map((link) => {
-              const slug = link.href.replace("/info/", "");
+              const slug = link.slug!;
               const contentKey = `page_content_${slug}`;
               const isOpen = expandedSlug === slug;
               const content = pageContents[slug] ?? "";
@@ -435,13 +589,21 @@ export default function AdminFooterPage() {
                         />
                       </div>
                       <div className="px-5 pb-4">
-                        <button
-                          onClick={() => save(contentKey, content, `Konten ${link.label}`)}
-                          disabled={saving === contentKey}
-                          className="px-4 py-2 rounded-xl bg-[#2563eb] text-white text-xs font-bold hover:bg-blue-700 transition disabled:opacity-50"
-                        >
-                          {saving === contentKey ? "Menyimpan..." : "💾 Simpan"}
-                        </button>
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            onClick={() => setPreviewPage({ title: link.label, href: link.href, html: content })}
+                            className="px-4 py-2 rounded-xl border border-blue-200 bg-blue-50 text-blue-700 text-xs font-bold hover:bg-blue-100 transition"
+                          >
+                            Preview Halaman
+                          </button>
+                          <button
+                            onClick={() => save(contentKey, content, `Konten ${link.label}`)}
+                            disabled={saving === contentKey}
+                            className="px-4 py-2 rounded-xl bg-[#2563eb] text-white text-xs font-bold hover:bg-blue-700 transition disabled:opacity-50"
+                          >
+                            {saving === contentKey ? "Menyimpan..." : "💾 Simpan"}
+                          </button>
+                        </div>
                       </div>
                     </>
                   )}
@@ -451,13 +613,14 @@ export default function AdminFooterPage() {
           }
 
           {/* ── Lainnya links ── */}
-          <LinkEditor
+          <FooterMenuEditor
             title="Lainnya (link navigasi)"
             links={otherLinks}
             setLinks={setOtherLinks}
             configKey="footer_other_links"
             saving={saving}
             onSave={save}
+            onPreview={openLinkPreview}
           />
 
           {/* ── Social Links ── */}
@@ -518,6 +681,44 @@ export default function AdminFooterPage() {
 
         </div>
       </div>
+
+      {previewPage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4 py-8">
+          <div className="max-h-full w-full max-w-3xl overflow-hidden rounded-3xl bg-white shadow-2xl">
+            <div className="flex items-start justify-between border-b border-slate-100 px-6 py-5">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Preview Halaman</p>
+                <h2 className="mt-1 text-xl font-bold text-slate-800">{previewPage.title}</h2>
+                <p className="mt-1 text-sm text-slate-400">{previewPage.href}</p>
+              </div>
+              <button
+                onClick={() => setPreviewPage(null)}
+                className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="max-h-[70vh] overflow-y-auto bg-slate-50 px-6 py-6">
+              {previewPage.html ? (
+                <article
+                  className="prose prose-sm max-w-none rounded-3xl bg-white px-6 py-6 shadow-sm
+                    prose-headings:text-slate-800 prose-headings:font-bold
+                    prose-p:text-[14px] prose-p:leading-7 prose-p:text-slate-700
+                    prose-li:text-[14px] prose-li:text-slate-700
+                    prose-a:text-[#2563eb] prose-a:no-underline hover:prose-a:underline"
+                  dangerouslySetInnerHTML={{ __html: previewPage.html }}
+                />
+              ) : (
+                <div className="rounded-3xl bg-white px-6 py-12 text-center text-sm text-slate-400 shadow-sm">
+                  Konten halaman ini masih kosong.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

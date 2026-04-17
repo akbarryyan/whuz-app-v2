@@ -8,14 +8,6 @@ import BottomNavigation from "@/components/BottomNavigation";
 
 const quicksand = Quicksand({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
 
-/** Capitalise first letter of each word */
-function titleFromSlug(slug: string) {
-  return slug
-    .split("-")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-}
-
 export default function InfoPage({
   params,
 }: {
@@ -24,8 +16,12 @@ export default function InfoPage({
   const { slug } = use(params);
   const router = useRouter();
 
-  const title = titleFromSlug(slug);
+  const fallbackTitle = slug
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
   const [html, setHtml] = useState("");
+  const [title, setTitle] = useState(fallbackTitle);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,11 +30,12 @@ export default function InfoPage({
       .then((d) => {
         if (d.success) {
           setHtml(d.data.content ?? "");
+          setTitle(d.data.title ?? fallbackTitle);
         }
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [slug]);
+  }, [fallbackTitle, slug]);
 
   return (
     <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5]`}>

@@ -4,7 +4,8 @@
  */
 
 import { NextResponse } from "next/server";
-import { getSiteConfig } from "@/lib/site-config";
+import { getAllSiteConfig, getSiteConfig } from "@/lib/site-config";
+import { FooterLinkItem, findFooterPageBySlug, normalizeFooterLinks } from "@/lib/footer-links";
 
 export const dynamic = "force-dynamic";
 
@@ -16,16 +17,28 @@ export async function GET(
   const key = `page_content_${slug}`;
 
   try {
-    const content = await getSiteConfig(key);
+    const [content, rawConfig] = await Promise.all([
+      getSiteConfig(key),
+      getAllSiteConfig(),
+    ]);
+    const infoLinks = normalizeFooterLinks(
+      JSON.parse(rawConfig.footer_info_links ?? "[]") as FooterLinkItem[],
+      []
+    );
+    const otherLinks = normalizeFooterLinks(
+      JSON.parse(rawConfig.footer_other_links ?? "[]") as FooterLinkItem[],
+      []
+    );
+    const pageMeta = findFooterPageBySlug(slug, infoLinks, otherLinks);
     return NextResponse.json({
       success: true,
-      data: { slug, content: content ?? "" },
+      data: { slug, title: pageMeta?.label ?? null, content: content ?? "" },
     });
   } catch (err) {
     console.error(`[GET /api/page-content/${slug}]`, err);
     return NextResponse.json({
       success: true,
-      data: { slug, content: "" },
+      data: { slug, title: null, content: "" },
     });
   }
 }

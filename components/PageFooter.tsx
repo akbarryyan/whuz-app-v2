@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { FooterLinkItem, normalizeFooterLinks } from "@/lib/footer-links";
 
 interface PaymentMethod {
   name: string;
@@ -13,6 +14,8 @@ interface FooterBranding {
   footer_copyright?: string;
   footer_company_name?: string;
   footer_payment_methods?: string; // JSON
+  footer_info_links?: string;
+  footer_other_links?: string;
 }
 
 function safeJSON<T>(raw: string, fallback: T): T {
@@ -39,6 +42,17 @@ export default function PageFooter() {
     { name: "OVO", img: "" },
     { name: "QRIS", img: "" },
   ]);
+  const infoLinks = normalizeFooterLinks(
+    safeJSON<FooterLinkItem[]>(branding.footer_info_links ?? "", []),
+    [
+      { label: "Tentang Kami", type: "page", slug: "tentang-kami", href: "/info/tentang-kami" },
+      { label: "Syarat dan Ketentuan", type: "page", slug: "syarat-dan-ketentuan", href: "/info/syarat-dan-ketentuan" },
+    ]
+  );
+  const otherLinks = normalizeFooterLinks(
+    safeJSON<FooterLinkItem[]>(branding.footer_other_links ?? "", []),
+    []
+  );
 
   return (
     <footer className="bg-white border-t border-slate-100 px-5 pt-6 pb-28">
@@ -58,15 +72,15 @@ export default function PageFooter() {
         <p className="text-[11px] text-slate-500 font-semibold leading-snug">{tagline}</p>
       </div>
 
-      {/* Nav links */}
-      <div className="flex gap-4 mb-4">
-        <a href="/info/tentang-kami" className="text-[12px] font-semibold text-[#6A7389] hover:text-slate-700 transition-colors">
-          Tentang Kami
-        </a>
-        <a href="/info/syarat-dan-ketentuan" className="text-[12px] font-semibold text-[#6A7389] hover:text-slate-700 transition-colors">
-          Syarat & Ketentuan
-        </a>
-      </div>
+      {(infoLinks.length > 0 || otherLinks.length > 0) && (
+        <div className="flex flex-wrap gap-4 mb-4">
+          {[...infoLinks, ...otherLinks].map((link) => (
+            <a key={`${link.label}-${link.href}`} href={link.href} className="text-[12px] font-semibold text-[#6A7389] hover:text-slate-700 transition-colors">
+              {link.label}
+            </a>
+          ))}
+        </div>
+      )}
 
       {/* Help card */}
       <a href="/pusat-bantuan" className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 mb-5 hover:bg-slate-100 transition-colors">

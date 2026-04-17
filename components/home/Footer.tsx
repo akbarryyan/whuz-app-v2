@@ -2,14 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { FooterLinkItem, normalizeFooterLinks } from "@/lib/footer-links";
 
 interface PaymentMethod {
   name: string;
   img: string;
-}
-interface NavLink {
-  label: string;
-  href: string;
 }
 interface SocialLink {
   platform: string;
@@ -83,14 +80,18 @@ export default function Footer() {
   const companyName   = cfg?.footer_company_name ?? "PT Whuzpay Digital Indonesia";
   const contactPhone  = cfg?.footer_contact_phone ?? "08123-456-7890";
   const contactEmail  = cfg?.footer_contact_email ?? "support@whuzpay.com";
-  const infoLinks     = safeJSON<NavLink[]>(cfg?.footer_info_links ?? "", [
-    { label: "Tentang Kami",         href: "#" },
-    { label: "Syarat dan Ketentuan", href: "/info/syarat-dan-ketentuan" },
-    { label: "Kebijakan Privasi",    href: "/info/kebijakan-privasi" },
-  ]);
-  const otherLinks    = safeJSON<NavLink[]>(cfg?.footer_other_links ?? "", [
-    { label: "Karir", href: "#" },
-  ]);
+  const infoLinks = normalizeFooterLinks(
+    safeJSON<FooterLinkItem[]>(cfg?.footer_info_links ?? "", []),
+    [
+      { label: "Tentang Kami", type: "page", slug: "tentang-kami", href: "/info/tentang-kami" },
+      { label: "Syarat dan Ketentuan", type: "page", slug: "syarat-dan-ketentuan", href: "/info/syarat-dan-ketentuan" },
+      { label: "Kebijakan Privasi", type: "page", slug: "kebijakan-privasi", href: "/info/kebijakan-privasi" },
+    ]
+  );
+  const otherLinks = normalizeFooterLinks(
+    safeJSON<FooterLinkItem[]>(cfg?.footer_other_links ?? "", []),
+    [{ label: "Karir", type: "page", slug: "karir", href: "/info/karir" }]
+  );
   const socialLinks   = safeJSON<SocialLink[]>(cfg?.footer_social_links ?? "", [
     { platform: "instagram", href: "#" },
     { platform: "facebook",  href: "#" },

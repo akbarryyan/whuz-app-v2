@@ -22,12 +22,12 @@ export const FOOTER_DEFAULTS = {
   footer_contact_phone: "08123-456-7890",
   footer_contact_email: "support@whuzpay.com",
   footer_info_links: JSON.stringify([
-    { label: "Tentang Kami",          href: "#" },
-    { label: "Syarat dan Ketentuan",  href: "/info/syarat-dan-ketentuan" },
-    { label: "Kebijakan Privasi",     href: "/info/kebijakan-privasi" },
+    { label: "Tentang Kami",          type: "page", slug: "tentang-kami", href: "/info/tentang-kami" },
+    { label: "Syarat dan Ketentuan",  type: "page", slug: "syarat-dan-ketentuan", href: "/info/syarat-dan-ketentuan" },
+    { label: "Kebijakan Privasi",     type: "page", slug: "kebijakan-privasi", href: "/info/kebijakan-privasi" },
   ]),
   footer_other_links: JSON.stringify([
-    { label: "Karir", href: "#" },
+    { label: "Karir", type: "page", slug: "karir", href: "/info/karir" },
   ]),
   footer_social_links: JSON.stringify([
     { platform: "instagram", href: "#" },
