@@ -176,7 +176,7 @@ export default function Footer() {
                     <span className="pt-1 text-slate-400">•</span>
                     <a
                       href={link.href}
-                      className="font-semibold leading-6 text-emerald-700 transition-colors hover:text-emerald-800"
+                      className="font-semibold leading-6 text-[#003D99] transition-colors hover:text-emerald-800"
                     >
                       {link.label}
                     </a>
