@@ -85,7 +85,7 @@ function FooterMenuEditor({
       <div className="px-5 py-4 space-y-2">
         {links.map((link, i) => (
           <div
-            key={`${link.href}-${i}`}
+            key={i}
             draggable
             onDragStart={() => {
               setDragIndex(i);
@@ -583,7 +583,7 @@ export default function AdminFooterPage() {
             </div>
             <div className="px-5 py-4 space-y-4">
               {footerColumns.map((column, index) => (
-                <div key={`${column.title}-${index}`} className="rounded-2xl border border-slate-200 bg-slate-50">
+                <div key={index} className="rounded-2xl border border-slate-200 bg-slate-50">
                   <div className="flex items-center gap-2 border-b border-slate-200 px-4 py-3">
                     <span className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-500">
                       Kolom {index + 1}
