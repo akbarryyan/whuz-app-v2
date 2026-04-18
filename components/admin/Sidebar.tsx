@@ -14,7 +14,7 @@ interface SidebarProps {
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const [logoUrl, setLogoUrl]     = useState("");
-  const [siteName, setSiteName]   = useState("Whuzpay");
+  const [siteName, setSiteName]   = useState("Website");
   const [maintEnabled, setMaintEnabled] = useState(false);
   const [maintLoading, setMaintLoading] = useState(false);
 

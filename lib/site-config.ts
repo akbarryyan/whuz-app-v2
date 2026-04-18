@@ -18,6 +18,8 @@ import {
   normalizePaymentGatewayFeeType,
 } from "@/lib/payment-gateway-fee";
 
+export const DEFAULT_SITE_NAME = "Website";
+
 // ── In-memory cache to avoid DB hit on every request ─────────────────────────
 const g = globalThis as unknown as {
   _siteConfigCache?: Record<string, string>;
@@ -68,6 +70,16 @@ export async function getSiteConfigValue(key: string, fallback = ""): Promise<st
 
   const envKey = ENV_KEY_MAP[key] ?? key;
   return process.env[envKey] ?? fallback;
+}
+
+export async function getSiteName(): Promise<string> {
+  return (
+    (await getSiteConfig("site_name")) ||
+    (await getSiteConfig("SITE_NAME")) ||
+    process.env.NEXT_PUBLIC_APP_NAME ||
+    process.env.APP_NAME ||
+    DEFAULT_SITE_NAME
+  );
 }
 
 export async function getPaymentGatewayFeeConfig(
@@ -283,31 +295,31 @@ const DEFAULT_HOME_CONTENT: HomeContent = {
     { label: "Top Up Rbx Rbl", href: "/brand/rbx-rbl" },
   ],
   aboutText:
-    "Whuzpay adalah tempat top up game termurah di Indonesia. Seluruh gamer bisa top up, beli voucher game, item in-game, dan produk digital lainnya dengan aman. Bukan hanya bisa membeli voucher game atau top up game murah, aman, dan legal, kamu juga bisa berjualan dengan menjadi seller atau menjadi mitra di Whuzpay dengan nyaman dan pastinya semakin cuan!",
+    "Platform ini adalah tempat top up game dan produk digital yang aman, praktis, dan nyaman digunakan. Selain bisa membeli voucher game atau produk digital dengan mudah, kamu juga bisa berjualan sebagai seller atau menjadi mitra dengan pengalaman yang lebih fleksibel.",
   faqs: [
     {
-      question: "Apakah top up game di Whuzpay aman dan legal?",
-      answer: "Whuzpay adalah platform top up game terpercaya di Indonesia. Seluruh transaksi dijamin aman dengan sistem enkripsi terkini. Kami bekerja sama dengan developer game resmi untuk memastikan semua transaksi legal dan sesuai ketentuan.",
+      question: "Apakah top up game di platform ini aman dan legal?",
+      answer: "Platform ini dirancang untuk transaksi top up game dan produk digital yang aman. Seluruh transaksi dilindungi dengan sistem keamanan yang memadai dan diproses sesuai ketentuan layanan yang berlaku.",
     },
     {
-      question: "Apa saja keuntungan top up game di Whuzpay?",
+      question: "Apa saja keuntungan top up game di platform ini?",
       answer: "Berbagai keuntungan menanti Anda: proses instan 24/7, harga kompetitif dengan promo menarik, metode pembayaran lengkap, customer service responsif, dan sistem keamanan berlapis untuk melindungi data Anda.",
     },
     {
       question: "Berapa lama proses top up selesai?",
-      answer: "Proses top up di Whuzpay sangat cepat, biasanya selesai dalam 1-5 menit setelah pembayaran dikonfirmasi. Untuk beberapa game tertentu, proses bisa lebih cepat yakni kurang dari 1 menit.",
+      answer: "Proses top up biasanya selesai dalam 1-5 menit setelah pembayaran dikonfirmasi. Untuk beberapa game tertentu, proses bisa lebih cepat yakni kurang dari 1 menit.",
     },
     {
       question: "Metode pembayaran apa saja yang tersedia?",
       answer: "Kami menyediakan berbagai metode pembayaran untuk kemudahan Anda: Transfer Bank (BCA, BRI, Mandiri, BNI), E-Wallet (GoPay, OVO, DANA, ShopeePay), QRIS, Virtual Account, dan pulsa.",
     },
     {
-      question: "Bagaimana cara top up game di Whuzpay?",
+      question: "Bagaimana cara top up game di platform ini?",
       answer: "Sangat mudah! Pilih game yang ingin di-top up, masukkan ID game Anda, pilih nominal diamond/UC yang diinginkan, pilih metode pembayaran, lakukan pembayaran, dan diamond/UC akan otomatis masuk ke akun game Anda.",
     },
     {
       question: "Apakah ada biaya admin untuk setiap transaksi?",
-      answer: "Tidak ada biaya admin tersembunyi di Whuzpay. Harga yang tertera sudah final dan sudah termasuk semua biaya. Kami berkomitmen untuk transparansi harga kepada semua pelanggan.",
+      answer: "Tidak ada biaya admin tersembunyi. Harga yang tertera sudah final dan sudah termasuk semua biaya yang berlaku. Kami berkomitmen untuk transparansi harga kepada semua pelanggan.",
     },
     {
       question: "Bagaimana jika top up saya gagal atau terlambat?",

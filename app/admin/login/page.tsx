@@ -9,8 +9,16 @@ function AdminLoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const toast = useToast();
+  const [siteName, setSiteName] = useState("Website");
 
   useEffect(() => {
+    fetch("/api/site-branding")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.data?.site_name) setSiteName(d.data.site_name);
+      })
+      .catch(() => {});
+
     const reason = searchParams.get("reason");
     if (reason === "unauthorized") {
       toast.error("Silakan login terlebih dahulu untuk mengakses halaman admin.");
@@ -72,7 +80,7 @@ function AdminLoginPageContent() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-slate-800">Whuzpay Admin</h1>
+          <h1 className="text-2xl font-bold text-slate-800">{siteName} Admin</h1>
           <p className="text-sm text-slate-400 mt-1">Masuk ke konsol administrator</p>
         </div>
 
@@ -106,7 +114,7 @@ function AdminLoginPageContent() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@whuzpay.com"
+                  placeholder="admin@example.com"
                   autoComplete="email"
                   className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 py-3 text-sm text-slate-800 placeholder:text-slate-400 focus:border-[#2563eb] focus:outline-none focus:ring-2 focus:ring-blue-100 transition"
                   disabled={loading}
@@ -181,7 +189,7 @@ function AdminLoginPageContent() {
         </div>
 
         <p className="text-center text-xs text-slate-400 mt-6">
-          Whuzpay Admin Console · v1.0.0
+          {siteName} Admin Console · v1.0.0
         </p>
       </div>
 

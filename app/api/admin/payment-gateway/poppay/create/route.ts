@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json().catch(() => ({}));
     const amount = Number(body.amount ?? 0);
-    const notes = String(body.notes ?? "Whuzpay QRIS Test");
+    const notes = String(body.notes ?? "QRIS Test");
     const payorName = body.payorName ? String(body.payorName) : "Guest";
     const payorEmail = body.payorEmail ? String(body.payorEmail) : null;
     const callbackUrl = body.callbackUrl ? String(body.callbackUrl) : null;

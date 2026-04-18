@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { getSession } from "@/lib/session";
+import { getSiteName } from "@/lib/site-config";
 import { prisma } from "@/src/infra/db/prisma";
 import { normalizePhone, isValidPhone } from "@/lib/fonnte";
 
 export async function POST(req: NextRequest) {
   try {
+    const siteName = await getSiteName();
     const body = await req.json();
     const { name, email, phone, password, confirmPassword } = body;
 
@@ -113,7 +115,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "Akun berhasil dibuat! Selamat datang di Whuzpay.",
+      message: `Akun berhasil dibuat! Selamat datang di ${siteName}.`,
       user: {
         id: newUser.id,
         email: newUser.email,

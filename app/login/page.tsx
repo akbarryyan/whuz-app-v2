@@ -312,6 +312,7 @@ export default function LoginPage() {
   // --- Tab state ---
   const [activeTab, setActiveTab] = useState<Tab>("login");
   const [isLoading, setIsLoading] = useState(false);
+  const [siteName, setSiteName] = useState("Website");
 
   // ========================
   // LOGIN STATE
@@ -342,6 +343,17 @@ export default function LoginPage() {
   const [regStep, setRegStep] = useState<"form" | "otp">("form");
   const [regOtp, setRegOtp] = useState(["", "", "", "", "", ""]);
   const [regCountdown, setRegCountdown] = useState(0);
+
+  useEffect(() => {
+    fetch("/api/site-branding")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.data?.site_name) {
+          setSiteName(data.data.site_name);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // --- Countdown timers ---
   useEffect(() => {
@@ -764,7 +776,7 @@ export default function LoginPage() {
                 <div className="flex flex-col gap-4">
                   <div>
                     <p className="text-lg font-bold text-slate-800">Selamat datang!</p>
-                    <p className="text-sm text-slate-500 mt-0.5">Masuk ke akun Whuzpay kamu</p>
+                    <p className="text-sm text-slate-500 mt-0.5">Masuk ke akun {siteName} kamu</p>
                   </div>
 
                   {loginStep === "credentials" ? (
@@ -1177,7 +1189,7 @@ export default function LoginPage() {
                         <span className="text-[#003D99] font-medium cursor-pointer hover:underline">
                           Syarat & Ketentuan
                         </span>{" "}
-                        yang berlaku di Whuzpay.
+                        yang berlaku di {siteName}.
                       </p>
 
                       <SubmitBtn

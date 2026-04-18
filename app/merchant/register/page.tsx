@@ -37,7 +37,7 @@ export default function MerchantRegisterPage() {
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [siteName, setSiteName] = useState("Whuzpay");
+  const [siteName, setSiteName] = useState("Website");
   const [form, setForm] = useState<FormState>({
     displayName: "",
     slug: "",

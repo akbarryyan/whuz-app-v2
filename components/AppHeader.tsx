@@ -14,6 +14,7 @@ interface AppHeaderProps {
  */
 export default function AppHeader({ onBack }: AppHeaderProps) {
   const [logoUrl, setLogoUrl] = useState("");
+  const [siteName, setSiteName] = useState("Website");
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifUnread, setNotifUnread] = useState(0);
@@ -24,6 +25,7 @@ export default function AppHeader({ onBack }: AppHeaderProps) {
       .then((r) => r.json())
       .then((d) => {
         if (d.data?.site_logo) setLogoUrl(d.data.site_logo);
+        if (d.data?.site_name) setSiteName(d.data.site_name);
       })
       .catch(() => {});
     fetch("/api/tickets/unread-count")
@@ -62,7 +64,7 @@ export default function AppHeader({ onBack }: AppHeaderProps) {
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={logoUrl}
-            alt="WhuzPay"
+            alt={siteName}
             className="h-10 w-auto object-contain flex-shrink-0 -mt-2"
           />
         )}

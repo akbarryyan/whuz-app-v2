@@ -259,7 +259,7 @@ export default function HomeContentPage() {
                     value={aboutText}
                     onChange={(e) => setAboutText(e.target.value)}
                     rows={5}
-                    placeholder="Tulis deskripsi singkat tentang Whuzpay..."
+                    placeholder="Tulis deskripsi singkat tentang website atau bisnis kamu..."
                     className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-700 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100 transition resize-none"
                   />
                 </div>
@@ -496,7 +496,7 @@ export default function HomeContentPage() {
                   type="text"
                   value={faqDraft.question}
                   onChange={(e) => setFaqDraft((f) => ({ ...f, question: e.target.value }))}
-                  placeholder="Apakah top up game di Whuzpay aman?"
+                  placeholder="Apakah top up game di platform ini aman?"
                   className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-700 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100 transition"
                 />
               </div>

@@ -127,7 +127,7 @@ export default function SettingsPage() {
         const raw = data.data?.raw ?? {};
         const envDefaults = data.data?.envDefaults ?? {};
 
-        setSiteName(raw.site_name ?? "Whuzpay");
+        setSiteName(raw.site_name ?? "Website");
         setSiteLogo(raw.site_logo ?? "");
         setSiteFavicon(raw.site_favicon ?? "");
         setSiteDescription(raw.site_description ?? "");
@@ -682,7 +682,7 @@ export default function SettingsPage() {
                     type="text"
                     value={siteName}
                     onChange={(e) => setSiteName(e.target.value)}
-                    placeholder="Whuzpay"
+                    placeholder="Nama website"
                     className="flex-1 px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400"
                   />
                   <button
@@ -758,7 +758,7 @@ export default function SettingsPage() {
                   <textarea
                     value={siteDescription}
                     onChange={(e) => setSiteDescription(e.target.value)}
-                    placeholder="Top up game murah, voucher digital, dan bayar tagihan PPOB terpercaya di Whuzpay."
+                    placeholder="Top up game murah, voucher digital, dan bayar tagihan PPOB terpercaya di website Anda."
                     rows={2}
                     className="flex-1 px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400 resize-none"
                   />

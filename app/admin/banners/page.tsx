@@ -13,6 +13,7 @@ export default function BannersPage() {
   const [saving, setSaving] = useState(false);
   const [newUrl, setNewUrl] = useState("");
   const [tagline, setTagline] = useState("");
+  const [siteName, setSiteName] = useState("Website");
   const [taglineSaving, setTaglineSaving] = useState(false);
   const toast = useToast();
 
@@ -38,7 +39,12 @@ export default function BannersPage() {
       .then((r) => r.json())
       .then((d) => {
         if (d.success) {
-          setTagline(d.data?.raw?.banner_tagline ?? "Whuzpay - Tempat Top Up Game dan Jual Beli Produk Digital Terpercaya");
+          const currentSiteName = d.data?.raw?.site_name ?? "Website";
+          setSiteName(currentSiteName);
+          setTagline(
+            d.data?.raw?.banner_tagline ??
+              `${currentSiteName} - Tempat Top Up Game dan Jual Beli Produk Digital Terpercaya`
+          );
         }
       })
       .catch(() => {});
@@ -321,7 +327,7 @@ export default function BannersPage() {
                   type="text"
                   value={tagline}
                   onChange={(e) => setTagline(e.target.value)}
-                  placeholder="Whuzpay - Tempat Top Up Game dan Jual Beli Produk Digital Terpercaya"
+                  placeholder={`${siteName} - Tempat Top Up Game dan Jual Beli Produk Digital Terpercaya`}
                   className="flex-1 px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400"
                 />
                 <button

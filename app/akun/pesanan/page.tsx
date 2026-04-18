@@ -217,7 +217,7 @@ function PesananPageContent() {
           <div className="flex justify-between">
             <span className="text-xs text-slate-500">Metode</span>
             <span className="text-xs text-slate-600">
-              {order.paymentMethod === "WALLET" ? "Saldo WhuzPay" : (order.paymentInvoice?.method?.toUpperCase() ?? "Payment Gateway")}
+              {order.paymentMethod === "WALLET" ? "Saldo Wallet" : (order.paymentInvoice?.method?.toUpperCase() ?? "Payment Gateway")}
             </span>
           </div>
           <div className="flex justify-between">

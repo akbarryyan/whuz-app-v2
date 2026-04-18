@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
 interface MerchantSidebarProps {
@@ -61,6 +62,16 @@ const NAV_ITEMS = [
 
 export default function MerchantSidebar({ isOpen, onClose }: MerchantSidebarProps) {
   const pathname = usePathname();
+  const [siteName, setSiteName] = useState("Website");
+
+  useEffect(() => {
+    fetch("/api/site-branding")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.data?.site_name) setSiteName(data.data.site_name);
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <>
@@ -86,7 +97,7 @@ export default function MerchantSidebar({ isOpen, onClose }: MerchantSidebarProp
               </svg>
             </div>
             <div>
-              <p className="text-sm font-semibold text-slate-900">Whuzpay Merchant</p>
+              <p className="text-sm font-semibold text-slate-900">{siteName} Merchant</p>
               <p className="text-xs text-slate-400">Seller Console</p>
             </div>
           </div>

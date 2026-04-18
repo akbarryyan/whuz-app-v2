@@ -275,7 +275,7 @@ export default function AdminFooterPage() {
   const [expandedSlug, setExpandedSlug] = useState<string | null>(null);
   const [previewPage, setPreviewPage] = useState<{ title: string; href: string; html: string } | null>(null);
   const [copyright, setCopyright] = useState(
-    "Copyright ©2024 - 2026\nPT. Whuzpay Digital Indonesia - Whuzpay All Right Reserved"
+    `Copyright ©2024 - ${new Date().getFullYear()}\nWebsite. All rights reserved.`
   );
 
   // ── load from API ─────────────────────────────────────────────────────────
@@ -520,7 +520,7 @@ export default function AdminFooterPage() {
                     type="text"
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
-                    placeholder="PT Whuzpay Digital Indonesia"
+                    placeholder="Nama perusahaan"
                     className="flex-1 px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400"
                   />
                   <button onClick={() => save("footer_company_name", companyName, "Nama Perusahaan")}

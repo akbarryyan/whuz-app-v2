@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Sans, Space_Grotesk } from "@/lib/fonts";
-import { getSiteConfig } from "@/lib/site-config";
+import { getSiteConfig, getSiteName } from "@/lib/site-config";
 import VisitorTracker from "@/components/VisitorTracker";
 import "./globals.css";
 
@@ -18,19 +18,19 @@ const ibmPlexSans = IBM_Plex_Sans({
 export async function generateMetadata(): Promise<Metadata> {
   const [siteName, siteDescription, siteKeywords, siteFavicon] =
     await Promise.all([
-      getSiteConfig("site_name"),
+      getSiteName(),
       getSiteConfig("site_description"),
       getSiteConfig("site_keywords"),
       getSiteConfig("site_favicon"),
     ]);
 
-  const title = siteName || "Whuzpay";
+  const title = siteName;
   const description =
     siteDescription ||
     "Top up game murah, voucher digital, dan bayar tagihan PPOB terpercaya.";
   const keywords = siteKeywords
     ? siteKeywords.split(",").map((k) => k.trim())
-    : ["top up game", "voucher digital", "ppob", "whuzpay"];
+    : ["top up game", "voucher digital", "ppob", siteName.toLowerCase()];
   const favicon = siteFavicon || "/favicon.ico";
 
   return {

@@ -4,7 +4,7 @@
 
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
-import { getSiteConfig } from "@/lib/site-config";
+import { getSiteConfig, getSiteName } from "@/lib/site-config";
 
 export const dynamic = "force-dynamic";
 
@@ -23,10 +23,7 @@ export async function POST() {
       process.env.SMTP_FROM ||
       user ||
       "noreply@whuzpay.com";
-    const brandName =
-      (await getSiteConfig("site_name")) ||
-      (await getSiteConfig("SITE_NAME")) ||
-      "Whuzpay";
+    const brandName = await getSiteName();
 
     if (!host || !user || !pass) {
       return NextResponse.json(

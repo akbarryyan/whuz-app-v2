@@ -10,7 +10,7 @@
  */
 
 import nodemailer from "nodemailer";
-import { getSiteConfig } from "@/lib/site-config";
+import { DEFAULT_SITE_NAME, getSiteConfig, getSiteName } from "@/lib/site-config";
 
 interface SmtpConfig {
   host: string;
@@ -45,11 +45,7 @@ async function getSmtpConfig(): Promise<SmtpConfig | null> {
 }
 
 async function getMailBrandName(): Promise<string> {
-  return (
-    (await getSiteConfig("site_name")) ||
-    (await getSiteConfig("SITE_NAME")) ||
-    "Whuzpay"
-  );
+  return (await getSiteName()) || DEFAULT_SITE_NAME;
 }
 
 /**

@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 export default function BannerCarousel() {
   const [currentBanner, setCurrentBanner] = useState(0);
   const [banners, setBanners] = useState<string[]>([]);
-  const [tagline, setTagline] = useState("Whuzpay - Tempat Top Up Game dan Jual Beli Produk Digital Terpercaya");
+  const [tagline, setTagline] = useState("Tempat Top Up Game dan Jual Beli Produk Digital Terpercaya");
 
   // Fetch banner images from API
   useEffect(() => {

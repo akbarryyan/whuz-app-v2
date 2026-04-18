@@ -42,7 +42,7 @@ const HELP_CATEGORIES = [
     items: [
       "Metode pembayaran apa saja yang tersedia?",
       "Apakah ada biaya admin untuk pembayaran?",
-      "Bagaimana cara top up saldo WhuzPay?",
+      "Bagaimana cara top up saldo wallet?",
       "Pembayaran QRIS tidak terverifikasi",
     ],
   },
@@ -56,7 +56,7 @@ const HELP_CATEGORIES = [
     desc: "Login, registrasi, ubah profil, keamanan",
     color: "bg-purple-50 text-purple-600",
     items: [
-      "Bagaimana cara mendaftar akun WhuzPay?",
+      "Bagaimana cara mendaftar akun?",
       "Saya lupa password, bagaimana cara reset?",
       "Bagaimana cara mengubah email atau nomor HP?",
       "Apakah bisa top up tanpa login?",
@@ -87,6 +87,7 @@ export default function PusatBantuanPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [openCategory, setOpenCategory] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const helpCategories = HELP_CATEGORIES;
 
   useEffect(() => {
     fetch("/api/home-content")
@@ -269,7 +270,7 @@ export default function PusatBantuanPage() {
           <div className="px-4 mt-5">
             <h2 className="text-[13px] font-bold text-slate-800 mb-3">Kategori Bantuan</h2>
             <div className="space-y-2.5">
-              {HELP_CATEGORIES.map((cat, idx) => (
+              {helpCategories.map((cat, idx) => (
                 <div key={idx} className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                   <button
                     onClick={() => setOpenCategory(openCategory === idx ? null : idx)}

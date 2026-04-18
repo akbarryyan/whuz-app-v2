@@ -73,6 +73,7 @@ function MockPaymentPageContent({
   const [invoiceId, setInvoiceId] = useState("");
   const [paying, setPaying] = useState(false);
   const [paid, setPaid] = useState(false);
+  const [siteName, setSiteName] = useState("Website");
 
   const amount = Number(searchParams.get("amount") ?? 0);
   const method = searchParams.get("method") ?? "qris";
@@ -83,6 +84,15 @@ function MockPaymentPageContent({
   useEffect(() => {
     params.then(({ invoiceId: id }) => setInvoiceId(id));
   }, [params]);
+
+  useEffect(() => {
+    fetch("/api/site-branding")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.data?.site_name) setSiteName(data.data.site_name);
+      })
+      .catch(() => {});
+  }, []);
 
   const handlePay = async () => {
     setPaying(true);
@@ -154,7 +164,7 @@ function MockPaymentPageContent({
           </button>
           <div>
             <p className="text-sm font-bold text-slate-800">Selesaikan Pembayaran</p>
-            <p className="text-[11px] text-slate-400">WhuzPay Mock Gateway</p>
+            <p className="text-[11px] text-slate-400">{siteName} Mock Gateway</p>
           </div>
         </div>
 

@@ -8,9 +8,11 @@ import {
   isValidPhone,
 } from "@/lib/fonnte";
 import { sendOtpEmail } from "@/lib/mailer";
+import { getSiteName } from "@/lib/site-config";
 
 export async function POST(req: NextRequest) {
   try {
+    const siteName = await getSiteName();
     const body = await req.json();
     const { phone, email, purpose, target } = body;
     // target: "whatsapp" | "email"
@@ -211,7 +213,7 @@ export async function POST(req: NextRequest) {
     const actionLabel = purpose === "LOGIN" ? "masuk" : purpose === "REGISTER" ? "mendaftar" : "reset password";
 
     if (target === "whatsapp") {
-      const message = `*[Whuzpay]* Kode OTP Anda untuk ${actionLabel}:\n\n*${code}*\n\nJangan bagikan kode ini kepada siapapun.\nKode berlaku 5 menit.`;
+      const message = `*[${siteName}]* Kode OTP Anda untuk ${actionLabel}:\n\n*${code}*\n\nJangan bagikan kode ini kepada siapapun.\nKode berlaku 5 menit.`;
       const result = await sendWhatsAppMessage(normalizedPhone, message);
 
       if (!result.success) {

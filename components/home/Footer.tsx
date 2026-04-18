@@ -14,6 +14,7 @@ interface SocialLink {
 }
 
 interface FooterConfig {
+  site_name?: string;
   footer_logo_url: string;
   footer_tagline: string;
   footer_payment_methods: string; // JSON
@@ -32,6 +33,11 @@ interface FooterConfig {
 
 function safeJSON<T>(raw: string, fallback: T): T {
   try { return JSON.parse(raw) as T; } catch { return fallback; }
+}
+
+function getBrandInitials(siteName: string): string {
+  const letters = siteName.replace(/[^A-Za-z0-9]/g, "").slice(0, 2).toUpperCase();
+  return letters || "WS";
 }
 
 const SOCIAL_ICONS: Record<string, React.ReactNode> = {
@@ -72,8 +78,9 @@ export default function Footer() {
       .catch(() => {});
   }, []);
 
+  const siteName = cfg?.site_name?.trim() || "Website";
   const logoUrl       = cfg?.footer_logo_url ?? "";
-  const tagline       = cfg?.footer_tagline ?? "Top Up Game Murah & PPOB Terpercaya? Whuzpay Aja!";
+  const tagline       = cfg?.footer_tagline ?? `Top Up Game Murah & PPOB Terpercaya? ${siteName} Aja!`;
   const paymentMethods = safeJSON<PaymentMethod[]>(cfg?.footer_payment_methods ?? "", [
     { name: "GoPay",  img: "" },
     { name: "DANA",   img: "" },
@@ -81,9 +88,9 @@ export default function Footer() {
     { name: "OVO",    img: "" },
     { name: "QRIS",   img: "" },
   ]);
-  const companyName   = cfg?.footer_company_name ?? "PT Whuzpay Digital Indonesia";
-  const contactPhone  = cfg?.footer_contact_phone ?? "08123-456-7890";
-  const contactEmail  = cfg?.footer_contact_email ?? "support@whuzpay.com";
+  const companyName   = cfg?.footer_company_name ?? siteName;
+  const contactPhone  = cfg?.footer_contact_phone ?? "";
+  const contactEmail  = cfg?.footer_contact_email ?? "";
   const footerColumns = normalizeFooterColumns(
     safeJSON<FooterColumnItem[]>(cfg?.footer_columns ?? "", []),
     DEFAULT_FOOTER_COLUMNS
@@ -95,7 +102,7 @@ export default function Footer() {
     { platform: "discord",   href: "#" },
     { platform: "tiktok",    href: "#" },
   ]);
-  const copyright     = cfg?.footer_copyright ?? "Copyright ©2024 - 2026\nPT. Whuzpay Digital Indonesia - Whuzpay All Right Reserved";
+  const copyright     = cfg?.footer_copyright ?? `Copyright ©2024 - ${new Date().getFullYear()}\n${siteName}. All rights reserved.`;
   const visitorStats = cfg?.visitorStats ?? {
     visitorsToday: 0,
     totalVisits: 0,
@@ -114,9 +121,9 @@ export default function Footer() {
               ) : (
                 <>
                   <div className="rounded-lg bg-purple-600 px-2.5 py-1">
-                    <span className="text-base font-bold tracking-wide text-white">WZ</span>
+                    <span className="text-base font-bold tracking-wide text-white">{getBrandInitials(siteName)}</span>
                   </div>
-                  <span className="text-lg font-bold text-slate-800">Whuzpay</span>
+                  <span className="text-lg font-bold text-slate-800">{siteName}</span>
                 </>
               )}
             </div>

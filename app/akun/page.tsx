@@ -60,6 +60,7 @@ export default function AkunPage() {
   const [tier, setTier] = useState<TierInfo | null>(null);
   const [nextTier, setNextTier] = useState<TierInfo | null>(null);
   const [seller, setSeller] = useState<SellerData | null>(null);
+  const [siteName, setSiteName] = useState("Website");
 
   // Modal state
   const [modal, setModal] = useState<ModalType>(null);
@@ -97,6 +98,15 @@ export default function AkunPage() {
   const [showPw, setShowPw] = useState({ current: false, new: false, confirm: false });
 
   // ===================== FETCH SESSION =====================
+
+  useEffect(() => {
+    fetch("/api/site-branding")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.data?.site_name) setSiteName(data.data.site_name);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -376,7 +386,7 @@ export default function AkunPage() {
             {/* Nama & email */}
             <div className="text-center">
               <h1 className="text-lg font-bold text-white">
-                {user.name ?? "Member Whuzpay"}
+                {user.name ?? "Member"}
               </h1>
               <p className="text-purple-200 text-xs mt-0.5">{user.email}</p>
             </div>
@@ -605,7 +615,7 @@ export default function AkunPage() {
 
           {/* App version */}
           <p className="text-center text-[11px] text-slate-300 -mt-1 mb-2">
-            Whuzpay v1.0.0 · PPOB &amp; Top Up Game
+            {siteName} v1.0.0 · PPOB &amp; Top Up Game
           </p>
         </div>
 
@@ -638,7 +648,7 @@ export default function AkunPage() {
                   </div>
                   <div className="text-center">
                     <h2 className="text-lg font-bold text-slate-800">Keluar dari Akun?</h2>
-                    <p className="text-sm text-slate-400 mt-1">Kamu perlu login kembali untuk menggunakan layanan WhuzPay.</p>
+                    <p className="text-sm text-slate-400 mt-1">Kamu perlu login kembali untuk menggunakan layanan {siteName}.</p>
                   </div>
                 </div>
                 <div className="flex gap-3">

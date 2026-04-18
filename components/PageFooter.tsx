@@ -9,6 +9,7 @@ interface PaymentMethod {
 }
 
 interface FooterBranding {
+  site_name?: string;
   footer_logo_url?: string;
   footer_tagline?: string;
   footer_copyright?: string;
@@ -26,6 +27,11 @@ function safeJSON<T>(raw: string, fallback: T): T {
   try { return JSON.parse(raw) as T; } catch { return fallback; }
 }
 
+function getBrandInitials(siteName: string): string {
+  const letters = siteName.replace(/[^A-Za-z0-9]/g, "").slice(0, 2).toUpperCase();
+  return letters || "WS";
+}
+
 export default function PageFooter() {
   const [branding, setBranding] = useState<FooterBranding>({});
 
@@ -36,9 +42,10 @@ export default function PageFooter() {
       .catch(() => {});
   }, []);
 
+  const siteName = branding.site_name || "Website";
   const logoUrl = branding.footer_logo_url || "";
-  const tagline = branding.footer_tagline || "Top Up Game Murah & PPOB Terpercaya? Whuzpay Aja!";
-  const copyright = branding.footer_copyright || "Copyright ©2024 - 2026\nPT. Whuzpay Digital Indonesia - Whuzpay All Right Reserved";
+  const tagline = branding.footer_tagline || `Top Up Game Murah & PPOB Terpercaya? ${siteName} Aja!`;
+  const copyright = branding.footer_copyright || `Copyright ©2024 - ${new Date().getFullYear()}\n${siteName}. All rights reserved.`;
   const paymentMethods = safeJSON<PaymentMethod[]>(branding.footer_payment_methods ?? "", [
     { name: "GoPay", img: "" },
     { name: "DANA", img: "" },
@@ -62,13 +69,13 @@ export default function PageFooter() {
       <div className="mb-4">
         {logoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={logoUrl} alt="WhuzPay" className="h-10 w-auto object-contain mb-2" />
+          <img src={logoUrl} alt={siteName} className="h-10 w-auto object-contain mb-2" />
         ) : (
           <div className="flex items-center gap-1.5 mb-2">
             <div className="bg-[#003D99] rounded-lg px-2 py-1">
-              <span className="text-white font-bold text-sm tracking-wide">WZ</span>
+              <span className="text-white font-bold text-sm tracking-wide">{getBrandInitials(siteName)}</span>
             </div>
-            <span className="text-slate-800 font-bold text-base">WhuzPay</span>
+            <span className="text-slate-800 font-bold text-base">{siteName}</span>
           </div>
         )}
         <p className="text-[11px] text-slate-500 font-semibold leading-snug">{tagline}</p>

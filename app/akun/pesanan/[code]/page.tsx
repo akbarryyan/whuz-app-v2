@@ -495,7 +495,7 @@ function OrderDetailPageContent() {
                 <span className="text-xs text-slate-500">Metode</span>
                 <span className="text-xs text-slate-600">
                   {order.paymentMethod === "WALLET"
-                    ? "Saldo WhuzPay"
+                    ? "Saldo Wallet"
                     : (order.paymentInvoice?.method?.toUpperCase() ?? "Payment Gateway")}
                 </span>
               </div>

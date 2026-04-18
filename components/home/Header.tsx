@@ -31,6 +31,7 @@ export default function Header() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [charIdx, setCharIdx] = useState(0);
   const [logoUrl, setLogoUrl] = useState("");
+  const [siteName, setSiteName] = useState("Website");
   const [searchValue, setSearchValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -43,6 +44,7 @@ export default function Header() {
       .then((r) => r.json())
       .then((d) => {
         if (d.data?.site_logo) setLogoUrl(d.data.site_logo);
+        if (d.data?.site_name) setSiteName(d.data.site_name);
       })
       .catch(() => {});
     fetch("/api/tickets/unread-count")
@@ -108,7 +110,7 @@ export default function Header() {
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={logoUrl}
-              alt="WhuzPay"
+              alt={siteName}
               className="h-10 w-auto object-contain -mt-2"
             />
           )}

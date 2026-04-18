@@ -5,7 +5,7 @@ import {
   IPaymentGatewayPort,
 } from "@/src/core/ports/payment-gateway.port";
 import { calculatePaymentGatewayFee } from "@/lib/payment-gateway-fee";
-import { getPaymentGatewayFeeConfig } from "@/lib/site-config";
+import { getPaymentGatewayFeeConfig, getSiteName } from "@/lib/site-config";
 import { PoppayClient } from "@/src/infra/payment/poppay/poppay.client";
 
 export class PoppayAdapter implements IPaymentGatewayPort {
@@ -14,13 +14,14 @@ export class PoppayAdapter implements IPaymentGatewayPort {
   constructor(private readonly client = new PoppayClient()) {}
 
   async createPayment(input: CreatePaymentInput): Promise<CreatePaymentResult> {
+    const siteName = await getSiteName();
     const feeConfig = await getPaymentGatewayFeeConfig(input.method ?? "qris");
     const fee = calculatePaymentGatewayFee(input.method ?? "qris", input.amount, feeConfig);
     const incoming = await this.client.createIncoming({
       aggRefId: input.orderId,
       amount: input.amount,
       notes: input.orderId,
-      payorName: input.payerName?.trim() || "Whuzpay Customer",
+      payorName: input.payerName?.trim() || `${siteName} Customer`,
       payorEmail: input.payerEmail?.trim() || null,
       callbackUrl: this.resolveCallbackUrl(),
       expirationInterval: 30,

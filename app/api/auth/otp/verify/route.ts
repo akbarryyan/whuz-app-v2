@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
+import { getSiteName } from "@/lib/site-config";
 import { prisma } from "@/src/infra/db/prisma";
 import { normalizePhone, isValidPhone } from "@/lib/fonnte";
 
 export async function POST(req: NextRequest) {
   try {
+    const siteName = await getSiteName();
     const body = await req.json();
     const { phone, email, code, purpose, name, target } = body;
     // target: "whatsapp" | "email"
@@ -268,7 +270,7 @@ export async function POST(req: NextRequest) {
       message:
         purpose === "LOGIN"
           ? "Login berhasil! Selamat datang kembali."
-          : "Akun berhasil dibuat! Selamat datang di Whuzpay.",
+          : `Akun berhasil dibuat! Selamat datang di ${siteName}.`,
       user: {
         id: user.id,
         email: user.email,

@@ -129,6 +129,7 @@ export default function BrandDetailPage({
 
   const [brandSlug, setBrandSlug] = useState<string>("");
   const [brandName, setBrandName] = useState<string>("");
+  const [siteName, setSiteName] = useState<string>("Website");
   const [brandImageUrl, setBrandImageUrl] = useState<string | null>(null);
   const [sellerStore, setSellerStore] = useState<SellerStoreInfo | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
@@ -180,6 +181,15 @@ export default function BrandDetailPage({
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [reviewSubmitError, setReviewSubmitError] = useState<string | null>(null);
   const [reviewSubmitSuccess, setReviewSubmitSuccess] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/site-branding")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.data?.site_name) setSiteName(data.data.site_name);
+      })
+      .catch(() => {});
+  }, []);
 
   // Resolve params + fetch products in a single effect
   useEffect(() => {
@@ -823,7 +833,7 @@ export default function BrandDetailPage({
                     }`}
                   >
                     BERLAKU UNTUK SEMUA PENGGUNA YANG BARU PERTAMA KALI TOP UP MENGGUNAKAN
-                    SHOPEEPAY DI WHUZPAY (KUOTA HARIAN TERBATAS). DAPATKAN HARGA TERBAIK UNTUK
+                    SHOPEEPAY DI {siteName.toUpperCase()} (KUOTA HARIAN TERBATAS). DAPATKAN HARGA TERBAIK UNTUK
                     SEMUA PRODUK {brandName.toUpperCase()} DI SINI.
                   </p>
                   <button
@@ -1048,7 +1058,7 @@ export default function BrandDetailPage({
               <span className="text-sm font-semibold text-slate-700">Metode Pembayaran</span>
             </div>
 
-            {/* Saldo WhuzPay — inline */}
+            {/* Saldo Wallet — inline */}
             {(() => {
               const isLoggedIn = !walletLoading && walletBalance !== null;
               const isDisabled = !isLoggedIn;
