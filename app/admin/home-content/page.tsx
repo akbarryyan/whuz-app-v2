@@ -68,22 +68,29 @@ export default function HomeContentPage() {
   useEffect(() => { load(); }, [load]);
 
   // ── Save ──────────────────────────────────────────────────────────────────
-  async function save() {
+  async function persistContent(
+    content: HomeContent,
+    successMessage = "Konten berhasil disimpan"
+  ) {
     setSaving(true);
     try {
       const res = await fetch("/api/admin/home-content", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ gameTags, faqs, aboutText }),
+        body: JSON.stringify(content),
       });
       const data = await res.json();
-      if (data.success) toast.success("Konten berhasil disimpan");
+      if (data.success) toast.success(successMessage);
       else toast.error(data.error ?? "Gagal menyimpan");
     } catch {
       toast.error("Gagal menyimpan");
     } finally {
       setSaving(false);
     }
+  }
+
+  async function save() {
+    await persistContent({ gameTags, faqs, aboutText });
   }
 
   async function resetDefaults() {
@@ -157,17 +164,26 @@ export default function HomeContentPage() {
     setShowFaqForm(true);
   }
 
-  function submitFaq() {
+  async function submitFaq() {
     if (!faqDraft.question.trim() || !faqDraft.answer.trim()) {
       toast.error("Pertanyaan dan jawaban wajib diisi");
       return;
     }
-    if (editFaqIdx !== null) {
-      setFaqs((prev) => prev.map((f, i) => i === editFaqIdx ? faqDraft : f));
-    } else {
-      setFaqs((prev) => [...prev, faqDraft]);
-    }
+
+    const nextFaqs =
+      editFaqIdx !== null
+        ? faqs.map((f, i) => (i === editFaqIdx ? faqDraft : f))
+        : [...faqs, faqDraft];
+
+    setFaqs(nextFaqs);
     setShowFaqForm(false);
+    setEditFaqIdx(null);
+    setFaqDraft(EMPTY_FAQ);
+
+    await persistContent(
+      { gameTags, faqs: nextFaqs, aboutText },
+      editFaqIdx !== null ? "FAQ berhasil diperbarui" : "FAQ berhasil ditambahkan"
+    );
   }
 
   function removeFaq(idx: number) {
