@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { getAllSiteConfig } from "@/lib/site-config";
-import { FOOTER_DEFAULTS } from "@/app/api/footer-config/route";
+import { getAllSiteConfig, getSiteName } from "@/lib/site-config";
 
 export const dynamic = "force-dynamic";
 
@@ -11,11 +10,14 @@ export const metadata = {
 };
 
 export default async function MaintenancePage() {
-  const raw: Record<string, string> = await getAllSiteConfig().catch(() => ({} as Record<string, string>));
+  const [raw, resolvedSiteName] = await Promise.all([
+    getAllSiteConfig().catch(() => ({} as Record<string, string>)),
+    getSiteName().catch(() => "Website"),
+  ]);
 
-  const logoUrl: string = raw["footer_logo_url"] || FOOTER_DEFAULTS.footer_logo_url || "";
-  const siteName: string = raw["site_name"] || raw["footer_company_name"] || FOOTER_DEFAULTS.footer_company_name;
-  const contactEmail: string = raw["footer_contact_email"] || FOOTER_DEFAULTS.footer_contact_email;
+  const logoUrl: string = raw["footer_logo_url"] || "";
+  const siteName: string = raw["site_name"] || raw["footer_company_name"] || resolvedSiteName;
+  const contactEmail: string = raw["footer_contact_email"] || "support@example.com";
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 px-4">
