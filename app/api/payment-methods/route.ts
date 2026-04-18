@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getPaymentGatewayFeeConfig } from "@/lib/site-config";
 import { prisma } from "@/src/infra/db/prisma";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +17,7 @@ const STOREFRONT_SUPPORTED_KEYS = new Set(["qris"]);
  */
 export async function GET() {
   try {
+    const feeConfig = await getPaymentGatewayFeeConfig("qris");
     const count = await prisma.paymentMethod.count();
 
     if (count === 0) {
@@ -47,6 +49,7 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       gateway: "POPPAY",
+      feeConfig,
       data: storefrontMethods.length > 0 ? storefrontMethods : [qrisMethod],
     });
   } catch (error) {

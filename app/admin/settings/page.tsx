@@ -99,6 +99,8 @@ export default function SettingsPage() {
   const [poppayMerchantAccountNumber, setPoppayMerchantAccountNumber] = useState("");
   const [poppayEmail, setPoppayEmail] = useState("");
   const [poppayPassword, setPoppayPassword] = useState("");
+  const [paymentGatewayQrisFeeType, setPaymentGatewayQrisFeeType] = useState<"FIXED" | "PERCENT">("FIXED");
+  const [paymentGatewayQrisFeeValue, setPaymentGatewayQrisFeeValue] = useState("0");
   const [showPoppayIntegratorToken, setShowPoppayIntegratorToken] = useState(false);
   const [showPoppaySecretKey, setShowPoppaySecretKey] = useState(false);
   const [showPoppayPassword, setShowPoppayPassword] = useState(false);
@@ -146,6 +148,12 @@ export default function SettingsPage() {
         setPoppayMerchantAccountNumber(raw.POPPAY_MERCHANT_ACCOUNT_NUMBER ?? envDefaults.POPPAY_MERCHANT_ACCOUNT_NUMBER ?? "");
         setPoppayEmail(raw.POPPAY_EMAIL ?? envDefaults.POPPAY_EMAIL ?? "");
         setPoppayPassword(raw.POPPAY_PASSWORD ?? envDefaults.POPPAY_PASSWORD ?? "");
+        setPaymentGatewayQrisFeeType(
+          (raw.PAYMENT_GATEWAY_QRIS_FEE_TYPE ?? envDefaults.PAYMENT_GATEWAY_QRIS_FEE_TYPE ?? "FIXED") === "PERCENT"
+            ? "PERCENT"
+            : "FIXED"
+        );
+        setPaymentGatewayQrisFeeValue(raw.PAYMENT_GATEWAY_QRIS_FEE_VALUE ?? envDefaults.PAYMENT_GATEWAY_QRIS_FEE_VALUE ?? "0");
         setDigiflazzUsername(raw.DIGIFLAZZ_USERNAME ?? envDefaults.DIGIFLAZZ_USERNAME ?? "");
         setDigiflazzApiKey(raw.DIGIFLAZZ_API_KEY ?? envDefaults.DIGIFLAZZ_API_KEY ?? "");
         setDigiflazzBaseUrl(raw.DIGIFLAZZ_BASE_URL ?? envDefaults.DIGIFLAZZ_BASE_URL ?? "https://api.digiflazz.com/v1");
@@ -354,6 +362,8 @@ export default function SettingsPage() {
         { key: "POPPAY_MERCHANT_ACCOUNT_NUMBER", value: poppayMerchantAccountNumber },
         { key: "POPPAY_EMAIL", value: poppayEmail },
         { key: "POPPAY_PASSWORD", value: poppayPassword },
+        { key: "PAYMENT_GATEWAY_QRIS_FEE_TYPE", value: paymentGatewayQrisFeeType },
+        { key: "PAYMENT_GATEWAY_QRIS_FEE_VALUE", value: paymentGatewayQrisFeeValue },
       ];
       for (const { key, value } of pairs) {
         const res = await fetch("/api/admin/site-config", {
@@ -1215,6 +1225,49 @@ export default function SettingsPage() {
                   >
                     {showPoppaySecretKey ? "Hide" : "Show"}
                   </button>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-4">
+                <div className="mb-3">
+                  <h3 className="text-xs font-bold uppercase tracking-wide text-slate-600">Biaya Admin QRIS</h3>
+                  <p className="mt-1 text-[11px] leading-relaxed text-slate-400">
+                    Berlaku global untuk checkout Payment Gateway Poppay QRIS dan top up saldo.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-500">
+                      Tipe Biaya
+                    </label>
+                    <select
+                      value={paymentGatewayQrisFeeType}
+                      onChange={(e) => setPaymentGatewayQrisFeeType(e.target.value === "PERCENT" ? "PERCENT" : "FIXED")}
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-400"
+                    >
+                      <option value="FIXED">Nominal Tetap</option>
+                      <option value="PERCENT">Persentase</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-500">
+                      Nilai Biaya
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step={paymentGatewayQrisFeeType === "PERCENT" ? "0.01" : "1"}
+                      value={paymentGatewayQrisFeeValue}
+                      onChange={(e) => setPaymentGatewayQrisFeeValue(e.target.value)}
+                      placeholder={paymentGatewayQrisFeeType === "PERCENT" ? "Contoh: 2.5" : "Contoh: 1000"}
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-400"
+                    />
+                    <p className="mt-1 text-[10px] text-slate-400">
+                      {paymentGatewayQrisFeeType === "PERCENT"
+                        ? "Biaya dihitung persen dari nilai transaksi."
+                        : "Biaya ditambahkan sebagai nominal tetap per transaksi."}
+                    </p>
+                  </div>
                 </div>
               </div>
 

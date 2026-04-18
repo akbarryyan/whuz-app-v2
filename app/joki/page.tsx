@@ -7,6 +7,11 @@ import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/ui/Toast";
 import AppHeader from "@/components/AppHeader";
 import PageFooter from "@/components/PageFooter";
+import {
+  calculatePaymentGatewayFee,
+  DEFAULT_PAYMENT_GATEWAY_FEE_CONFIG,
+  PaymentGatewayFeeConfig,
+} from "@/lib/payment-gateway-fee";
 
 const quicksand = Quicksand({
   subsets: ["latin"],
@@ -55,12 +60,6 @@ function formatPrice(n: number): string {
   return new Intl.NumberFormat("id-ID").format(n);
 }
 
-function estimatePgFee(methodKey: string, amount: number): number {
-  void methodKey;
-  void amount;
-  return 0;
-}
-
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function JokiPage() {
@@ -92,6 +91,7 @@ export default function JokiPage() {
   const [walletLoading, setWalletLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showPaymentSheet, setShowPaymentSheet] = useState(false);
+  const [feeConfig, setFeeConfig] = useState<PaymentGatewayFeeConfig>(DEFAULT_PAYMENT_GATEWAY_FEE_CONFIG);
   const [pgMethods, setPgMethods] = useState<
     { id: string; key: string; label: string; group: string; imageUrl: string | null }[]
   >([]);
@@ -141,7 +141,12 @@ export default function JokiPage() {
   useEffect(() => {
     fetch("/api/payment-methods")
       .then((r) => r.json())
-      .then((d) => { if (d.success) setPgMethods(d.data); })
+      .then((d) => {
+        if (d.success) {
+          setPgMethods(d.data);
+          setFeeConfig(d.feeConfig ?? DEFAULT_PAYMENT_GATEWAY_FEE_CONFIG);
+        }
+      })
       .catch(() => {});
   }, []);
 
@@ -419,7 +424,9 @@ export default function JokiPage() {
   }
 
   // ── Main page ─────────────────────────────────────────────────────────────
-  const pgFee = paymentMethod === "PAYMENT_GATEWAY" ? estimatePgFee(pgMethod, finalPrice) : 0;
+  const pgFee = paymentMethod === "PAYMENT_GATEWAY"
+    ? calculatePaymentGatewayFee(pgMethod, finalPrice, feeConfig)
+    : 0;
   const totalAmount = finalPrice + pgFee;
 
   const pgGroups = pgMethods.reduce<Record<string, typeof pgMethods>>(

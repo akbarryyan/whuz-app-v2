@@ -11,6 +11,12 @@
  */
 
 import { prisma } from "@/src/infra/db/prisma";
+import {
+  DEFAULT_PAYMENT_GATEWAY_FEE_CONFIG,
+  PaymentGatewayFeeConfig,
+  normalizePaymentGatewayFeeConfig,
+  normalizePaymentGatewayFeeType,
+} from "@/lib/payment-gateway-fee";
 
 // ── In-memory cache to avoid DB hit on every request ─────────────────────────
 const g = globalThis as unknown as {
@@ -62,6 +68,21 @@ export async function getSiteConfigValue(key: string, fallback = ""): Promise<st
 
   const envKey = ENV_KEY_MAP[key] ?? key;
   return process.env[envKey] ?? fallback;
+}
+
+export async function getPaymentGatewayFeeConfig(
+  methodKey = "qris"
+): Promise<PaymentGatewayFeeConfig> {
+  const normalizedMethod = String(methodKey).trim().toUpperCase() || "QRIS";
+  const [typeRaw, valueRaw] = await Promise.all([
+    getSiteConfigValue(`PAYMENT_GATEWAY_${normalizedMethod}_FEE_TYPE`, DEFAULT_PAYMENT_GATEWAY_FEE_CONFIG.type),
+    getSiteConfigValue(`PAYMENT_GATEWAY_${normalizedMethod}_FEE_VALUE`, String(DEFAULT_PAYMENT_GATEWAY_FEE_CONFIG.value)),
+  ]);
+
+  return normalizePaymentGatewayFeeConfig({
+    type: normalizePaymentGatewayFeeType(typeRaw),
+    value: Number(valueRaw),
+  });
 }
 
 /** Upsert a config value and invalidate cache */

@@ -8,6 +8,11 @@ import { ToastContainer } from "@/components/ui/Toast";
 import BannerCarousel from "@/components/home/BannerCarousel";
 import AppHeader from "@/components/AppHeader";
 import PageFooter from "@/components/PageFooter";
+import {
+  calculatePaymentGatewayFee,
+  DEFAULT_PAYMENT_GATEWAY_FEE_CONFIG,
+  PaymentGatewayFeeConfig,
+} from "@/lib/payment-gateway-fee";
 
 const quicksand = Quicksand({
   subsets: ["latin"],
@@ -113,16 +118,6 @@ function formatPrice(n: number): string {
   return new Intl.NumberFormat("id-ID").format(n);
 }
 
-/**
- * Current Poppay QRIS integration does not expose gateway fee in the docs used
- * by this app, so the checkout preview keeps the fee at zero.
- */
-function estimatePgFee(methodKey: string, amount: number): number {
-  void methodKey;
-  void amount;
-  return 0;
-}
-
 export default function BrandDetailPage({
   params,
 }: {
@@ -154,6 +149,7 @@ export default function BrandDetailPage({
   const [walletLoading, setWalletLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [showPaymentSheet, setShowPaymentSheet] = useState(false);
+  const [feeConfig, setFeeConfig] = useState<PaymentGatewayFeeConfig>(DEFAULT_PAYMENT_GATEWAY_FEE_CONFIG);
   const [pgMethods, setPgMethods] = useState<{ id: string; key: string; label: string; group: string; imageUrl: string | null }[]>([]);
 
   // WhatsApp number state
@@ -263,7 +259,12 @@ export default function BrandDetailPage({
   useEffect(() => {
     fetch("/api/payment-methods")
       .then((r) => r.json())
-      .then((d) => { if (d.success) setPgMethods(d.data); })
+      .then((d) => {
+        if (d.success) {
+          setPgMethods(d.data);
+          setFeeConfig(d.feeConfig ?? DEFAULT_PAYMENT_GATEWAY_FEE_CONFIG);
+        }
+      })
       .catch(() => {});
   }, []);
 
@@ -1355,7 +1356,7 @@ export default function BrandDetailPage({
                   {qrisItems.map((m) => {
                     const isActive = paymentMethod === "PAYMENT_GATEWAY" && pgMethod === m.key;
                     const base = selectedProduct?.sellingPrice ?? 0;
-                    const fee = base > 0 ? estimatePgFee(m.key, base) : 0;
+                    const fee = base > 0 ? calculatePaymentGatewayFee(m.key, base, feeConfig) : 0;
                     const total = base + fee;
                     return (
                       <button
@@ -1415,7 +1416,7 @@ export default function BrandDetailPage({
                   {vaItems.map((m) => {
                     const isActive = paymentMethod === "PAYMENT_GATEWAY" && pgMethod === m.key;
                     const base = selectedProduct?.sellingPrice ?? 0;
-                    const fee = base > 0 ? estimatePgFee(m.key, base) : 0;
+                    const fee = base > 0 ? calculatePaymentGatewayFee(m.key, base, feeConfig) : 0;
                     const total = base + fee;
                     const abbr = m.key.replace(/_va$/, "").toUpperCase().slice(0, 4);
                     return (

@@ -4,6 +4,8 @@ import {
   DetailPaymentResult,
   IPaymentGatewayPort,
 } from "@/src/core/ports/payment-gateway.port";
+import { calculatePaymentGatewayFee } from "@/lib/payment-gateway-fee";
+import { getPaymentGatewayFeeConfig } from "@/lib/site-config";
 import { PoppayClient } from "@/src/infra/payment/poppay/poppay.client";
 
 export class PoppayAdapter implements IPaymentGatewayPort {
@@ -12,6 +14,8 @@ export class PoppayAdapter implements IPaymentGatewayPort {
   constructor(private readonly client = new PoppayClient()) {}
 
   async createPayment(input: CreatePaymentInput): Promise<CreatePaymentResult> {
+    const feeConfig = await getPaymentGatewayFeeConfig(input.method ?? "qris");
+    const fee = calculatePaymentGatewayFee(input.method ?? "qris", input.amount, feeConfig);
     const incoming = await this.client.createIncoming({
       aggRefId: input.orderId,
       amount: input.amount,
@@ -28,14 +32,16 @@ export class PoppayAdapter implements IPaymentGatewayPort {
       paymentNumber: incoming.rawQr,
       method: "qris",
       amount: input.amount,
-      fee: 0,
-      totalPayment: input.amount,
+      fee,
+      totalPayment: input.amount + fee,
       expiredAt: incoming.expiredAt ? new Date(incoming.expiredAt) : undefined,
       raw: incoming,
     };
   }
 
   async detailPayment(orderId: string, amount: number): Promise<DetailPaymentResult> {
+    const feeConfig = await getPaymentGatewayFeeConfig("qris");
+    const fee = calculatePaymentGatewayFee("qris", amount, feeConfig);
     const inquiry = await this.client.inquireIncoming(orderId);
     return {
       invoiceId: orderId,
@@ -45,8 +51,8 @@ export class PoppayAdapter implements IPaymentGatewayPort {
           ? "pending"
           : inquiry.status,
       amount,
-      fee: 0,
-      totalPayment: amount,
+      fee,
+      totalPayment: amount + fee,
       method: "qris",
       raw: inquiry.raw,
     };

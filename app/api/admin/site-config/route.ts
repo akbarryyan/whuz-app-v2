@@ -44,6 +44,8 @@ export async function GET() {
         POPPAY_SECRET_KEY: process.env.POPPAY_SECRET_KEY ?? "",
         POPPAY_EMAIL: process.env.POPPAY_EMAIL ?? "",
         POPPAY_PASSWORD: process.env.POPPAY_PASSWORD ?? "",
+        PAYMENT_GATEWAY_QRIS_FEE_TYPE: process.env.PAYMENT_GATEWAY_QRIS_FEE_TYPE ?? "FIXED",
+        PAYMENT_GATEWAY_QRIS_FEE_VALUE: process.env.PAYMENT_GATEWAY_QRIS_FEE_VALUE ?? "0",
         DIGIFLAZZ_USERNAME: process.env.DIGIFLAZZ_USERNAME ?? "",
         DIGIFLAZZ_API_KEY: process.env.DIGIFLAZZ_API_KEY ?? "",
         DIGIFLAZZ_BASE_URL: process.env.DIGIFLAZZ_BASE_URL ?? "https://api.digiflazz.com/v1",

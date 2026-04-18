@@ -5,6 +5,11 @@ import { useRouter } from "next/navigation";
 import { Quicksand } from "@/lib/fonts";
 import AppHeader from "@/components/AppHeader";
 import BottomNavigation from "@/components/BottomNavigation";
+import {
+  calculatePaymentGatewayFee,
+  DEFAULT_PAYMENT_GATEWAY_FEE_CONFIG,
+  PaymentGatewayFeeConfig,
+} from "@/lib/payment-gateway-fee";
 
 const quicksand = Quicksand({
   subsets: ["latin"],
@@ -50,16 +55,6 @@ function formatPrice(n: number) {
   return n.toLocaleString("id-ID");
 }
 
-/**
- * Current Poppay QRIS integration does not expose gateway fee in the docs used
- * by this app, so the checkout preview keeps the fee at zero.
- */
-function estimatePgFee(methodKey: string, amount: number): number {
-  void methodKey;
-  void amount;
-  return 0;
-}
-
 // ── Page ────────────────────────────────────────────────────────────────────── 
 
 export default function TopupPage() {
@@ -71,6 +66,7 @@ export default function TopupPage() {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
+  const [feeConfig, setFeeConfig] = useState<PaymentGatewayFeeConfig>(DEFAULT_PAYMENT_GATEWAY_FEE_CONFIG);
   const [methodsLoading, setMethodsLoading] = useState(true);
 
   const [submitting, setSubmitting] = useState(false);
@@ -94,7 +90,10 @@ export default function TopupPage() {
     fetch("/api/payment-methods")
       .then((r) => r.json())
       .then((d) => {
-        if (d.success) setMethods(d.data);
+        if (d.success) {
+          setMethods(d.data);
+          setFeeConfig(d.feeConfig ?? DEFAULT_PAYMENT_GATEWAY_FEE_CONFIG);
+        }
       })
       .finally(() => setMethodsLoading(false));
   }, [authChecked]);
@@ -223,7 +222,7 @@ export default function TopupPage() {
                         <div className="rounded-xl border border-slate-200 overflow-hidden bg-white divide-y divide-slate-100">
                           {items.map((m) => {
                             const isActive = selectedMethod === m.key;
-                            const fee = selectedAmount ? estimatePgFee(m.key, selectedAmount) : 0;
+                            const fee = selectedAmount ? calculatePaymentGatewayFee(m.key, selectedAmount, feeConfig) : 0;
                             const total = (selectedAmount ?? 0) + fee;
                             const abbr = m.key.replace(/_va$/, "").toUpperCase().slice(0, 4);
                             return (
@@ -296,7 +295,7 @@ export default function TopupPage() {
 
               {/* Summary + Bayar button */}
               {selectedAmount && selectedMethod && (() => {
-                const fee = estimatePgFee(selectedMethod, selectedAmount);
+                const fee = calculatePaymentGatewayFee(selectedMethod, selectedAmount, feeConfig);
                 const total = selectedAmount + fee;
                 const methodLabel = methods.find((m) => m.key === selectedMethod)?.label ?? selectedMethod;
                 return (
