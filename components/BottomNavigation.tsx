@@ -113,7 +113,7 @@ export default function BottomNavigation() {
   };
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[480px] bg-white border-t border-slate-200 px-4 py-2 shadow-lg z-50">
+    <nav className="fixed inset-x-0 bottom-0 mx-auto z-50 w-full max-w-[480px] border-t border-slate-200 bg-white px-4 py-2 shadow-lg lg:hidden">
       <div className="flex items-end justify-around relative">
         {navItems.map((nav, idx) => {
           const active = isActive(nav.id);

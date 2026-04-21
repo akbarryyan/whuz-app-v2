@@ -537,9 +537,9 @@ export default function BrandDetailPage({
   if (loading) {
     return (
       <div
-        className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5]`}
+        className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#161B22]`}
       >
-        <div className="relative w-full max-w-[480px] min-h-screen bg-white shadow-2xl flex flex-col">
+        <div className="relative flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-transparent lg:shadow-none">
           {/* Header skeleton */}
           <div className="px-3 py-3 flex items-center gap-2" style={{ backgroundColor: "#003D99" }}>
             <div className="w-9 h-9 rounded-full bg-white/20 animate-pulse flex-shrink-0" />
@@ -553,7 +553,7 @@ export default function BrandDetailPage({
             </div>
           </div>
           {/* Content skeleton */}
-          <div className="flex-1 px-4 py-4 bg-slate-50">
+          <div className="flex-1 bg-slate-50 px-4 py-4 lg:mx-auto lg:w-full lg:max-w-6xl lg:bg-transparent lg:px-0 lg:pt-10">
             {/* Tab skeleton */}
             <div className="flex gap-2 mb-4">
               {[1, 2, 3].map((i) => (
@@ -568,7 +568,7 @@ export default function BrandDetailPage({
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className="bg-white rounded-xl p-3 shadow-sm animate-pulse"
+                  className="rounded-xl bg-white p-3 shadow-sm animate-pulse lg:border lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none"
                 >
                   <div className="h-3 w-full bg-slate-200 rounded mb-2" />
                   <div className="h-3 w-2/3 bg-slate-200 rounded mb-3" />
@@ -586,9 +586,9 @@ export default function BrandDetailPage({
   if (error) {
     return (
       <div
-        className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5]`}
+        className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#161B22]`}
       >
-        <div className="relative w-full max-w-[480px] min-h-screen bg-white shadow-2xl flex flex-col">
+        <div className="relative flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-transparent lg:shadow-none">
           <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
             <svg
               className="w-16 h-16 text-slate-300 mb-4"
@@ -603,8 +603,8 @@ export default function BrandDetailPage({
                 d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"
               />
             </svg>
-            <p className="text-slate-600 font-semibold mb-1">{error}</p>
-            <p className="text-sm text-slate-400 mb-6">
+            <p className="mb-1 font-semibold text-slate-600 lg:text-white">{error}</p>
+            <p className="mb-6 text-sm text-slate-400">
               Coba kembali ke halaman utama.
             </p>
             <button
@@ -622,11 +622,11 @@ export default function BrandDetailPage({
   // ===================== MAIN RENDER =====================
   return (
     <div
-      className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5]`}
+      className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#161B22]`}
     >
       <ToastContainer toasts={toast.toasts} onRemove={toast.removeToast} />
 
-      <div className="relative w-full max-w-[480px] min-h-screen bg-white shadow-2xl flex flex-col">
+      <div className="relative flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-transparent lg:shadow-none">
         {/* ---- Brand Header ---- */}
         <AppHeader onBack={() => router.back()} />
 
@@ -634,11 +634,11 @@ export default function BrandDetailPage({
         <div className="h-[60px]" />
 
         {/* ---- Main Content ---- */}
-        <div className="flex-1 bg-slate-50 pb-12">
+        <div className="flex-1 bg-slate-50 pb-12 lg:bg-transparent">
           <BannerCarousel />
 
           {/* == Brand Hero Section == */}
-          <div className="bg-white px-4 pt-4 pb-4 border-b border-slate-100 -mt-3">
+          <div className="bg-white px-4 pt-4 pb-4 border-b border-slate-100 -mt-3 lg:mx-auto lg:w-full lg:max-w-6xl lg:rounded-[28px] lg:border lg:border-white/10 lg:bg-white/[0.04]">
             {/* Breadcrumb */}
             <div className="flex items-center justify-between gap-2 mb-3">
               <div className="flex items-center gap-1 text-[11px] text-slate-400 flex-wrap min-w-0">
@@ -654,21 +654,21 @@ export default function BrandDetailPage({
                 <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
-                <span className="text-slate-600 font-medium truncate">{brandName}</span>
+                <span className="font-medium text-slate-600 truncate lg:text-slate-200">{brandName}</span>
               </div>
             </div>
 
             {sellerStore && (
-              <div className="mb-3 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-700">Toko Merchant</p>
-                <p className="mt-1 text-sm font-bold text-slate-900">{sellerStore.displayName}</p>
+              <div className="mb-3 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 lg:border-emerald-500/20 lg:bg-emerald-500/10">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-700 lg:text-emerald-200">Toko Merchant</p>
+                <p className="mt-1 text-sm font-bold text-slate-900 lg:text-white">{sellerStore.displayName}</p>
                 {sellerStore.description && (
-                  <p className="mt-1 text-xs text-slate-600">{sellerStore.description}</p>
+                  <p className="mt-1 text-xs text-slate-600 lg:text-emerald-50/80">{sellerStore.description}</p>
                 )}
                 <button
                   type="button"
                   onClick={() => router.push(`/seller/${sellerStore.slug}`)}
-                  className="mt-2 text-xs font-semibold text-emerald-700 hover:text-emerald-800"
+                  className="mt-2 text-xs font-semibold text-emerald-700 hover:text-emerald-800 lg:text-emerald-200 lg:hover:text-white"
                 >
                   Kembali ke storefront merchant
                 </button>
@@ -678,7 +678,7 @@ export default function BrandDetailPage({
             {/* Brand info row */}
             <div className="flex items-center gap-3">
               {/* Brand image */}
-              <div className="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 bg-slate-100 shadow-sm">
+              <div className="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 bg-slate-100 shadow-sm lg:shadow-none">
                 {brandImage ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img src={brandImage} alt={brandName} className="w-full h-full object-cover" />
@@ -693,10 +693,10 @@ export default function BrandDetailPage({
               <div className="flex-1 min-w-0">
                 <div className="flex items-start gap-2">
                   <div className="flex-1 min-w-0">
-                    <h1 className="text-sm font-bold text-slate-800 leading-snug">
+                    <h1 className="text-sm font-bold leading-snug text-slate-800 lg:text-white">
                       Top Up {brandName} Murah
                     </h1>
-                    <p className="text-[11px] text-slate-400 mt-0.5">{products.length} produk tersedia</p>
+                    <p className="mt-0.5 text-[11px] text-slate-400">{products.length} produk tersedia</p>
                   </div>
                 </div>
               </div>
@@ -712,15 +712,15 @@ export default function BrandDetailPage({
             </div>
 
             {/* Rating row */}
-            <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
+            <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100 lg:border-white/10">
               <div className="flex items-center gap-1.5">
                 <span className="text-yellow-400 text-base">★</span>
-                <span className="text-sm font-bold text-slate-800">
+                <span className="text-sm font-bold text-slate-800 lg:text-white">
                   {reviewMeta && reviewMeta.totalRatings > 0
                     ? reviewMeta.avgRating.toFixed(1)
                     : "-"}
                 </span>
-                <span className="text-[11px] text-slate-400">
+                <span className="text-[11px] text-slate-400 lg:text-slate-400">
                   {reviewMeta && reviewMeta.totalRatings > 0
                     ? `dari ${reviewMeta.totalRatings.toLocaleString("id-ID")} Ulasan Pembeli`
                     : "Belum ada ulasan"}
@@ -742,7 +742,7 @@ export default function BrandDetailPage({
                   setReviewSubmitSuccess(false);
                   setShowReviewSheet(true);
                 }}
-                className="flex items-center gap-1 text-[11px] font-semibold text-purple-600 hover:text-purple-800 transition-colors"
+                className="flex items-center gap-1 text-[11px] font-semibold text-purple-600 transition-colors hover:text-purple-800 lg:text-slate-200 lg:hover:text-white"
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -755,7 +755,7 @@ export default function BrandDetailPage({
             {reviewLoading ? (
               <div className="flex gap-2.5 mt-2.5 overflow-x-auto hide-scrollbar pb-1">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex-shrink-0 w-[160px] bg-slate-100 rounded-xl p-2.5 animate-pulse h-[72px]" />
+                    <div key={i} className="h-[72px] w-[160px] flex-shrink-0 rounded-xl bg-slate-100 p-2.5 animate-pulse lg:bg-white/[0.05]" />
                 ))}
               </div>
             ) : reviews.length > 0 ? (
@@ -768,30 +768,30 @@ export default function BrandDetailPage({
                   return (
                     <div
                       key={review.id}
-                      className="flex-shrink-0 w-[160px] bg-slate-50 border border-slate-100 rounded-xl p-2.5"
+                      className="flex-shrink-0 w-[160px] rounded-xl border border-slate-100 bg-slate-50 p-2.5 lg:border-white/10 lg:bg-white/5"
                     >
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-[11px] font-semibold text-slate-700 truncate max-w-[90px]">{masked}</span>
+                        <span className="max-w-[90px] truncate text-[11px] font-semibold text-slate-700 lg:text-white">{masked}</span>
                         <div className="flex">
                           {Array.from({ length: 5 }).map((_, s) => (
                             <span key={s} className={`text-[10px] ${s < review.rating ? "text-yellow-400" : "text-slate-200"}`}>★</span>
                           ))}
                         </div>
                       </div>
-                      <p className="text-[10px] text-slate-500 leading-relaxed line-clamp-2">{review.comment}</p>
+                      <p className="line-clamp-2 text-[10px] leading-relaxed text-slate-500 lg:text-slate-400">{review.comment}</p>
                     </div>
                   );
                 })}
               </div>
             ) : (
               <div className="mt-2.5 py-3 text-center">
-                <p className="text-[11px] text-slate-400">Jadilah yang pertama memberi ulasan!</p>
+                <p className="text-[11px] text-slate-400 lg:text-slate-500">Jadilah yang pertama memberi ulasan!</p>
               </div>
             )}
           </div>
 
           {/* == Cara Top Up Section == */}
-          <div className="bg-blue-50 px-4 py-3.5 border-b border-blue-100">
+          <div className="bg-blue-50 px-4 py-3.5 border-b border-blue-100 lg:mx-auto lg:w-full lg:max-w-6xl lg:border-x lg:border-blue-500/20 lg:bg-blue-500/10">
             <div className="flex items-start gap-2">
               {/* Info icon */}
               <div className="w-5 h-5 rounded-full border-2 border-blue-500 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -824,11 +824,11 @@ export default function BrandDetailPage({
 
                 {/* Promo / description teaser */}
                 <div className="mt-3">
-                  <p className="text-[11px] font-bold text-blue-700 mb-0.5">
+                  <p className="mb-0.5 text-[11px] font-bold text-blue-700 lg:text-blue-100">
                     Top Up {brandName} Murah Bayar Pakai ShopeePay
                   </p>
                   <p
-                    className={`text-[11px] text-blue-800 leading-relaxed uppercase font-semibold ${
+                    className={`text-[11px] leading-relaxed uppercase font-semibold text-blue-800 lg:text-blue-50 ${
                       showDescription ? "" : "line-clamp-2"
                     }`}
                   >
@@ -838,7 +838,7 @@ export default function BrandDetailPage({
                   </p>
                   <button
                     onClick={() => setShowDescription((v) => !v)}
-                    className="flex items-center gap-1 text-[11px] text-blue-600 font-semibold mt-1.5 hover:text-blue-800 transition-colors"
+                    className="mt-1.5 flex items-center gap-1 text-[11px] font-semibold text-blue-600 transition-colors hover:text-blue-800 lg:text-blue-100 lg:hover:text-white"
                   >
                     {showDescription ? "Sembunyikan" : "Baca Selengkapnya"}
                     <svg
@@ -858,42 +858,42 @@ export default function BrandDetailPage({
           </div>
 
           {/* == Dynamic Input Fields Section == */}
-          <div className="px-4 py-4 bg-white border-b border-slate-100">
+          <div className="bg-white px-4 py-4 border-b border-slate-100 lg:mx-auto lg:w-full lg:max-w-6xl lg:border-x lg:border-white/10 lg:bg-white/[0.04]">
             <div className="flex items-center gap-2 mb-3">
               <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
-              <span className="text-sm font-semibold text-slate-700">Masukkan Data Akun</span>
+              <span className="text-sm font-semibold text-slate-700 lg:text-white">Masukkan Data Akun</span>
             </div>
 
             <div className={inputFields.length > 1 ? "flex flex-col gap-2" : "flex gap-2"}>
               {inputFields.map((field) => (
                 <div key={field.key} className={inputFields.length > 1 ? "w-full" : field.width === "fixed" ? "w-28 flex-shrink-0" : "flex-1 min-w-[120px]"}>
-                  <label className="text-xs text-slate-500 font-medium mb-1 block">{field.label}</label>
+                  <label className="mb-1 block text-xs font-medium text-slate-500 lg:text-slate-300">{field.label}</label>
                   <input
                     type="text"
                     placeholder={field.placeholder}
                     value={fieldValues[field.key] ?? ""}
                     onChange={(e) => setFieldValues((prev) => ({ ...prev, [field.key]: e.target.value }))}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100 transition"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100 transition lg:border-white/10 lg:bg-white/5 lg:text-white lg:placeholder:text-slate-500"
                   />
                 </div>
               ))}
             </div>
 
-            <p className="text-[11px] text-slate-400 mt-2 leading-relaxed">
+            <p className="mt-2 text-[11px] leading-relaxed text-slate-400 lg:text-slate-400">
               Pastikan {inputFields.map((f) => f.label).join(" dan ")} yang kamu masukkan sudah benar.
               Kesalahan input bukan tanggung jawab kami.
             </p>
           </div>
 
           {/* == Product Type Tabs == */}
-          <div className="px-4 pt-4 pb-2">
+          <div className="px-4 pt-4 pb-2 lg:mx-auto lg:w-full lg:max-w-6xl">
             <div className="flex items-center gap-2 mb-3">
               <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
-              <span className="text-sm font-semibold text-slate-700">Pilih Produk</span>
+              <span className="text-sm font-semibold text-slate-700 lg:text-white">Pilih Produk</span>
             </div>
             {!(types.length === 1 && ["game", "saldo-emoney"].includes(types[0].toLowerCase())) && (
             <div className="flex gap-2 overflow-x-auto hide-scrollbar">
@@ -902,7 +902,7 @@ export default function BrandDetailPage({
                 className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-all ${
                   activeType === "Semua"
                     ? "bg-purple-600 text-white shadow-md shadow-purple-200"
-                    : "bg-white text-slate-600 border border-slate-200 hover:border-purple-300 hover:text-purple-600"
+                    : "bg-white text-slate-600 border border-slate-200 hover:border-purple-300 hover:text-purple-600 lg:border-white/10 lg:bg-white/[0.04] lg:text-slate-200 lg:hover:text-white"
                 }`}
               >
                 Semua
@@ -918,7 +918,7 @@ export default function BrandDetailPage({
                     className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${
                       activeType === type
                         ? "bg-purple-600 text-white shadow-md shadow-purple-200"
-                        : "bg-white text-slate-600 border border-slate-200 hover:border-purple-300 hover:text-purple-600"
+                        : "bg-white text-slate-600 border border-slate-200 hover:border-purple-300 hover:text-purple-600 lg:border-white/10 lg:bg-white/[0.04] lg:text-slate-200 lg:hover:text-white"
                     }`}
                   >
                     {label}
@@ -930,9 +930,9 @@ export default function BrandDetailPage({
           </div>
 
           {/* == Product Grid == */}
-          <div className="px-4 py-2">
+          <div className="px-4 py-2 lg:mx-auto lg:w-full lg:max-w-6xl">
             {filteredProducts.length === 0 ? (
-              <div className="bg-white rounded-2xl p-8 text-center shadow-sm">
+              <div className="rounded-2xl bg-white p-8 text-center shadow-sm lg:border lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none">
                 <svg
                   className="w-10 h-10 text-slate-300 mx-auto mb-2"
                   fill="none"
@@ -946,13 +946,13 @@ export default function BrandDetailPage({
                     d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
                   />
                 </svg>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-slate-500 lg:text-slate-300">
                   {products.length === 0
                     ? "Belum ada merchant yang menjual brand ini."
                     : "Tidak ada produk untuk kategori ini."}
                 </p>
                 {products.length === 0 && (
-                  <p className="mt-1 text-xs text-slate-400">
+                  <p className="mt-1 text-xs text-slate-400 lg:text-slate-500">
                     Brand sudah tersedia di katalog, tetapi produk merchant untuk brand ini belum dipublikasikan.
                   </p>
                 )}
@@ -972,7 +972,7 @@ export default function BrandDetailPage({
                       className={`relative text-left rounded-xl p-3 transition-all border-2 ${
                         isSelected
                           ? "border-purple-500 bg-purple-50 shadow-md shadow-purple-100"
-                          : "border-transparent bg-white shadow-sm hover:shadow-md hover:border-purple-200"
+                          : "border-transparent bg-white shadow-sm hover:shadow-md hover:border-purple-200 lg:bg-white/[0.04] lg:shadow-none lg:hover:bg-white/[0.06]"
                       }`}
                     >
                       {/* Discount badge */}
@@ -1004,7 +1004,7 @@ export default function BrandDetailPage({
                       {/* Product name */}
                       <p
                         className={`text-xs font-semibold leading-tight mb-2 pr-5 ${
-                          isSelected ? "text-purple-700" : "text-slate-700"
+                          isSelected ? "text-purple-700 lg:text-white" : "text-slate-700 lg:text-slate-100"
                         }`}
                       >
                         {product.name}
@@ -1038,7 +1038,7 @@ export default function BrandDetailPage({
                       )}
 
                       {productMerchantName && (
-                        <p className="mt-2 text-[10px] text-slate-400">
+                          <p className="mt-2 text-[10px] text-slate-400 lg:text-slate-500">
                           Produk ini dijual oleh {productMerchantName}.
                         </p>
                       )}
@@ -1050,12 +1050,12 @@ export default function BrandDetailPage({
           </div>
 
           {/* == Payment Method == */}
-          <div className="px-4 py-4 bg-white border-b border-slate-100">
+          <div className="bg-white px-4 py-4 border-b border-slate-100 lg:mx-auto lg:w-full lg:max-w-6xl lg:border-x lg:border-white/10 lg:bg-white/[0.04]">
             <div className="flex items-center gap-2 mb-3">
               <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
               </svg>
-              <span className="text-sm font-semibold text-slate-700">Metode Pembayaran</span>
+              <span className="text-sm font-semibold text-slate-700 lg:text-white">Metode Pembayaran</span>
             </div>
 
             {/* Saldo Wallet — inline */}
@@ -1064,7 +1064,7 @@ export default function BrandDetailPage({
               const isDisabled = !isLoggedIn;
               return (
                 <div className={`relative rounded-xl border mb-3 overflow-hidden transition-all ${
-                  isDisabled ? "border-slate-200 bg-slate-50 opacity-60" : "border-slate-200 bg-white"
+                  isDisabled ? "border-slate-200 bg-slate-50 opacity-60 lg:border-white/10 lg:bg-white/5" : "border-slate-200 bg-white lg:border-white/10 lg:bg-white/[0.04]"
                 }`}>
                   {/* Gratis Biaya Admin badge */}
                   <div className="absolute top-0 right-0">
@@ -1090,7 +1090,7 @@ export default function BrandDetailPage({
                     </div>
                     {/* Text */}
                     <div className="flex-1 text-left min-w-0">
-                      <p className="text-[12px] text-slate-500">
+                      <p className="text-[12px] text-slate-500 lg:text-slate-300">
                         Saldo Pembeli:{" "}
                         <span className={
                           isDisabled
@@ -1107,10 +1107,10 @@ export default function BrandDetailPage({
                         </span>
                       </p>
                       {isDisabled && (
-                        <p className="text-[10px] text-slate-400 mt-0.5">Login terlebih dahulu untuk menggunakan saldo</p>
+                        <p className="mt-0.5 text-[10px] text-slate-400 lg:text-slate-500">Login terlebih dahulu untuk menggunakan saldo</p>
                       )}
                       {!isDisabled && selectedProduct && walletBalance !== null && walletBalance < finalPrice && (
-                        <p className="text-[10px] text-rose-500 mt-0.5">Saldo tidak cukup</p>
+                        <p className="mt-0.5 text-[10px] text-rose-500">Saldo tidak cukup</p>
                       )}
                     </div>
                     {/* Toggle switch */}
@@ -1139,12 +1139,12 @@ export default function BrandDetailPage({
                   onClick={() => setShowPaymentSheet(true)}
                   className={`w-full flex items-center gap-3 rounded-xl border-2 px-3.5 py-3 transition-all ${
                     paymentMethod === "PAYMENT_GATEWAY"
-                      ? "border-purple-500 bg-purple-50"
-                      : "border-slate-200 bg-white hover:border-purple-200"
+                      ? "border-purple-500 bg-purple-50 lg:bg-[#2E5F95]/16"
+                      : "border-slate-200 bg-white hover:border-purple-200 lg:border-white/10 lg:bg-white/[0.04] lg:hover:bg-white/[0.06]"
                   }`}
                 >
                   {/* Icon — show selected method logo or generic icon */}
-                  <div className="w-9 h-9 rounded-xl border border-slate-200 bg-white flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white lg:border-white/10 lg:bg-white/5">
                     {activePg?.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={activePg.imageUrl} alt={activePg.label} className="w-full h-full object-contain p-1" />
@@ -1159,11 +1159,11 @@ export default function BrandDetailPage({
                   <div className="flex-1 text-left min-w-0">
                     {activePg ? (
                       <>
-                        <p className="text-[10px] text-slate-400 leading-none mb-0.5">Metode Pembayaran</p>
-                        <p className="text-[13px] font-bold text-slate-800 truncate">{activePg.label}</p>
+                        <p className="mb-0.5 text-[10px] leading-none text-slate-400 lg:text-slate-500">Metode Pembayaran</p>
+                        <p className="truncate text-[13px] font-bold text-slate-800 lg:text-white">{activePg.label}</p>
                       </>
                     ) : (
-                      <p className="text-[13px] font-semibold text-slate-700">Metode Pembayaran Lainnya</p>
+                      <p className="text-[13px] font-semibold text-slate-700 lg:text-slate-100">Metode Pembayaran Lainnya</p>
                     )}
                   </div>
                   <svg className="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1175,13 +1175,13 @@ export default function BrandDetailPage({
           </div>
 
           {/* == WhatsApp Number == */}
-          <div className="px-4 py-4 bg-white border-b border-slate-100">
+          <div className="bg-white px-4 py-4 border-b border-slate-100 lg:mx-auto lg:w-full lg:max-w-6xl lg:border-x lg:border-white/10 lg:bg-white/[0.04]">
             <div className="flex items-center gap-2 mb-3">
               <svg className="w-4 h-4 text-green-600" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
               </svg>
-              <span className="text-sm font-semibold text-slate-700">Nomor WhatsApp</span>
-              <span className="text-[10px] text-slate-400">(opsional)</span>
+              <span className="text-sm font-semibold text-slate-700 lg:text-white">Nomor WhatsApp</span>
+              <span className="text-[10px] text-slate-400 lg:text-slate-500">(opsional)</span>
             </div>
             <div className="relative">
               <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">+62</span>
@@ -1195,21 +1195,21 @@ export default function BrandDetailPage({
                   setWhatsapp(val);
                 }}
                 maxLength={15}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-12 pr-4 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-green-400 focus:outline-none focus:ring-2 focus:ring-green-100 transition"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-12 pr-4 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-green-400 focus:outline-none focus:ring-2 focus:ring-green-100 transition lg:border-white/10 lg:bg-white/5 lg:text-white lg:placeholder:text-slate-500"
               />
             </div>
-            <p className="text-[11px] text-slate-400 mt-2 leading-relaxed">
+            <p className="mt-2 text-[11px] leading-relaxed text-slate-400 lg:text-slate-400">
               Notifikasi status pesanan akan dikirim via WhatsApp ke nomor ini.
             </p>
           </div>
 
           {/* == Voucher Section == */}
-          <div className="px-4 py-4 bg-white border-b border-slate-100">
+          <div className="bg-white px-4 py-4 border-b border-slate-100 lg:mx-auto lg:w-full lg:max-w-6xl lg:border-x lg:border-white/10 lg:bg-white/[0.04]">
             <div className="flex items-center gap-2 mb-3">
               <svg className="w-4 h-4 text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
               </svg>
-              <span className="text-sm font-semibold text-slate-700">Voucher</span>
+              <span className="text-sm font-semibold text-slate-700 lg:text-white">Voucher</span>
               {claimedVouchers.length > 0 && !appliedVoucher && (
                 <span className="text-[10px] font-bold bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded-full">
                   {claimedVouchers.length} tersedia
@@ -1246,7 +1246,7 @@ export default function BrandDetailPage({
             ) : !isLoggedIn ? (
               <button
                 onClick={() => router.push("/login")}
-                className="w-full flex items-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-3.5 py-3 hover:border-orange-300 hover:bg-orange-50 transition-all"
+                className="w-full flex items-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-3.5 py-3 hover:border-orange-300 hover:bg-orange-50 transition-all lg:border-white/15 lg:bg-white/5 lg:hover:bg-white/[0.08]"
               >
                 <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center flex-shrink-0">
                   <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1261,7 +1261,7 @@ export default function BrandDetailPage({
             ) : claimedVouchers.length === 0 ? (
               <button
                 onClick={() => router.push("/voucher")}
-                className="w-full flex items-center gap-3 rounded-xl border border-dashed border-orange-200 bg-orange-50 px-3.5 py-3 hover:bg-orange-100 transition-all"
+                className="w-full flex items-center gap-3 rounded-xl border border-dashed border-orange-200 bg-orange-50 px-3.5 py-3 hover:bg-orange-100 transition-all lg:border-orange-500/20 lg:bg-orange-500/10"
               >
                 <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0">
                   <svg className="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1279,7 +1279,7 @@ export default function BrandDetailPage({
             ) : (
               <button
                 onClick={() => setShowVoucherSheet(true)}
-                className="w-full flex items-center gap-3 rounded-xl border-2 border-orange-200 bg-orange-50 px-3.5 py-3 hover:border-orange-400 hover:bg-orange-100 transition-all"
+                className="w-full flex items-center gap-3 rounded-xl border-2 border-orange-200 bg-orange-50 px-3.5 py-3 hover:border-orange-400 hover:bg-orange-100 transition-all lg:border-orange-500/20 lg:bg-orange-500/10"
               >
                 <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0">
                   <svg className="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1297,7 +1297,7 @@ export default function BrandDetailPage({
             )}
 
             {voucherError && (
-              <p className="text-[11px] text-red-500 mt-2 flex items-center gap-1">
+              <p className="mt-2 flex items-center gap-1 text-[11px] text-red-500">
                 <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -1307,12 +1307,14 @@ export default function BrandDetailPage({
           </div>
 
           {/* == Footer == */}
-          <PageFooter />
+          <div className="lg:mx-auto lg:w-full lg:max-w-6xl">
+            <PageFooter />
+          </div>
         </div>
 
         {/* ---- Payment Bottom Sheet ---- */}
         <div
-          className={`fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-50 transition-all duration-300 ${
+          className={`fixed top-0 left-1/2 z-50 w-full max-w-[480px] -translate-x-1/2 transition-all duration-300 lg:max-w-7xl ${
             showPaymentSheet ? "pointer-events-auto" : "pointer-events-none"
           }`}
           style={{ bottom: 0, height: "100%" }}
@@ -1326,33 +1328,33 @@ export default function BrandDetailPage({
           />
           {/* Sheet */}
           <div
-            className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl flex flex-col transition-transform duration-300 ease-out ${
+            className={`absolute bottom-0 left-0 right-0 flex flex-col rounded-t-3xl bg-white shadow-2xl transition-transform duration-300 ease-out lg:mx-auto lg:max-w-3xl lg:rounded-[28px] lg:border lg:border-white/10 lg:bg-[#171D25] lg:shadow-[0_24px_80px_rgba(0,0,0,0.45)] ${
               showPaymentSheet ? "translate-y-0" : "translate-y-full"
             }`}
             style={{ maxHeight: "78vh" }}
           >
             {/* Drag handle */}
             <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
-              <div className="w-10 h-1 rounded-full bg-slate-300" />
+              <div className="w-10 h-1 rounded-full bg-slate-300 lg:bg-white/20" />
             </div>
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-3 flex-shrink-0">
-              <p className="text-[14px] font-bold text-[#003D99]">Metode Pembayaran Lainnya</p>
+              <p className="text-[14px] font-bold text-[#003D99] lg:text-white">Metode Pembayaran Lainnya</p>
               <button
                 onClick={() => setShowPaymentSheet(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors"
+                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors lg:bg-white/5 lg:hover:bg-white/10"
               >
-                <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-slate-500 lg:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
             {/* Info banner */}
-            <div className="mx-4 mb-3 flex gap-2.5 bg-blue-50 border border-blue-100 rounded-xl px-3.5 py-2.5 flex-shrink-0">
-              <div className="w-4 h-4 rounded-full border-2 border-blue-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <div className="mx-4 mb-3 flex gap-2.5 bg-blue-50 border border-blue-100 rounded-xl px-3.5 py-2.5 flex-shrink-0 lg:border-blue-400/20 lg:bg-blue-500/10">
+              <div className="w-4 h-4 rounded-full border-2 border-blue-400 flex items-center justify-center flex-shrink-0 mt-0.5 lg:border-blue-300">
                 <span className="text-blue-500 text-[9px] font-bold">i</span>
               </div>
-              <p className="text-[11px] text-blue-700 leading-relaxed">
+              <p className="text-[11px] text-blue-700 leading-relaxed lg:text-blue-100">
                 Biaya Total belanja adalah jumlah dari total pembelian, biaya layanan fitur, dan biaya admin pembayaran
               </p>
             </div>
@@ -1361,8 +1363,8 @@ export default function BrandDetailPage({
               const qrisItems = pgMethods.filter((m) => m.group === "QRIS");
               if (qrisItems.length === 0) return null;
               return (
-                <div className="px-4 flex-shrink-0 border-b border-slate-100">
-                  <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wide pt-3 pb-2">E-Wallet &amp; QRIS</p>
+                <div className="px-4 flex-shrink-0 border-b border-slate-100 lg:border-white/10">
+                  <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wide pt-3 pb-2 lg:text-slate-400">E-Wallet &amp; QRIS</p>
                   {qrisItems.map((m) => {
                     const isActive = paymentMethod === "PAYMENT_GATEWAY" && pgMethod === m.key;
                     const base = selectedProduct?.sellingPrice ?? 0;
@@ -1372,14 +1374,14 @@ export default function BrandDetailPage({
                       <button
                         key={m.key}
                         onClick={() => { setPaymentMethod("PAYMENT_GATEWAY"); setPgMethod(m.key); setShowPaymentSheet(false); }}
-                        className="w-full flex items-center gap-3 py-3 border-b border-slate-100 last:border-b-0"
+                        className="w-full flex items-center gap-3 py-3 border-b border-slate-100 last:border-b-0 lg:border-white/10 lg:hover:bg-white/[0.03]"
                       >
-                        <div className="w-10 h-10 rounded-xl border border-slate-200 bg-white flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        <div className="w-10 h-10 rounded-xl border border-slate-200 bg-white flex items-center justify-center flex-shrink-0 overflow-hidden lg:border-white/10 lg:bg-white/5">
                           {m.imageUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={m.imageUrl} alt={m.label} className="w-full h-full object-contain p-1" />
                           ) : (
-                            <svg className="w-5 h-5 text-slate-600" viewBox="0 0 24 20" fill="none" stroke="currentColor">
+                            <svg className="w-5 h-5 text-slate-600 lg:text-slate-300" viewBox="0 0 24 20" fill="none" stroke="currentColor">
                               <rect x="1" y="1" width="8" height="8" rx="1" strokeWidth={2} />
                               <rect x="15" y="1" width="8" height="8" rx="1" strokeWidth={2} />
                               <rect x="1" y="12" width="8" height="8" rx="1" strokeWidth={2} />
@@ -1388,21 +1390,21 @@ export default function BrandDetailPage({
                           )}
                         </div>
                         <div className="flex-1 text-left">
-                          <p className="text-sm font-semibold text-slate-800">{m.label}</p>
+                          <p className="text-sm font-semibold text-slate-800 lg:text-white">{m.label}</p>
                           {fee > 0 && (
-                            <p className="text-[10px] text-slate-400 mt-0.5">+biaya Rp {formatPrice(fee)}</p>
+                            <p className="text-[10px] text-slate-400 mt-0.5 lg:text-slate-400">+biaya Rp {formatPrice(fee)}</p>
                           )}
                         </div>
                         {base > 0 && (
                           <div className="text-right flex-shrink-0 mr-2">
-                            <p className="text-sm font-bold text-slate-800">Rp {formatPrice(total)}</p>
+                            <p className="text-sm font-bold text-slate-800 lg:text-white">Rp {formatPrice(total)}</p>
                             {fee > 0 && (
-                              <p className="text-[10px] text-slate-400">harga + biaya</p>
+                              <p className="text-[10px] text-slate-400 lg:text-slate-400">harga + biaya</p>
                             )}
                           </div>
                         )}
                         <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                          isActive ? "border-purple-600 bg-purple-600" : "border-slate-300"
+                          isActive ? "border-purple-600 bg-purple-600" : "border-slate-300 lg:border-white/20"
                         }`}>
                           {isActive && <div className="w-2.5 h-2.5 rounded-full bg-white" />}
                         </div>
@@ -1422,7 +1424,7 @@ export default function BrandDetailPage({
                   className="flex-1 overflow-y-auto px-4 pb-6"
                   style={{ scrollbarWidth: "thin", scrollbarColor: "#e2e8f0 transparent" }}
                 >
-                  <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wide pt-3 pb-2">Virtual Account</p>
+                  <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wide pt-3 pb-2 lg:text-slate-400">Virtual Account</p>
                   {vaItems.map((m) => {
                     const isActive = paymentMethod === "PAYMENT_GATEWAY" && pgMethod === m.key;
                     const base = selectedProduct?.sellingPrice ?? 0;
@@ -1433,32 +1435,32 @@ export default function BrandDetailPage({
                       <button
                         key={m.key}
                         onClick={() => { setPaymentMethod("PAYMENT_GATEWAY"); setPgMethod(m.key); setShowPaymentSheet(false); }}
-                        className="w-full flex items-center gap-3 py-3 border-b border-slate-100 last:border-b-0"
+                        className="w-full flex items-center gap-3 py-3 border-b border-slate-100 last:border-b-0 lg:border-white/10 lg:hover:bg-white/[0.03]"
                       >
-                        <div className="w-10 h-10 rounded-xl border border-slate-200 bg-white flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        <div className="w-10 h-10 rounded-xl border border-slate-200 bg-white flex items-center justify-center flex-shrink-0 overflow-hidden lg:border-white/10 lg:bg-white/5">
                           {m.imageUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={m.imageUrl} alt={m.label} className="w-full h-full object-contain p-1" />
                           ) : (
-                            <span className="text-[9px] font-black text-slate-600">{abbr}</span>
+                            <span className="text-[9px] font-black text-slate-600 lg:text-slate-300">{abbr}</span>
                           )}
                         </div>
                         <div className="flex-1 text-left">
-                          <p className="text-sm font-semibold text-slate-800">{m.label}</p>
+                          <p className="text-sm font-semibold text-slate-800 lg:text-white">{m.label}</p>
                           {fee > 0 && (
-                            <p className="text-[10px] text-slate-400 mt-0.5">+biaya Rp {formatPrice(fee)}</p>
+                            <p className="text-[10px] text-slate-400 mt-0.5 lg:text-slate-400">+biaya Rp {formatPrice(fee)}</p>
                           )}
                         </div>
                         {base > 0 && (
                           <div className="text-right flex-shrink-0 mr-2">
-                            <p className="text-sm font-bold text-slate-800">Rp {formatPrice(total)}</p>
+                            <p className="text-sm font-bold text-slate-800 lg:text-white">Rp {formatPrice(total)}</p>
                             {fee > 0 && (
-                              <p className="text-[10px] text-slate-400">harga + biaya</p>
+                              <p className="text-[10px] text-slate-400 lg:text-slate-400">harga + biaya</p>
                             )}
                           </div>
                         )}
                         <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                          isActive ? "border-purple-600 bg-purple-600" : "border-slate-300"
+                          isActive ? "border-purple-600 bg-purple-600" : "border-slate-300 lg:border-white/20"
                         }`}>
                           {isActive && <div className="w-2.5 h-2.5 rounded-full bg-white" />}
                         </div>
@@ -1473,7 +1475,7 @@ export default function BrandDetailPage({
 
         {/* ---- Voucher Selection Sheet ---- */}
         <div
-          className={`fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-50 transition-all duration-300 ${
+          className={`fixed top-0 left-1/2 z-50 w-full max-w-[480px] -translate-x-1/2 transition-all duration-300 lg:max-w-7xl ${
             showVoucherSheet ? "pointer-events-auto" : "pointer-events-none"
           }`}
           style={{ bottom: 0, height: "100%" }}
@@ -1487,26 +1489,26 @@ export default function BrandDetailPage({
           />
           {/* Sheet */}
           <div
-            className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl flex flex-col transition-transform duration-300 ease-out ${
+            className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl flex flex-col transition-transform duration-300 ease-out lg:mx-auto lg:max-w-3xl lg:rounded-[28px] lg:border lg:border-white/10 lg:bg-[#171D25] lg:shadow-[0_24px_80px_rgba(0,0,0,0.45)] ${
               showVoucherSheet ? "translate-y-0" : "translate-y-full"
             }`}
             style={{ maxHeight: "78vh" }}
           >
             {/* Drag handle */}
             <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
-              <div className="w-10 h-1 rounded-full bg-slate-300" />
+              <div className="w-10 h-1 rounded-full bg-slate-300 lg:bg-white/20" />
             </div>
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-3 flex-shrink-0 border-b border-slate-100">
+            <div className="flex items-center justify-between px-5 py-3 flex-shrink-0 border-b border-slate-100 lg:border-white/10">
               <div>
-                <p className="text-[14px] font-bold text-orange-600">Voucher Saya</p>
+                <p className="text-[14px] font-bold text-orange-600 lg:text-orange-300">Voucher Saya</p>
                 <p className="text-[11px] text-slate-400">{claimedVouchers.length} voucher dapat digunakan</p>
               </div>
               <button
                 onClick={() => setShowVoucherSheet(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors"
+                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors lg:bg-white/5 lg:hover:bg-white/10"
               >
-                <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-slate-500 lg:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -1518,12 +1520,12 @@ export default function BrandDetailPage({
             >
               {claimedVouchers.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-10 text-center">
-                  <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center mb-3">
-                    <svg className="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center mb-3 lg:bg-orange-500/15">
+                    <svg className="w-6 h-6 text-orange-400 lg:text-orange-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
                     </svg>
                   </div>
-                  <p className="text-sm font-semibold text-slate-600 mb-1">Belum ada voucher</p>
+                  <p className="text-sm font-semibold text-slate-600 mb-1 lg:text-white">Belum ada voucher</p>
                   <p className="text-xs text-slate-400">Klaim voucher di halaman Voucher</p>
                 </div>
               ) : (
@@ -1539,8 +1541,8 @@ export default function BrandDetailPage({
                       disabled={isInvalid || voucherLoading}
                       className={`w-full text-left rounded-2xl border-2 overflow-hidden transition-all ${
                         isInvalid
-                          ? "border-slate-200 opacity-60 cursor-not-allowed"
-                          : "border-orange-200 hover:border-orange-400 hover:shadow-md active:scale-[0.99] cursor-pointer"
+                          ? "border-slate-200 opacity-60 cursor-not-allowed lg:border-white/10"
+                          : "border-orange-200 hover:border-orange-400 hover:shadow-md active:scale-[0.99] cursor-pointer lg:border-orange-400/30 lg:bg-white/[0.04] lg:hover:border-orange-300"
                       }`}
                     >
                       <div className={`h-1.5 ${
@@ -1549,18 +1551,18 @@ export default function BrandDetailPage({
                       <div className="px-3.5 py-3">
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1 min-w-0">
-                            <p className="text-[13px] font-bold text-slate-800 truncate">{v.title}</p>
+                            <p className="text-[13px] font-bold text-slate-800 truncate lg:text-white">{v.title}</p>
                             <p className="text-[11px] font-mono font-semibold text-orange-600 mt-0.5 tracking-wider">{v.code}</p>
                           </div>
-                          <div className="flex-shrink-0 bg-orange-100 rounded-xl px-2.5 py-1.5 text-right">
+                          <div className="flex-shrink-0 bg-orange-100 rounded-xl px-2.5 py-1.5 text-right lg:bg-orange-500/15">
                             <p className="text-[12px] font-black text-orange-600 leading-tight whitespace-nowrap">{discountLabel}</p>
                             <p className="text-[9px] text-orange-400 leading-tight">diskon</p>
                           </div>
                         </div>
                         {v.description && (
-                          <p className="text-[11px] text-slate-500 mt-1.5 line-clamp-2">{v.description}</p>
+                          <p className="text-[11px] text-slate-500 mt-1.5 line-clamp-2 lg:text-slate-300">{v.description}</p>
                         )}
-                        <div className="flex items-center flex-wrap gap-x-3 gap-y-1 mt-2 pt-2 border-t border-slate-100">
+                        <div className="flex items-center flex-wrap gap-x-3 gap-y-1 mt-2 pt-2 border-t border-slate-100 lg:border-white/10">
                           {v.minPurchase > 0 && (
                             <span className={`text-[10px] font-semibold ${
                               isInvalid ? "text-red-400" : "text-slate-500"
@@ -1587,21 +1589,21 @@ export default function BrandDetailPage({
         </div>
 
         {/* ---- Sticky Bottom Bar ---- */}
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-30">
-          <div className="bg-white border-t border-slate-200 px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-30 lg:max-w-7xl">
+          <div className="bg-white border-t border-slate-200 px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] lg:mx-auto lg:max-w-6xl lg:rounded-t-[24px] lg:border lg:border-white/10 lg:bg-[#171D25] lg:shadow-[0_-24px_48px_rgba(0,0,0,0.25)]">
             {selectedProduct ? (
               <div className="flex items-center gap-3">
                 {/* Selected product info */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs text-slate-500 truncate">
+                  <p className="text-xs text-slate-500 truncate lg:text-slate-400">
                     {selectedProduct.name}
                   </p>
                   {appliedVoucher ? (
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <p className="text-lg font-bold text-slate-800">
+                      <p className="text-lg font-bold text-slate-800 lg:text-white">
                         Rp {formatPrice(finalPrice)}
                       </p>
-                      <p className="text-xs text-slate-400 line-through">
+                      <p className="text-xs text-slate-400 line-through lg:text-slate-500">
                         Rp {formatPrice(selectedProduct.sellingPrice)}
                       </p>
                       <span className="text-[10px] font-bold bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">
@@ -1609,7 +1611,7 @@ export default function BrandDetailPage({
                       </span>
                     </div>
                   ) : (
-                    <p className="text-lg font-bold text-slate-800">
+                    <p className="text-lg font-bold text-slate-800 lg:text-white">
                       Rp {formatPrice(selectedProduct.sellingPrice)}
                     </p>
                   )}
@@ -1637,7 +1639,7 @@ export default function BrandDetailPage({
               </div>
             ) : (
               <div className="text-center py-1">
-                <p className="text-sm text-slate-400">
+                <p className="text-sm text-slate-400 lg:text-slate-500">
                   Pilih produk untuk melanjutkan
                 </p>
               </div>
@@ -1647,7 +1649,7 @@ export default function BrandDetailPage({
 
         {/* ---- Review Submit Sheet ---- */}
         <div
-          className={`fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-50 transition-all duration-300 ${
+          className={`fixed top-0 left-1/2 z-50 w-full max-w-[480px] -translate-x-1/2 transition-all duration-300 lg:max-w-7xl ${
             showReviewSheet ? "pointer-events-auto" : "pointer-events-none"
           }`}
           style={{ bottom: 0, height: "100%" }}
@@ -1661,28 +1663,28 @@ export default function BrandDetailPage({
           />
           {/* Sheet */}
           <div
-            className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl flex flex-col transition-transform duration-300 ease-out ${
+            className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl flex flex-col transition-transform duration-300 ease-out lg:mx-auto lg:max-w-3xl lg:rounded-[28px] lg:border lg:border-white/10 lg:bg-[#171D25] lg:shadow-[0_24px_80px_rgba(0,0,0,0.45)] ${
               showReviewSheet ? "translate-y-0" : "translate-y-full"
             }`}
             style={{ maxHeight: "80vh" }}
           >
             {/* Drag handle */}
             <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
-              <div className="w-10 h-1 rounded-full bg-slate-300" />
+              <div className="w-10 h-1 rounded-full bg-slate-300 lg:bg-white/20" />
             </div>
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-3 flex-shrink-0 border-b border-slate-100">
+            <div className="flex items-center justify-between px-5 py-3 flex-shrink-0 border-b border-slate-100 lg:border-white/10">
               <div>
-                <p className="text-[14px] font-bold text-purple-700">
+                <p className="text-[14px] font-bold text-purple-700 lg:text-white">
                   {userReview ? "Edit Ulasan" : "Tulis Ulasan"}
                 </p>
                 <p className="text-[11px] text-slate-400">{brandName}</p>
               </div>
               <button
                 onClick={() => setShowReviewSheet(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors"
+                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors lg:bg-white/5 lg:hover:bg-white/10"
               >
-                <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-slate-500 lg:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -1691,14 +1693,14 @@ export default function BrandDetailPage({
             <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-4">
               {/* Star rating picker */}
               <div>
-                <p className="text-xs font-semibold text-slate-600 mb-2">Rating kamu</p>
+                <p className="text-xs font-semibold text-slate-600 mb-2 lg:text-slate-200">Rating kamu</p>
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
                       key={star}
                       onClick={() => setReviewRating(star)}
                       className={`text-3xl transition-transform active:scale-90 ${
-                        star <= reviewRating ? "text-yellow-400" : "text-slate-200"
+                        star <= reviewRating ? "text-yellow-400" : "text-slate-200 lg:text-white/15"
                       }`}
                     >
                       ★
@@ -1711,24 +1713,24 @@ export default function BrandDetailPage({
               </div>
               {/* Comment */}
               <div>
-                <p className="text-xs font-semibold text-slate-600 mb-2">Komentar</p>
+                <p className="text-xs font-semibold text-slate-600 mb-2 lg:text-slate-200">Komentar</p>
                 <textarea
                   rows={4}
                   maxLength={500}
                   placeholder="Bagikan pengalaman kamu top up di sini..."
                   value={reviewComment}
                   onChange={(e) => setReviewComment(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100 transition resize-none"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100 transition resize-none lg:border-white/10 lg:bg-white/5 lg:text-white lg:placeholder:text-slate-500"
                 />
                 <p className="text-[11px] text-slate-400 text-right mt-1">{reviewComment.length}/500</p>
               </div>
 
               {/* Pending notice */}
-              <div className="bg-amber-50 border border-amber-200 rounded-xl px-3.5 py-2.5 flex gap-2 items-start">
-                <div className="w-4 h-4 rounded-full border-2 border-amber-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <div className="bg-amber-50 border border-amber-200 rounded-xl px-3.5 py-2.5 flex gap-2 items-start lg:border-amber-400/25 lg:bg-amber-500/10">
+                <div className="w-4 h-4 rounded-full border-2 border-amber-500 flex items-center justify-center flex-shrink-0 mt-0.5 lg:border-amber-300">
                   <span className="text-amber-600 text-[9px] font-bold">i</span>
                 </div>
-                <p className="text-[11px] text-amber-700 leading-relaxed">
+                <p className="text-[11px] text-amber-700 leading-relaxed lg:text-amber-100">
                   Ulasan akan tampil setelah disetujui admin. Terima kasih telah berbagi pengalaman!
                 </p>
               </div>
@@ -1743,7 +1745,7 @@ export default function BrandDetailPage({
               )}
             </div>
             {/* Footer */}
-            <div className="px-5 py-4 border-t border-slate-100 flex-shrink-0">
+            <div className="px-5 py-4 border-t border-slate-100 flex-shrink-0 lg:border-white/10">
               <button
                 onClick={handleSubmitReview}
                 disabled={reviewSubmitting || reviewComment.trim().length < 5}
@@ -1793,21 +1795,21 @@ export default function BrandDetailPage({
               onClick={() => setCheckoutResult(null)}
             />
             {/* Sheet */}
-            <div className="relative w-full max-w-[480px] bg-white rounded-t-3xl px-5 py-6 shadow-2xl animate-in slide-in-from-bottom duration-300">
+            <div className="relative w-full max-w-[480px] bg-white rounded-t-3xl px-5 py-6 shadow-2xl animate-in slide-in-from-bottom duration-300 lg:max-w-3xl lg:rounded-[28px] lg:border lg:border-white/10 lg:bg-[#171D25] lg:text-white">
               {/* Handle */}
-              <div className="absolute top-3 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-slate-300" />
+              <div className="absolute top-3 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-slate-300 lg:bg-white/20" />
 
               {/* Status icon */}
               <div className="flex flex-col items-center text-center mt-2 mb-5">
-                <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-3">
+                <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-3 lg:bg-green-500/15">
                   <svg className="w-9 h-9 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <h2 className="text-lg font-bold text-slate-800 mb-1">
+                <h2 className="text-lg font-bold text-slate-800 mb-1 lg:text-white">
                   {checkoutResult.status === "PAID" ? "Pesanan Dibuat!" : "Menunggu Pembayaran"}
                 </h2>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-slate-500 lg:text-slate-300">
                   {checkoutResult.status === "PAID"
                     ? "Pesananmu sedang diproses. Serial number akan dikirim segera."
                     : "Selesaikan pembayaran untuk memproses pesananmu."}
@@ -1820,21 +1822,21 @@ export default function BrandDetailPage({
               </div>
 
               {/* Order details */}
-              <div className="bg-slate-50 rounded-2xl p-4 mb-4 space-y-2">
+              <div className="bg-slate-50 rounded-2xl p-4 mb-4 space-y-2 lg:bg-white/[0.04] lg:border lg:border-white/10">
                 <div className="flex justify-between items-center">
-                  <span className="text-xs text-slate-500">Produk</span>
-                  <span className="text-xs font-semibold text-slate-700 text-right max-w-[60%] truncate">{checkoutResult.productName}</span>
+                  <span className="text-xs text-slate-500 lg:text-slate-400">Produk</span>
+                  <span className="text-xs font-semibold text-slate-700 text-right max-w-[60%] truncate lg:text-slate-100">{checkoutResult.productName}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs text-slate-500">Kode Pesanan</span>
+                  <span className="text-xs text-slate-500 lg:text-slate-400">Kode Pesanan</span>
                   <span className="text-xs font-mono font-bold text-purple-700">{checkoutResult.orderCode}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs text-slate-500">Total Bayar</span>
-                  <span className="text-sm font-bold text-slate-800">Rp {formatPrice(checkoutResult.amount)}</span>
+                  <span className="text-xs text-slate-500 lg:text-slate-400">Total Bayar</span>
+                  <span className="text-sm font-bold text-slate-800 lg:text-white">Rp {formatPrice(checkoutResult.amount)}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs text-slate-500">Status</span>
+                  <span className="text-xs text-slate-500 lg:text-slate-400">Status</span>
                   <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
                     checkoutResult.status === "PAID"
                       ? "bg-green-100 text-green-700"

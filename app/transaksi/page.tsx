@@ -186,23 +186,23 @@ export default function TransaksiPage() {
   // ─── Auth pending: show skeleton shell (same bg as loaded state, no black flash) ──
   if (!authChecked) {
     return (
-      <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5]`}>
-        <div className="relative w-full max-w-[480px] min-h-screen bg-white shadow-2xl flex flex-col">
+      <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#161B22]`}>
+        <div className="relative flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-transparent lg:shadow-none">
           {/* Header skeleton */}
           <AppHeader />
-          <div className="w-full fixed top-[60px] left-1/2 -translate-x-1/2 max-w-[480px] z-30" style={{ backgroundColor: "#003D99" }}>
-            <div className="flex items-center gap-2 px-4 pb-3">
+          <div className="fixed left-1/2 top-[60px] z-30 w-full max-w-[480px] -translate-x-1/2 bg-[#003D99] lg:max-w-7xl lg:bg-[#171D25]">
+            <div className="flex items-center gap-2 px-4 pb-3 lg:px-5 lg:pb-4 lg:pt-2">
               <div className="h-9 flex-1 rounded-md bg-white/20 animate-pulse" />
               <div className="h-9 w-20 rounded-md bg-white/20 animate-pulse" />
             </div>
-            <div className="flex gap-2 px-4 pb-3">
+            <div className="flex gap-2 px-4 pb-3 lg:px-5 lg:pb-4">
               {[1,2,3,4,5].map(i => <div key={i} className="h-8 w-28 flex-shrink-0 rounded-full bg-white/20 animate-pulse" />)}
             </div>
           </div>
           {/* Content skeleton */}
-          <div className="flex flex-col gap-3 px-4 pt-5">
+          <div className="flex flex-col gap-3 px-4 pt-5 lg:mx-auto lg:w-full lg:max-w-6xl lg:px-0 lg:pt-8">
             {[1,2,3].map(i => (
-              <div key={i} className="bg-white rounded-2xl border border-slate-100 p-4 animate-pulse">
+              <div key={i} className="rounded-2xl border border-slate-100 bg-white p-4 animate-pulse lg:border-white/10 lg:bg-white/[0.04]">
                 <div className="flex items-center gap-3">
                   <div className="w-11 h-11 rounded-xl bg-slate-200 flex-shrink-0" />
                   <div className="flex-1 space-y-2">
@@ -224,19 +224,18 @@ export default function TransaksiPage() {
   }
 
   return (
-    <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5]`}>
-      <div className="relative w-full max-w-[480px] min-h-screen bg-white shadow-2xl flex flex-col">
+    <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#161B22]`}>
+      <div className="relative flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-transparent lg:shadow-none">
 
         {/* ══════ HEADER ══════ */}
         <AppHeader onBack={() => router.back()} />
 
         {/* Search + Tabs strip */}
         <div
-          className="fixed top-[60px] left-1/2 -translate-x-1/2 w-full max-w-[480px] z-30"
-          style={{ backgroundColor: "#003D99" }}
+          className="fixed top-[60px] left-1/2 z-30 w-full max-w-[480px] -translate-x-1/2 bg-[#003D99] lg:max-w-7xl lg:bg-[#171D25]"
         >
           {/* Search row */}
-          <div className="flex items-center gap-2 px-4 pb-3 pt-2">
+          <div className="flex items-center gap-2 px-4 pb-3 pt-2 lg:px-5 lg:pb-4 lg:pt-3">
             <div className="relative flex-1">
               <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -251,7 +250,7 @@ export default function TransaksiPage() {
                 className="w-full pl-9 pr-3 py-2 rounded-md bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-300 text-[13px]"
               />
             </div>
-            <button className="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white font-semibold text-[13px] px-3 py-2 rounded-md transition">
+            <button className="flex items-center gap-1.5 rounded-md bg-white/15 px-3 py-2 text-[13px] font-semibold text-white transition hover:bg-white/25">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                   d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
@@ -263,7 +262,7 @@ export default function TransaksiPage() {
           {/* Status tabs */}
           <div
             ref={tabScrollRef}
-            className="flex gap-2 px-4 pb-3 overflow-x-auto scrollbar-hide"
+            className="flex gap-2 overflow-x-auto px-4 pb-3 scrollbar-hide lg:px-5 lg:pb-4"
             style={{ scrollbarWidth: "none" }}
           >
             {TABS.map((t) => (
@@ -285,16 +284,17 @@ export default function TransaksiPage() {
 
         {/* ══════ CONTENT ══════ */}
         {/* AppHeader ~60px + search row ~48px + tabs row ~44px = ~152px */}
-        <div className="flex-1 overflow-y-auto pt-[160px] pb-24">
+        <div className="flex-1 overflow-y-auto pt-[160px] pb-24 lg:pb-14">
+          <div className="lg:mx-auto lg:w-full lg:max-w-6xl lg:px-0">
 
           {/* Info banner */}
-          <div className="mx-4 mt-3 mb-3 flex items-start gap-2.5 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+          <div className="mx-4 mt-3 mb-3 flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 lg:mt-6 lg:border-amber-500/20 lg:bg-amber-500/10">
             <svg className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
             </svg>
-            <p className="text-[12px] text-amber-700 leading-snug">
+            <p className="text-[12px] leading-snug text-amber-700 lg:text-amber-100">
               Hubungi{" "}
-              <span className="font-bold text-[#003D99] cursor-pointer">Customer Support</span>
+              <span className="cursor-pointer font-bold text-[#003D99] lg:text-white">Customer Support</span>
               {" "}jika status pembayaran tidak berubah hingga 5 menit sejak kamu melakukan pembayaran.
             </p>
           </div>
@@ -303,7 +303,7 @@ export default function TransaksiPage() {
           {loading && (
             <div className="flex flex-col gap-3 px-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-white rounded-2xl border border-slate-100 p-4 animate-pulse">
+                <div key={i} className="rounded-2xl border border-slate-100 bg-white p-4 animate-pulse lg:border-white/10 lg:bg-white/[0.04]">
                   <div className="flex items-center gap-3">
                     <div className="w-11 h-11 rounded-xl bg-slate-200 flex-shrink-0" />
                     <div className="flex-1 space-y-2">
@@ -323,7 +323,7 @@ export default function TransaksiPage() {
 
           {/* Empty state */}
           {!loading && orders.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-16 px-8">
+            <div className="flex flex-col items-center justify-center px-8 py-16">
               {/* Robot illustration SVG */}
               <div className="w-44 h-44 mb-4">
                 <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -358,11 +358,11 @@ export default function TransaksiPage() {
                   <text x="100" y="133" textAnchor="middle" fill="#3B82F6" fontSize="7" fontWeight="bold">VCG</text>
                 </svg>
               </div>
-              <p className="text-slate-500 text-sm font-medium text-center">
+              <p className="text-center text-sm font-medium text-slate-500 lg:text-slate-100">
                 Belum ada data di status transaksi ini
               </p>
               {search && (
-                <p className="text-slate-400 text-xs mt-1 text-center">
+                <p className="mt-1 text-center text-xs text-slate-400 lg:text-slate-400">
                   Tidak ada hasil untuk &ldquo;{search}&rdquo;
                 </p>
               )}
@@ -379,7 +379,7 @@ export default function TransaksiPage() {
                 return (
                   <div
                     key={order.id}
-                    className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden"
+                    className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none"
                   >
                     {/* Top section */}
                     <div className="flex items-center gap-3 px-4 pt-4 pb-3">
@@ -389,10 +389,10 @@ export default function TransaksiPage() {
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-slate-800 truncate">
+                        <p className="truncate text-sm font-bold text-slate-800 lg:text-white">
                           {order.product.name}
                         </p>
-                        <p className="text-[11px] text-slate-400 mt-0.5 truncate">
+                        <p className="mt-0.5 truncate text-[11px] text-slate-400 lg:text-slate-400">
                           {order.product.brand} &middot; {order.targetNumber}
                         </p>
                       </div>
@@ -404,19 +404,19 @@ export default function TransaksiPage() {
                     </div>
 
                     {/* Divider */}
-                    <div className="border-t border-slate-50 mx-4" />
+                    <div className="mx-4 border-t border-slate-50 lg:border-white/10" />
 
                     {/* Bottom section */}
                     <div className="flex items-center justify-between px-4 py-3">
                       <div>
-                        <p className="text-[11px] text-slate-400 font-medium">
+                        <p className="text-[11px] font-medium text-slate-400 lg:text-slate-400">
                           {order.orderCode}
                         </p>
-                        <p className="text-[11px] text-slate-400 mt-0.5">
+                        <p className="mt-0.5 text-[11px] text-slate-400 lg:text-slate-400">
                           {formatDate(order.createdAt)}
                         </p>
                       </div>
-                      <p className="text-base font-bold text-slate-800">
+                      <p className="text-base font-bold text-slate-800 lg:text-white">
                         {formatRupiah(order.amount)}
                       </p>
                     </div>
@@ -442,17 +442,17 @@ export default function TransaksiPage() {
                   <button
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page === 1}
-                    className="px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 disabled:opacity-40 hover:bg-slate-50 transition"
+                    className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-40 lg:border-white/15 lg:text-slate-200 lg:hover:bg-white/10"
                   >
                     Sebelumnya
                   </button>
-                  <span className="text-sm text-slate-500 font-medium">
+                  <span className="text-sm font-medium text-slate-500 lg:text-slate-300">
                     {page} / {meta.totalPages}
                   </span>
                   <button
                     onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
                     disabled={page === meta.totalPages}
-                    className="px-4 py-2 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 disabled:opacity-40 hover:bg-slate-50 transition"
+                    className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-40 lg:border-white/15 lg:text-slate-200 lg:hover:bg-white/10"
                   >
                     Berikutnya
                   </button>
@@ -461,12 +461,13 @@ export default function TransaksiPage() {
 
               {/* Total count */}
               {meta && (
-                <p className="text-center text-[11px] text-slate-400 pb-2">
+                <p className="pb-2 text-center text-[11px] text-slate-400 lg:text-slate-500">
                   {meta.total} transaksi ditemukan
                 </p>
               )}
             </div>
           )}
+          </div>
         </div>
 
         <BottomNavigation />

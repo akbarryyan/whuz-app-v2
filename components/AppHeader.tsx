@@ -39,16 +39,13 @@ export default function AppHeader({ onBack }: AppHeaderProps) {
   }, []);
 
   return (
-    <header
-      className="fixed inset-x-0 top-0 mx-auto w-full max-w-[480px] z-40"
-      style={{ backgroundColor: "#003D99" }}
-    >
-      <div className="flex items-center px-3 py-3 gap-2">
+    <header className="fixed inset-x-0 top-0 z-40 bg-[#003D99] lg:bg-[#171D25]">
+      <div className="mx-auto flex w-full max-w-[480px] items-center gap-2 px-3 py-3 lg:max-w-7xl lg:px-5">
         {/* Back button or spacer */}
         {onBack ? (
           <button
             onClick={onBack}
-            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors flex-shrink-0"
+            className="h-9 w-9 flex-shrink-0 rounded-full transition-colors hover:bg-white/10 flex items-center justify-center"
             aria-label="Kembali"
           >
             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -65,7 +62,7 @@ export default function AppHeader({ onBack }: AppHeaderProps) {
           <img
             src={logoUrl}
             alt={siteName}
-            className="h-10 w-auto object-contain flex-shrink-0 -mt-2"
+            className="-mt-2 h-10 w-auto flex-shrink-0 object-contain lg:h-11"
           />
         )}
 

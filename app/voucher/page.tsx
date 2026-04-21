@@ -132,14 +132,14 @@ export default function VoucherPage() {
   const claimedCount = vouchers.filter((v) => v.claimStatus !== null).length;
 
   return (
-    <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5]`}>
+    <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#161B22]`}>
       <ToastContainer toasts={toast.toasts} onRemove={toast.removeToast} />
-      <div className="relative w-full max-w-[480px] min-h-screen bg-[#F5F5F5] shadow-2xl flex flex-col">
+      <div className="relative flex min-h-screen w-full max-w-[480px] flex-col bg-[#F5F5F5] shadow-2xl lg:max-w-7xl lg:bg-transparent lg:shadow-none">
         <AppHeader onBack={() => router.back()} />
         <div className="h-[60px]" />
 
         {/* Hero */}
-        <div className="bg-[#003D99] px-5 pt-6 pb-8 text-white">
+        <div className="bg-[#003D99] px-5 pt-6 pb-8 text-white lg:mx-auto lg:mt-6 lg:w-full lg:max-w-6xl lg:rounded-[32px] lg:px-8">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-11 h-11 rounded-2xl bg-white/15 flex items-center justify-center flex-shrink-0">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -184,7 +184,7 @@ export default function VoucherPage() {
         </div>
 
         {/* Tabs */}
-        <div className="px-4 pt-4 pb-1 flex gap-2">
+        <div className="flex gap-2 px-4 pt-4 pb-1 lg:mx-auto lg:w-full lg:max-w-6xl lg:px-0">
           {(["semua", "diklaim"] as const).map((tab) => (
             <button
               key={tab}
@@ -192,7 +192,7 @@ export default function VoucherPage() {
               className={`px-4 py-1.5 rounded-full text-[12px] font-semibold transition ${
                 activeTab === tab
                   ? "bg-[#003D99] text-white shadow-sm"
-                  : "bg-white text-slate-500 border border-slate-200"
+                  : "border border-slate-200 bg-white text-slate-500 lg:border-white/10 lg:bg-white/[0.04] lg:text-slate-300"
               }`}
             >
               {tab === "semua" ? "Semua Voucher" : `Voucherku${claimedCount > 0 ? ` (${claimedCount})` : ""}`}
@@ -201,11 +201,11 @@ export default function VoucherPage() {
         </div>
 
         {/* Main */}
-        <div className="flex-1 px-4 py-3 pb-10">
+        <div className="flex-1 px-4 py-3 pb-10 lg:mx-auto lg:w-full lg:max-w-6xl lg:px-0">
           {loading ? (
             <div className="space-y-3 mt-1">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="bg-white rounded-2xl p-4 animate-pulse shadow-sm border border-slate-100">
+                <div key={i} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm animate-pulse lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none">
                   <div className="flex items-start gap-3">
                     <div className="w-12 h-12 rounded-xl bg-slate-200 flex-shrink-0" />
                     <div className="flex-1">
@@ -219,16 +219,16 @@ export default function VoucherPage() {
             </div>
           ) : displayedVouchers.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <div className="w-16 h-16 rounded-full bg-[#003D99] flex items-center justify-center mb-4">
-                <svg className="w-8 h-8 text-[#003D99]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#003D99]">
+                  <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                     d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
                 </svg>
               </div>
-              <p className="text-sm font-semibold text-slate-400">
+              <p className="text-sm font-semibold text-slate-400 lg:text-slate-200">
                 {activeTab === "diklaim" ? "Kamu belum mengklaim voucher" : "Belum ada voucher tersedia"}
               </p>
-              <p className="text-[11px] text-slate-300 mt-1">
+              <p className="mt-1 text-[11px] text-slate-300 lg:text-slate-500">
                 {activeTab === "diklaim" ? "Klaim voucher di tab Semua Voucher" : "Pantau terus untuk promo terbaru!"}
               </p>
             </div>
@@ -242,8 +242,10 @@ export default function VoucherPage() {
                 return (
                   <div
                     key={v.id}
-                    className={`bg-white rounded-2xl shadow-sm border overflow-hidden ${
+                    className={`overflow-hidden rounded-2xl border bg-white shadow-sm ${
                       alreadyClaimed ? "border-emerald-100" : v.isFull ? "border-slate-100 opacity-60" : "border-purple-100"
+                    } lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none ${
+                      v.isFull ? "lg:opacity-60" : ""
                     }`}
                   >
                     {/* Top stripe */}
@@ -271,30 +273,30 @@ export default function VoucherPage() {
 
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                            <h3 className="text-[13px] font-bold text-slate-800 leading-tight">{v.title}</h3>
+                            <h3 className="text-[13px] font-bold leading-tight text-slate-800 lg:text-white">{v.title}</h3>
                             <ClaimBadge status={v.claimStatus} isFull={v.isFull} />
                           </div>
 
-                          <p className="text-[11px] font-bold text-[#003D99] mb-1">{formatDiscount(v)}</p>
+                          <p className="mb-1 text-[11px] font-bold text-[#003D99] lg:text-white">{formatDiscount(v)}</p>
 
                           {v.description && (
-                            <p className="text-[11px] text-slate-400 mb-2 leading-relaxed">{v.description}</p>
+                            <p className="mb-2 text-[11px] leading-relaxed text-slate-400">{v.description}</p>
                           )}
 
                           {/* Meta */}
                           <div className="flex flex-wrap gap-x-3 gap-y-0.5 mb-3">
                             {v.minPurchase > 0 && (
-                              <span className="text-[10px] text-slate-400">
+                                <span className="text-[10px] text-slate-400 lg:text-slate-500">
                                 Min. {formatRp(v.minPurchase)}
                               </span>
                             )}
                             {v.endDate && (
-                              <span className="text-[10px] text-slate-400">
+                                <span className="text-[10px] text-slate-400 lg:text-slate-500">
                                 Berlaku s/d {formatDate(v.endDate)}
                               </span>
                             )}
                             {v.quota !== null && (
-                              <span className="text-[10px] text-slate-400">
+                                <span className="text-[10px] text-slate-400 lg:text-slate-500">
                                 Sisa: {Math.max(0, v.quota - v.usedCount)}/{v.quota}
                               </span>
                             )}
@@ -302,7 +304,7 @@ export default function VoucherPage() {
 
                           {/* Code pill */}
                           <div className="flex items-center gap-2">
-                            <span className="font-mono text-[11px] font-bold bg-slate-50 border border-dashed border-slate-300 text-slate-600 px-3 py-1 rounded-lg tracking-wider">
+                            <span className="rounded-lg border border-dashed border-slate-300 bg-slate-50 px-3 py-1 font-mono text-[11px] font-bold tracking-wider text-slate-600 lg:border-white/15 lg:bg-white/5 lg:text-slate-200">
                               {v.code}
                             </span>
 

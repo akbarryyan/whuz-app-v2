@@ -79,16 +79,16 @@ export default function TicketsPage() {
   }
 
   return (
-    <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5]`}>
-      <div className="relative w-full max-w-[480px] min-h-screen bg-[#F5F5F5] shadow-2xl flex flex-col">
+    <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#161B22]`}>
+      <div className="relative flex min-h-screen w-full max-w-[480px] flex-col bg-[#F5F5F5] shadow-2xl lg:max-w-7xl lg:bg-transparent lg:shadow-none">
         <AppHeader onBack={() => router.back()} />
         <div className="h-[60px]" />
 
         {/* Title bar */}
-        <div className="bg-white px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+        <div className="flex items-center justify-between border-b border-slate-100 bg-white px-4 py-3 lg:mx-auto lg:mt-6 lg:w-full lg:max-w-5xl lg:rounded-[28px] lg:border-white/10 lg:bg-white/[0.04] lg:px-5">
           <div>
-            <h1 className="text-base font-bold text-slate-800">Pusat Bantuan</h1>
-            <p className="text-[11px] text-slate-400">Kirim pertanyaan atau keluhan Anda</p>
+            <h1 className="text-base font-bold text-slate-800 lg:text-white">Pusat Bantuan</h1>
+            <p className="text-[11px] text-slate-400 lg:text-slate-400">Kirim pertanyaan atau keluhan Anda</p>
           </div>
           <button
             onClick={() => setShowNew(true)}
@@ -100,25 +100,25 @@ export default function TicketsPage() {
 
         {/* New ticket form */}
         {showNew && (
-          <div className="bg-white border-b border-slate-100 px-4 py-4 space-y-3">
+          <div className="space-y-3 border-b border-slate-100 bg-white px-4 py-4 lg:mx-auto lg:w-full lg:max-w-5xl lg:border-white/10 lg:bg-white/[0.04]">
             <input
               type="text"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="Subjek (misal: Transaksi gagal)"
-              className="w-full px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 bg-white border border-slate-200 rounded-xl outline-none focus:border-blue-400"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 outline-none focus:border-blue-400 lg:border-white/10 lg:bg-white/5 lg:text-white lg:placeholder:text-slate-500"
             />
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Jelaskan masalah Anda..."
               rows={3}
-              className="w-full px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 bg-white border border-slate-200 rounded-xl outline-none focus:border-blue-400 resize-none"
+              className="w-full resize-none rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 outline-none focus:border-blue-400 lg:border-white/10 lg:bg-white/5 lg:text-white lg:placeholder:text-slate-500"
             />
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => { setShowNew(false); setSubject(""); setMessage(""); }}
-                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 transition"
+                className="rounded-xl px-4 py-2 text-xs font-bold text-slate-500 transition hover:bg-slate-100 lg:text-slate-300 lg:hover:bg-white/10"
               >
                 Batal
               </button>
@@ -134,11 +134,11 @@ export default function TicketsPage() {
         )}
 
         {/* Ticket list */}
-        <div className="flex-1 pb-24">
+        <div className="flex-1 pb-24 lg:mx-auto lg:w-full lg:max-w-5xl lg:pb-14">
           {loading ? (
             <div className="px-4 pt-4 space-y-3">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="bg-white rounded-2xl p-4 animate-pulse">
+                <div key={i} className="rounded-2xl bg-white p-4 animate-pulse lg:border lg:border-white/10 lg:bg-white/[0.04]">
                   <div className="h-4 w-40 bg-slate-200 rounded mb-2" />
                   <div className="h-3 w-56 bg-slate-100 rounded mb-3" />
                   <div className="h-5 w-16 bg-slate-100 rounded" />
@@ -153,8 +153,8 @@ export default function TicketsPage() {
                     d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
               </div>
-              <p className="text-sm font-semibold text-slate-500">Belum ada tiket</p>
-              <p className="text-xs text-slate-400 mt-1">Tap &quot;Tiket Baru&quot; untuk mengirim pertanyaan</p>
+              <p className="text-sm font-semibold text-slate-500 lg:text-slate-200">Belum ada tiket</p>
+              <p className="mt-1 text-xs text-slate-400 lg:text-slate-500">Tap &quot;Tiket Baru&quot; untuk mengirim pertanyaan</p>
             </div>
           ) : (
             <div className="px-4 pt-4 space-y-2.5">
@@ -165,20 +165,20 @@ export default function TicketsPage() {
                   <button
                     key={t.id}
                     onClick={() => router.push(`/tickets/${t.id}`)}
-                    className="w-full text-left bg-white rounded-2xl p-4 hover:shadow-md transition-shadow border border-slate-100"
+                    className="w-full rounded-2xl border border-slate-100 bg-white p-4 text-left transition-shadow hover:shadow-md lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none lg:hover:bg-white/[0.06]"
                   >
                     <div className="flex items-start justify-between gap-2 mb-1.5">
-                      <h3 className="text-sm font-bold text-slate-800 line-clamp-1 flex-1">{t.subject}</h3>
+                      <h3 className="line-clamp-1 flex-1 text-sm font-bold text-slate-800 lg:text-white">{t.subject}</h3>
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${st.bg} ${st.color} flex-shrink-0`}>
                         {st.label}
                       </span>
                     </div>
-                    <p className="text-[12px] text-slate-500 line-clamp-1 mb-2">
+                    <p className="mb-2 line-clamp-1 text-[12px] text-slate-500 lg:text-slate-400">
                       {t.lastSender === "ADMIN" ? "Admin: " : "Anda: "}
                       {t.lastMessage}
                     </p>
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] text-slate-400">{timeAgo(t.updatedAt)}</span>
+                      <span className="text-[10px] text-slate-400 lg:text-slate-500">{timeAgo(t.updatedAt)}</span>
                       {hasReply && (
                         <span className="text-[10px] font-bold text-[#003D99] bg-blue-50 px-2 py-0.5 rounded-full">
                           Balasan baru

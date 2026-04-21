@@ -98,10 +98,11 @@ export default function Header() {
     <header
       className={`bg-[#003D99] px-4 ${
         isScrolled
-          ? "fixed inset-x-0 top-0 mx-auto w-full max-w-[480px] z-40 shadow-lg py-2.5"
-          : "relative pt-4 pb-3"
+          ? "fixed inset-x-0 top-0 z-40 py-2.5 shadow-lg"
+          : "relative pt-4 pb-3 lg:pt-5 lg:pb-4"
       }`}
     >
+      <div className="mx-auto w-full max-w-[480px] lg:max-w-6xl">
       {/* Logo Row + Icons */}
       <div className="flex items-center justify-between">
         {/* Logo - just hidden when scrolled, no animation */}
@@ -157,8 +158,8 @@ export default function Header() {
       <div
         className={`relative transition-all duration-300 ease-in-out ${
           isScrolled
-            ? "-mt-[34px] mr-[108px]"
-            : "mt-2.5 mr-0"
+            ? "-mt-[34px] mr-[108px] lg:mr-0 lg:mt-3"
+            : "mt-2.5 mr-0 lg:mt-4"
         }`}
       >
         <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -182,6 +183,7 @@ export default function Header() {
             </div>
           );
         })()}
+      </div>
       </div>
     </header>
   );

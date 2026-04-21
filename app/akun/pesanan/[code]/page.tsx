@@ -161,8 +161,8 @@ function OrderDetailPageContent() {
   // ── Skeleton ──────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className={`${quicksand.className} min-h-screen bg-[#f5f7fb] flex justify-center`}>
-        <div className="w-full max-w-[480px] min-h-screen bg-white shadow-2xl flex flex-col">
+      <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#f5f7fb] lg:bg-[#161B22]`}>
+        <div className="flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-transparent lg:shadow-none">
           <div className="bg-[#003D99] px-4 py-4 flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-white/20 animate-pulse" />
             <div className="flex-1 space-y-1.5">
@@ -170,13 +170,13 @@ function OrderDetailPageContent() {
               <div className="h-2.5 w-36 bg-white/20 rounded animate-pulse" />
             </div>
           </div>
-          <div className="p-4 space-y-3">
-            <div className="bg-slate-50 rounded-2xl p-4 animate-pulse space-y-2">
+          <div className="space-y-3 p-4 lg:mx-auto lg:w-full lg:max-w-3xl lg:px-0 lg:pt-10">
+            <div className="rounded-2xl bg-slate-50 p-4 animate-pulse space-y-2 lg:bg-white/[0.05]">
               <div className="h-3 w-32 bg-slate-200 rounded" />
               <div className="h-3 w-48 bg-slate-200 rounded" />
               <div className="h-3 w-24 bg-slate-200 rounded" />
             </div>
-            <div className="bg-slate-50 rounded-2xl p-4 animate-pulse space-y-2">
+            <div className="rounded-2xl bg-slate-50 p-4 animate-pulse space-y-2 lg:bg-white/[0.05]">
               <div className="h-3 w-40 bg-slate-200 rounded" />
               <div className="h-3 w-28 bg-slate-200 rounded" />
             </div>
@@ -189,8 +189,8 @@ function OrderDetailPageContent() {
   // ── Error state ───────────────────────────────────────────────────────────
   if (error) {
     return (
-      <div className={`${quicksand.className} min-h-screen bg-[#f5f7fb] flex justify-center`}>
-        <div className="w-full max-w-[480px] min-h-screen bg-white shadow-2xl flex flex-col">
+      <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#f5f7fb] lg:bg-[#161B22]`}>
+        <div className="flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-transparent lg:shadow-none">
           <header className="bg-[#003D99] px-4 py-4 flex items-center gap-3">
             <button
               onClick={() => router.back()}
@@ -202,15 +202,15 @@ function OrderDetailPageContent() {
             </button>
             <p className="text-sm font-bold text-white">Detail Pesanan</p>
           </header>
-          <div className="flex-1 flex flex-col items-center justify-center px-6 text-center pb-20">
+          <div className="flex flex-1 flex-col items-center justify-center px-6 pb-20 text-center">
             <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mb-3">
               <svg className="w-7 h-7 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                   d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
             </div>
-            <p className="text-sm font-semibold text-slate-700 mb-1">{error}</p>
-            <p className="text-xs text-slate-400 mb-4">
+            <p className="mb-1 text-sm font-semibold text-slate-700 lg:text-white">{error}</p>
+            <p className="mb-4 text-xs text-slate-400">
               Kode: <span className="font-mono font-semibold text-slate-600">{params.code}</span>
             </p>
             <button
@@ -322,10 +322,10 @@ function OrderDetailPageContent() {
   };
 
   return (
-    <div className={`${quicksand.className} min-h-screen bg-[#f5f7fb] flex justify-center`}>
-      <div className="w-full max-w-[480px] min-h-screen bg-white shadow-2xl flex flex-col">
+    <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#f5f7fb] lg:bg-[#161B22]`}>
+      <div className="flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-transparent lg:shadow-none">
         {/* Header */}
-        <header className="bg-[#003D99] px-4 py-4 flex items-center gap-3 flex-shrink-0">
+        <header className="flex flex-shrink-0 items-center gap-3 bg-[#003D99] px-4 py-4 lg:mx-auto lg:mt-6 lg:w-full lg:max-w-3xl lg:rounded-[28px]">
           <button
             onClick={() => router.back()}
             className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
@@ -356,25 +356,25 @@ function OrderDetailPageContent() {
           </button>
         </header>
 
-        <div className="flex-1 px-4 py-4 pb-24 space-y-3 overflow-y-auto">
+        <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4 pb-24 lg:mx-auto lg:w-full lg:max-w-3xl lg:px-0 lg:pb-14">
 
           {/* ── Status Banner ─────────────────────────────────────────────── */}
           {order.status === "SUCCESS" && (
-            <div className="bg-green-50 border border-green-200 rounded-2xl px-4 py-3 flex items-center gap-3">
+            <div className="flex items-center gap-3 rounded-2xl border border-green-200 bg-green-50 px-4 py-3 lg:border-green-500/20 lg:bg-green-500/10">
               <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
               <div>
-                <p className="text-sm font-bold text-green-800">Transaksi Berhasil!</p>
-                <p className="text-[11px] text-green-600">Produk sudah berhasil diproses.</p>
+                <p className="text-sm font-bold text-green-800 lg:text-green-50">Transaksi Berhasil!</p>
+                <p className="text-[11px] text-green-600 lg:text-green-100/80">Produk sudah berhasil diproses.</p>
               </div>
             </div>
           )}
 
           {(order.status === "PAID" || order.status === "PROCESSING_PROVIDER") && (
-            <div className="bg-blue-50 border border-blue-200 rounded-2xl px-4 py-3 flex items-center gap-3">
+            <div className="flex items-center gap-3 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 lg:border-blue-500/20 lg:bg-blue-500/10">
               <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -382,8 +382,8 @@ function OrderDetailPageContent() {
                 </svg>
               </div>
               <div>
-                <p className="text-sm font-bold text-blue-800">Pembayaran Diterima</p>
-                <p className="text-[11px] text-blue-600">
+                <p className="text-sm font-bold text-blue-800 lg:text-blue-50">Pembayaran Diterima</p>
+                <p className="text-[11px] text-blue-600 lg:text-blue-100/80">
                   Produk sedang diproses, harap tunggu sebentar.
                 </p>
               </div>
@@ -391,7 +391,7 @@ function OrderDetailPageContent() {
           )}
 
           {order.status === "WAITING_PAYMENT" && isPendingPayment && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-2xl px-4 py-3 flex items-center gap-3">
+            <div className="flex items-center gap-3 rounded-2xl border border-yellow-200 bg-yellow-50 px-4 py-3 lg:border-yellow-500/20 lg:bg-yellow-500/10">
               <div className="w-8 h-8 rounded-full bg-yellow-400 flex items-center justify-center flex-shrink-0">
                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -399,22 +399,22 @@ function OrderDetailPageContent() {
                 </svg>
               </div>
               <div>
-                <p className="text-sm font-bold text-yellow-800">Belum Dibayar</p>
-                <p className="text-[11px] text-yellow-700">Selesaikan pembayaran sebelum kedaluwarsa.</p>
+                <p className="text-sm font-bold text-yellow-800 lg:text-yellow-50">Belum Dibayar</p>
+                <p className="text-[11px] text-yellow-700 lg:text-yellow-100/80">Selesaikan pembayaran sebelum kedaluwarsa.</p>
               </div>
             </div>
           )}
 
           {order.status === "FAILED" && (
-            <div className="bg-red-50 border border-red-200 rounded-2xl px-4 py-3 flex items-center gap-3">
+            <div className="flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 lg:border-red-500/20 lg:bg-red-500/10">
               <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0">
                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </div>
               <div>
-                <p className="text-sm font-bold text-red-800">Transaksi Gagal</p>
-                <p className="text-[11px] text-red-600">
+                <p className="text-sm font-bold text-red-800 lg:text-red-50">Transaksi Gagal</p>
+                <p className="text-[11px] text-red-600 lg:text-red-100/80">
                   {order.notes ?? "Hubungi support jika saldo sudah terpotong."}
                 </p>
               </div>
@@ -422,15 +422,15 @@ function OrderDetailPageContent() {
           )}
 
           {order.status === "REFUNDED" && (
-            <div className="bg-teal-50 border border-teal-200 rounded-2xl px-4 py-3 flex items-center gap-3">
+            <div className="flex items-center gap-3 rounded-2xl border border-teal-200 bg-teal-50 px-4 py-3 lg:border-teal-500/20 lg:bg-teal-500/10">
               <div className="w-8 h-8 rounded-full bg-teal-500 flex items-center justify-center flex-shrink-0">
                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
               <div>
-                <p className="text-sm font-bold text-teal-800">Dana Sudah Dikembalikan</p>
-                <p className="text-[11px] text-teal-700">
+                <p className="text-sm font-bold text-teal-800 lg:text-teal-50">Dana Sudah Dikembalikan</p>
+                <p className="text-[11px] text-teal-700 lg:text-teal-100/80">
                   {order.notes ?? "Dana otomatis sudah masuk kembali ke saldo akun kamu."}
                 </p>
               </div>
@@ -438,7 +438,7 @@ function OrderDetailPageContent() {
           )}
 
           {order.status === "EXPIRED" && (
-            <div className="bg-orange-50 border border-orange-200 rounded-2xl px-4 py-3 flex items-center gap-3">
+            <div className="flex items-center gap-3 rounded-2xl border border-orange-200 bg-orange-50 px-4 py-3 lg:border-orange-500/20 lg:bg-orange-500/10">
               <div className="w-8 h-8 rounded-full bg-orange-400 flex items-center justify-center flex-shrink-0">
                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -446,19 +446,19 @@ function OrderDetailPageContent() {
                 </svg>
               </div>
               <div>
-                <p className="text-sm font-bold text-orange-800">Pesanan Kedaluwarsa</p>
-                <p className="text-[11px] text-orange-600">Waktu pembayaran habis. Silakan buat pesanan baru.</p>
+                <p className="text-sm font-bold text-orange-800 lg:text-orange-50">Pesanan Kedaluwarsa</p>
+                <p className="text-[11px] text-orange-600 lg:text-orange-100/80">Waktu pembayaran habis. Silakan buat pesanan baru.</p>
               </div>
             </div>
           )}
 
           {/* ── Order Card ────────────────────────────────────────────────── */}
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100">
+          <div className="rounded-2xl border border-slate-100 bg-white shadow-sm lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none">
             {/* Card header */}
             <div className="px-4 pt-4 pb-3 flex items-start justify-between gap-2 border-b border-slate-100">
               <div>
                 <p className="text-[11px] text-slate-400 mb-0.5">Kode Pesanan</p>
-                <p className="text-sm font-mono font-bold text-purple-700">{order.orderCode}</p>
+                <p className="text-sm font-mono font-bold text-purple-700 lg:text-white">{order.orderCode}</p>
               </div>
               <StatusBadge status={order.status} />
             </div>
@@ -467,7 +467,7 @@ function OrderDetailPageContent() {
             <div className="px-4 py-3 space-y-2.5">
               <div className="flex justify-between items-start gap-2">
                 <span className="text-xs text-slate-500">Produk</span>
-                <span className="text-xs font-semibold text-slate-700 text-right max-w-[60%] leading-relaxed">
+                  <span className="max-w-[60%] text-right text-xs font-semibold leading-relaxed text-slate-700 lg:text-white">
                   {order.product.name}
                 </span>
               </div>
@@ -477,7 +477,7 @@ function OrderDetailPageContent() {
               </div>
               <div className="flex justify-between">
                 <span className="text-xs text-slate-500">Harga Produk</span>
-                <span className="text-xs font-semibold text-slate-700">
+                <span className="text-xs font-semibold text-slate-700 lg:text-slate-100">
                   Rp {formatPrice(order.amount - order.fee)}
                 </span>
               </div>
@@ -489,11 +489,11 @@ function OrderDetailPageContent() {
               )}
               <div className="border-t border-slate-100 pt-2 flex justify-between">
                 <span className="text-xs font-bold text-slate-600">Total Bayar</span>
-                <span className="text-sm font-black text-slate-800">Rp {formatPrice(order.amount)}</span>
+                <span className="text-sm font-black text-slate-800 lg:text-white">Rp {formatPrice(order.amount)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-xs text-slate-500">Metode</span>
-                <span className="text-xs text-slate-600">
+                <span className="text-xs text-slate-600 lg:text-slate-300">
                   {order.paymentMethod === "WALLET"
                     ? "Saldo Wallet"
                     : (order.paymentInvoice?.method?.toUpperCase() ?? "Payment Gateway")}
@@ -501,19 +501,19 @@ function OrderDetailPageContent() {
               </div>
               <div className="flex justify-between">
                 <span className="text-xs text-slate-500">Waktu</span>
-                <span className="text-xs text-slate-600">{formatDate(order.createdAt)}</span>
+                <span className="text-xs text-slate-600 lg:text-slate-300">{formatDate(order.createdAt)}</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100">
+          <div className="rounded-2xl border border-slate-100 bg-white shadow-sm lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none">
             <div className="px-4 pt-4 pb-3 border-b border-slate-100">
               <p className="text-xs font-bold text-slate-600">Data Tujuan</p>
             </div>
             <div className="px-4 py-3 space-y-3">
               <div className="flex justify-between items-start gap-3">
                 <span className="text-xs text-slate-500">Tujuan Utama</span>
-                <span className="text-xs font-semibold text-slate-700 text-right break-all max-w-[65%]">
+                <span className="max-w-[65%] break-all text-right text-xs font-semibold text-slate-700 lg:text-white">
                   {order.targetNumber}
                 </span>
               </div>
@@ -523,7 +523,7 @@ function OrderDetailPageContent() {
                   {extraTargetEntries.map(([key, value]) => (
                     <div key={key} className="flex justify-between items-start gap-3">
                       <span className="text-xs text-slate-500">{formatTargetLabel(key)}</span>
-                      <span className="text-xs font-medium text-slate-700 text-right break-all max-w-[65%]">
+                      <span className="max-w-[65%] break-all text-right text-xs font-medium text-slate-700 lg:text-slate-100">
                         {String(value)}
                       </span>
                     </div>
@@ -535,14 +535,14 @@ function OrderDetailPageContent() {
 
           {/* ── Serial Number ─────────────────────────────────────────────── */}
           {order.serialNumber && (
-            <div className="bg-green-50 border border-green-200 rounded-2xl p-4">
+            <div className="rounded-2xl border border-green-200 bg-green-50 p-4 lg:border-green-500/20 lg:bg-green-500/10">
               <p className="text-[11px] font-bold text-green-700 mb-1.5">
                 ✅ Serial Number / Kode Voucher
               </p>
-              <p className="text-base font-mono font-black text-green-800 tracking-wide break-all">
+              <p className="break-all text-base font-mono font-black tracking-wide text-green-800 lg:text-green-50">
                 {order.serialNumber}
               </p>
-              <p className="text-[10px] text-green-600 mt-1.5">
+              <p className="mt-1.5 text-[10px] text-green-600 lg:text-green-100/80">
                 Screenshot atau salin kode ini sebagai bukti pembelian.
               </p>
             </div>
@@ -550,7 +550,7 @@ function OrderDetailPageContent() {
 
           {/* ── Payment Invoice ───────────────────────────────────────────── */}
           {order.paymentInvoice && (
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100">
+            <div className="rounded-2xl border border-slate-100 bg-white shadow-sm lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none">
               <div className="px-4 pt-4 pb-3 border-b border-slate-100">
                 <p className="text-xs font-bold text-slate-600">Info Pembayaran</p>
               </div>
@@ -589,11 +589,11 @@ function OrderDetailPageContent() {
               {isPendingPayment && (
                 <div className="px-4 pb-4 space-y-3">
                   {hasInternalQris && order.paymentInvoice.paymentNumber && (
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:border-white/10 lg:bg-white/5">
                       <p className="text-xs font-bold text-slate-700">
                         Scan QRIS untuk membayar
                       </p>
-                      <p className="mt-1 text-[11px] text-slate-500">
+                      <p className="mt-1 text-[11px] text-slate-500 lg:text-slate-400">
                         QR ditampilkan langsung di aplikasi dan berlaku selama 30 menit sejak dibuat.
                       </p>
                       {remainingSeconds !== null && (
@@ -614,7 +614,7 @@ function OrderDetailPageContent() {
                         </div>
                       )}
                       <div className="mt-4 flex justify-center">
-                        <div className={`rounded-[28px] bg-white p-3 shadow-sm transition ${isQrisExpired ? "opacity-50 grayscale" : ""}`}>
+                        <div className={`rounded-[28px] bg-white p-3 shadow-sm transition lg:shadow-none ${isQrisExpired ? "opacity-50 grayscale" : ""}`}>
                           <img
                             src={buildQrImageUrl(order.paymentInvoice.paymentNumber)}
                             alt="QRIS Payment"
@@ -633,7 +633,7 @@ function OrderDetailPageContent() {
                           </button>
                           <button
                             onClick={() => router.push("/")}
-                            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 lg:border-white/10 lg:bg-white/5 lg:text-slate-200 lg:hover:bg-white/10"
                           >
                             Buat Pesanan Baru
                           </button>
@@ -641,12 +641,12 @@ function OrderDetailPageContent() {
                       ) : !isQrisExpired ? (
                         <button
                           onClick={handleCopyQrString}
-                          className="mt-4 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                          className="mt-4 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 lg:border-white/10 lg:bg-white/5 lg:text-slate-200 lg:hover:bg-white/10"
                         >
                           {copyingQr ? "Menyalin..." : copyQrLabel}
                         </button>
                       ) : (
-                        <div className="mt-4 rounded-xl border border-slate-200 bg-white px-4 py-3 text-center text-sm font-semibold text-slate-500">
+                        <div className="mt-4 rounded-xl border border-slate-200 bg-white px-4 py-3 text-center text-sm font-semibold text-slate-500 lg:border-white/10 lg:bg-white/5 lg:text-slate-300">
                           QRIS ini sudah tidak aktif.
                         </div>
                       )}
@@ -660,9 +660,9 @@ function OrderDetailPageContent() {
           {/* ── Processing notice ─────────────────────────────────────────── */}
           {(order.status === "PAID" || order.status === "PROCESSING_PROVIDER") &&
             !order.serialNumber && (
-              <div className="bg-blue-50 border border-blue-100 rounded-2xl px-4 py-3 flex gap-2.5">
+              <div className="flex gap-2.5 rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 lg:border-blue-500/20 lg:bg-blue-500/10">
                 <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin flex-shrink-0 mt-0.5" />
-                <p className="text-[11px] text-blue-700 leading-relaxed">
+                <p className="text-[11px] leading-relaxed text-blue-700 lg:text-blue-100/80">
                   Memproses pembelian... Serial number akan muncul di sini setelah berhasil.
                   Tekan tombol refresh untuk memperbarui status.
                 </p>
@@ -672,7 +672,7 @@ function OrderDetailPageContent() {
           {/* ── Back to home ──────────────────────────────────────────────── */}
           <button
             onClick={() => router.push("/")}
-            className="w-full py-3 rounded-2xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+            className="w-full rounded-2xl border border-slate-200 py-3 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50 lg:border-white/10 lg:bg-white/5 lg:text-slate-200 lg:hover:bg-white/10"
           >
             ← Kembali ke Beranda
           </button>

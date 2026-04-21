@@ -110,29 +110,29 @@ export default function Footer() {
   };
 
   return (
-    <footer className="-mt-14 overflow-hidden bg-white shadow-2xl pb-24">
-      <div className="mx-auto max-w-5xl px-5 pt-6 pb-8 lg:px-8">
-        <div className="space-y-8">
-          <div>
+    <footer className="-mt-14 overflow-hidden bg-white shadow-2xl pb-24 lg:mt-0 lg:rounded-[32px] lg:bg-transparent lg:shadow-none">
+      <div className="mx-auto max-w-6xl px-5 pt-6 pb-8 lg:px-8 lg:pt-10 lg:pb-10">
+        <div className="space-y-8 lg:grid lg:grid-cols-[1.15fr_0.9fr_0.75fr_1.5fr] lg:gap-8 lg:space-y-0">
+          <div className="lg:pr-6">
             <div className="mb-3 flex items-center gap-2">
               {logoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={logoUrl} alt="Logo" className="h-10 w-auto object-contain" />
               ) : (
                 <>
-                  <div className="rounded-lg bg-purple-600 px-2.5 py-1">
+                  <div className="rounded-lg bg-purple-600 px-2.5 py-1 lg:bg-white/10">
                     <span className="text-base font-bold tracking-wide text-white">{getBrandInitials(siteName)}</span>
                   </div>
-                  <span className="text-lg font-bold text-slate-800">{siteName}</span>
+                  <span className="text-lg font-bold text-slate-800 lg:text-white">{siteName}</span>
                 </>
               )}
             </div>
-            <p className="max-w-xs text-[13px] leading-7 text-slate-500">{tagline}</p>
+            <p className="max-w-xs text-[13px] leading-7 text-slate-500 lg:text-[14px] lg:text-slate-300">{tagline}</p>
           </div>
 
           <div>
-            <h3 className="mb-3 text-[13px] font-bold uppercase tracking-wide text-[#262C3B]">Pembayaran</h3>
-            <div className="flex flex-wrap items-center gap-2">
+            <h3 className="mb-3 text-[13px] font-bold uppercase tracking-wide text-[#262C3B] lg:text-white">Pembayaran</h3>
+            <div className="flex flex-wrap items-center gap-2 lg:max-w-[220px]">
               {paymentMethods.map((pm) => (
                 pm.img ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -146,7 +146,7 @@ export default function Footer() {
                 ) : (
                   <span
                     key={pm.name}
-                    className="rounded-xl bg-slate-200 px-3 py-2 text-xs font-bold tracking-wide text-slate-700"
+                    className="rounded-xl bg-slate-200 px-3 py-2 text-xs font-bold tracking-wide text-slate-700 lg:bg-white/8 lg:text-slate-100"
                   >
                     {pm.name}
                   </span>
@@ -156,54 +156,54 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="mb-3 text-[13px] font-bold uppercase tracking-wide text-[#262C3B]">Pengunjung</h3>
-            <div className="space-y-2 text-[13px] text-slate-700">
+            <h3 className="mb-3 text-[13px] font-bold uppercase tracking-wide text-[#262C3B] lg:text-white">Pengunjung</h3>
+            <div className="space-y-2 text-[13px] text-slate-700 lg:max-w-[170px] lg:text-slate-300">
               <div className="flex items-center justify-between gap-4">
                 <span>Vis. today</span>
-                <strong>{visitorStats.visitorsToday.toLocaleString("id-ID")}</strong>
+                <strong className="lg:text-white">{visitorStats.visitorsToday.toLocaleString("id-ID")}</strong>
               </div>
               <div className="flex items-center justify-between gap-4">
                 <span>Visits</span>
-                <strong>{visitorStats.totalVisits.toLocaleString("id-ID")}</strong>
+                <strong className="lg:text-white">{visitorStats.totalVisits.toLocaleString("id-ID")}</strong>
               </div>
               <div className="flex items-center justify-between gap-4">
                 <span>Pag. today</span>
-                <strong>{visitorStats.pagesToday.toLocaleString("id-ID")}</strong>
+                <strong className="lg:text-white">{visitorStats.pagesToday.toLocaleString("id-ID")}</strong>
               </div>
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-6 lg:grid lg:grid-cols-3 lg:gap-6 lg:space-y-0">
             {footerColumns.map((column) => (
               <div key={column.title}>
-              <h3 className="mb-3 text-[13px] font-bold uppercase tracking-wide text-[#262C3B]">{column.title}</h3>
-              <ul className="space-y-2">
-                {column.links.map((link) => (
-                  <li key={`${column.title}-${link.label}-${link.href}`} className="flex items-start gap-2 text-[13px]">
-                    <span className="pt-1 text-slate-400">•</span>
-                    <a
-                      href={link.href}
-                      className="font-semibold leading-6 text-[#003D99] transition-colors hover:text-emerald-800"
-                    >
-                      {link.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+                <h3 className="mb-3 text-[13px] font-bold uppercase tracking-wide text-[#262C3B] lg:text-white">{column.title}</h3>
+                <ul className="space-y-2">
+                  {column.links.map((link) => (
+                    <li key={`${column.title}-${link.label}-${link.href}`} className="flex items-start gap-2 text-[13px]">
+                      <span className="pt-1 text-slate-400 lg:text-slate-500">•</span>
+                      <a
+                        href={link.href}
+                        className="font-semibold leading-6 text-[#003D99] transition-colors hover:text-emerald-800 lg:text-slate-200 lg:hover:text-white"
+                      >
+                        {link.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="mt-8 space-y-6 border-t border-slate-100 pt-6">
+        <div className="mt-8 space-y-6 border-t border-slate-100 pt-6 lg:grid lg:grid-cols-[1.1fr_0.9fr_1fr] lg:gap-6 lg:space-y-0 lg:border-white/10">
           <div>
-            <h3 className="mb-2 text-[13px] font-bold text-[#262C3B]">Layanan Pengaduan Konsumen</h3>
-            <p className="mb-1 text-[12px] text-[#6A7389]">{companyName}</p>
+            <h3 className="mb-2 text-[13px] font-bold text-[#262C3B] lg:text-white">Layanan Pengaduan Konsumen</h3>
+            <p className="mb-1 text-[12px] text-[#6A7389] lg:text-slate-400">{companyName}</p>
             <div className="flex flex-col gap-1">
               {contactPhone && (
                 <a
                   href={`https://wa.me/${contactPhone.replace(/\D/g, "")}`}
-                  className="inline-flex items-center gap-2 text-[13px] text-[#003D99] transition-colors hover:text-purple-700"
+                  className="inline-flex items-center gap-2 text-[13px] text-[#003D99] transition-colors hover:text-purple-700 lg:text-slate-200 lg:hover:text-white"
                 >
                   <svg className="h-4 w-4 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
@@ -214,7 +214,7 @@ export default function Footer() {
               {contactEmail && (
                 <a
                   href={`mailto:${contactEmail}`}
-                  className="inline-flex items-center gap-2 text-[13px] text-[#003D99] transition-colors hover:text-purple-700"
+                  className="inline-flex items-center gap-2 text-[13px] text-[#003D99] transition-colors hover:text-purple-700 lg:text-slate-200 lg:hover:text-white"
                 >
                   <svg className="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
@@ -232,14 +232,14 @@ export default function Footer() {
 
           {socialLinks.length > 0 && (
             <div>
-              <h3 className="mb-2 text-[13px] font-bold text-[#262C3B]">Ikuti Kami di</h3>
+              <h3 className="mb-2 text-[13px] font-bold text-[#262C3B] lg:text-white">Ikuti Kami di</h3>
               <div className="flex flex-wrap items-center gap-4">
                 {socialLinks.map((s) =>
                   SOCIAL_ICONS[s.platform] ? (
                     <a
                       key={s.platform}
                       href={s.href}
-                      className="text-[#003D99] transition-colors hover:text-purple-700"
+                      className="text-[#003D99] transition-colors hover:text-purple-700 lg:text-slate-200 lg:hover:text-white"
                     >
                       {SOCIAL_ICONS[s.platform]}
                     </a>
@@ -249,21 +249,21 @@ export default function Footer() {
             </div>
           )}
 
-          <div className="space-y-3">
-            <Link href="/seller" className="block rounded-xl bg-blue-50 p-4 transition-colors hover:bg-blue-100">
-              <p className="text-[13px] font-semibold text-slate-700">Cari Merchant?</p>
-              <p className="mt-1 text-[13px] font-bold text-[#003D99]">Lihat Semua Merchant</p>
+          <div className="space-y-3 lg:self-start">
+            <Link href="/seller" className="block rounded-xl bg-blue-50 p-4 transition-colors hover:bg-blue-100 lg:border lg:border-white/10 lg:bg-white/6 lg:hover:bg-white/10">
+              <p className="text-[13px] font-semibold text-slate-700 lg:text-slate-300">Cari Merchant?</p>
+              <p className="mt-1 text-[13px] font-bold text-[#003D99] lg:text-white">Lihat Semua Merchant</p>
             </Link>
-            <a href="/pusat-bantuan" className="block rounded-xl bg-slate-50 p-4 transition-colors hover:bg-slate-100">
-              <p className="text-[13px] font-semibold text-slate-700">Punya Pertanyaan?</p>
-              <p className="mt-1 text-[13px] font-bold text-[#003D99]">Cek Pusat Bantuan</p>
+            <a href="/pusat-bantuan" className="block rounded-xl bg-slate-50 p-4 transition-colors hover:bg-slate-100 lg:border lg:border-white/10 lg:bg-white/6 lg:hover:bg-white/10">
+              <p className="text-[13px] font-semibold text-slate-700 lg:text-slate-300">Punya Pertanyaan?</p>
+              <p className="mt-1 text-[13px] font-bold text-[#003D99] lg:text-white">Cek Pusat Bantuan</p>
             </a>
           </div>
         </div>
 
-        <div className="mt-6 border-t border-slate-100 pt-5">
+        <div className="mt-6 border-t border-slate-100 pt-5 lg:border-white/10">
           {copyright.split("\n").map((line, i) => (
-            <p key={i} className="text-[11px] leading-relaxed text-slate-400">{line}</p>
+            <p key={i} className="text-[11px] leading-relaxed text-slate-400 lg:text-slate-500">{line}</p>
           ))}
         </div>
       </div>

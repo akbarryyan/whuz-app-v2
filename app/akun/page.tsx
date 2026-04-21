@@ -209,13 +209,13 @@ export default function AkunPage() {
 
   if (isLoading) {
     return (
-      <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5]`}>
-        <div className="w-full max-w-[480px] min-h-screen bg-white shadow-2xl">
+      <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#161B22]`}>
+        <div className="w-full max-w-[480px] min-h-screen bg-white shadow-2xl lg:max-w-7xl lg:bg-transparent lg:shadow-none">
           {/* ---- Brand Header ---- */}
           <AppHeader />
 
           {/* Header skeleton */}
-          <div style={{ backgroundColor: "#003D99" }} className="px-6 pt-16 pb-16">
+          <div style={{ backgroundColor: "#003D99" }} className="px-6 pt-16 pb-16 lg:mx-auto lg:max-w-6xl lg:rounded-[32px] lg:px-8 lg:pt-24">
             <div className="flex flex-col items-center gap-3">
               <div className="w-20 h-20 rounded-full bg-white/20 animate-pulse" />
               <div className="h-5 w-36 rounded-full bg-white/20 animate-pulse" />
@@ -224,10 +224,10 @@ export default function AkunPage() {
               <div className="h-2 w-52 rounded-full bg-white/15 animate-pulse" />
             </div>
           </div>
-          <div className="px-5 -mt-8 flex flex-col gap-4">
-            <div className="h-28 rounded-2xl bg-slate-100 animate-pulse" />
-            <div className="h-48 rounded-2xl bg-slate-100 animate-pulse" />
-            <div className="h-32 rounded-2xl bg-slate-100 animate-pulse" />
+          <div className="flex flex-col gap-4 px-5 -mt-8 lg:mx-auto lg:max-w-6xl lg:px-0">
+            <div className="h-28 rounded-2xl bg-slate-100 animate-pulse lg:bg-white/[0.05]" />
+            <div className="h-48 rounded-2xl bg-slate-100 animate-pulse lg:bg-white/[0.05]" />
+            <div className="h-32 rounded-2xl bg-slate-100 animate-pulse lg:bg-white/[0.05]" />
           </div>
         </div>
       </div>
@@ -354,16 +354,16 @@ export default function AkunPage() {
   // ===================== RENDER =====================
 
   return (
-    <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5]`}>
+    <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#161B22]`}>
       <ToastContainer toasts={toast.toasts} onRemove={toast.removeToast} />
 
-      <div className="relative w-full max-w-[480px] min-h-screen bg-white shadow-2xl flex flex-col">
+      <div className="relative flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-transparent lg:shadow-none">
 
         {/* ---- Brand Header ---- */}
         <AppHeader onBack={() => router.back()} />
 
         {/* ===== HEADER HERO ===== */}
-        <div className="px-6 pt-20 pb-20 relative overflow-hidden" style={{ backgroundColor: "#003D99" }}>
+        <div className="relative overflow-hidden px-6 pt-20 pb-20 lg:mx-auto lg:mt-6 lg:w-full lg:max-w-6xl lg:rounded-[32px] lg:px-8" style={{ backgroundColor: "#003D99" }}>
           {/* Decorative circles */}
           <div className="absolute -top-10 -right-10 h-44 w-44 rounded-full bg-white/10" />
           <div className="absolute top-20 -right-4 h-24 w-24 rounded-full bg-white/5" />
@@ -442,25 +442,25 @@ export default function AkunPage() {
         </div>
 
         {/* ===== SCROLLABLE CONTENT ===== */}
-        <div className="flex-1 overflow-y-auto px-5 -mt-10 pb-28 flex flex-col gap-4">
+        <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-5 pb-28 -mt-10 lg:mx-auto lg:w-full lg:max-w-6xl lg:px-0 lg:pb-16">
 
           {/* ---- WALLET CARD ---- */}
-          <div className="bg-white rounded-t-3xl shadow-lg border border-slate-100 p-5 relative overflow-hidden">
+          <div className="relative overflow-hidden rounded-t-3xl border border-slate-100 bg-white p-5 shadow-lg lg:rounded-3xl lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none">
             {/* background deco */}
-            <div className="absolute right-0 top-0 h-full w-32 bg-gradient-to-l from-purple-50 to-transparent rounded-r-3xl" />
+            <div className="absolute right-0 top-0 h-full w-32 rounded-r-3xl bg-gradient-to-l from-purple-50 to-transparent lg:from-white/[0.06]" />
 
             <div className="relative z-10 flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1">
-                  Saldo Wallet
-                </p>
-                <p className="text-2xl font-bold text-slate-800">
-                  {formatBalance(wallet?.balance ?? 0)}
-                </p>
-                <button
-                  onClick={() => router.push("/topup")}
-                  className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-purple-600 bg-purple-50 hover:bg-purple-100 px-3 py-1.5 rounded-full transition"
-                >
+                  <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400 lg:text-slate-300">
+                    Saldo Wallet
+                  </p>
+                  <p className="text-2xl font-bold text-slate-800 lg:text-white">
+                    {formatBalance(wallet?.balance ?? 0)}
+                  </p>
+                  <button
+                    onClick={() => router.push("/topup")}
+                    className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-purple-50 px-3 py-1.5 text-xs font-semibold text-purple-600 transition hover:bg-purple-100 lg:bg-white/10 lg:text-white lg:hover:bg-white/15"
+                  >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
                   </svg>
@@ -468,7 +468,7 @@ export default function AkunPage() {
                 </button>
               </div>
               <div className="flex flex-col items-center gap-1">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-600 to-purple-500 flex items-center justify-center shadow-md shadow-purple-200">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-600 to-purple-500 shadow-md shadow-purple-200 lg:shadow-none">
                   <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
                       d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
@@ -513,10 +513,10 @@ export default function AkunPage() {
                 bg: "bg-rose-50",
               },
             ].map((stat) => (
-              <div key={stat.label} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-3 flex flex-col items-center gap-1.5">
+              <div key={stat.label} className="flex flex-col items-center gap-1.5 rounded-2xl border border-slate-100 bg-white p-3 shadow-sm lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none">
                 <div className={`${stat.bg} rounded-xl p-2`}>{stat.icon}</div>
-                <p className="text-xl font-bold text-slate-800">{stat.value}</p>
-                <p className="text-[10px] text-slate-400 text-center leading-tight">{stat.label}</p>
+                <p className="text-xl font-bold text-slate-800 lg:text-white">{stat.value}</p>
+                <p className="text-center text-[10px] leading-tight text-slate-400 lg:text-slate-400">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -525,7 +525,7 @@ export default function AkunPage() {
             <button
               type="button"
               onClick={() => router.push("/admin")}
-              className="group w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 text-left shadow-sm transition hover:border-slate-300 hover:shadow-md"
+              className="group w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 text-left shadow-sm transition hover:border-slate-300 hover:shadow-md lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none lg:hover:bg-white/[0.06]"
             >
               <div className="flex items-center gap-3">
                 <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-slate-900 text-white">
@@ -539,17 +539,17 @@ export default function AkunPage() {
                   </svg>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400 lg:text-slate-400">
                     Admin
                   </p>
-                  <p className="mt-1 text-sm font-bold text-slate-800">
+                  <p className="mt-1 text-sm font-bold text-slate-800 lg:text-white">
                     Buka Dashboard Admin
                   </p>
-                  <p className="mt-1 text-xs leading-relaxed text-slate-500">
+                  <p className="mt-1 text-xs leading-relaxed text-slate-500 lg:text-slate-400">
                     Akses panel pengelolaan website tanpa keluar dari akun ini.
                   </p>
                 </div>
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition group-hover:bg-slate-900 group-hover:text-white">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition group-hover:bg-slate-900 group-hover:text-white lg:bg-white/10 lg:text-slate-300 lg:group-hover:bg-white/15">
                   <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
@@ -561,24 +561,24 @@ export default function AkunPage() {
           {/* ---- MENU GROUPS ---- */}
           {menuItems.map((group) => (
             <div key={group.group}>
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider px-1 mb-2">
+              <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-slate-400 lg:text-slate-300">
                 {group.group}
               </p>
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden divide-y divide-slate-50">
+              <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm divide-y divide-slate-50 lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none lg:divide-white/10">
                 {group.items.map((item, idx) => (
                   <button
                     key={idx}
                     onClick={item.action}
-                    className="w-full flex items-center gap-3.5 px-4 py-3.5 hover:bg-slate-50 active:bg-slate-100 transition text-left"
+                    className="flex w-full items-center gap-3.5 px-4 py-3.5 text-left transition hover:bg-slate-50 active:bg-slate-100 lg:hover:bg-white/[0.06] lg:active:bg-white/[0.08]"
                   >
                     <div className={`${item.color} rounded-xl p-2.5 flex-shrink-0`}>
                       {item.icon}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-slate-800">{item.label}</p>
-                      <p className="text-xs text-slate-400 mt-0.5">{item.sub}</p>
+                      <p className="text-sm font-semibold text-slate-800 lg:text-white">{item.label}</p>
+                      <p className="mt-0.5 text-xs text-slate-400 lg:text-slate-400">{item.sub}</p>
                     </div>
-                    <svg className="w-4 h-4 text-slate-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-4 w-4 flex-shrink-0 text-slate-300 lg:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </button>
@@ -591,7 +591,7 @@ export default function AkunPage() {
           <button
             onClick={() => openModal("logout-confirm")}
             disabled={isLoggingOut}
-            className="w-full flex items-center justify-center gap-2.5 bg-rose-50 hover:bg-rose-100 active:bg-rose-200 border border-rose-100 text-rose-500 font-semibold text-sm py-4 rounded-2xl transition disabled:opacity-60"
+            className="flex w-full items-center justify-center gap-2.5 rounded-2xl border border-rose-100 bg-rose-50 py-4 text-sm font-semibold text-rose-500 transition hover:bg-rose-100 active:bg-rose-200 disabled:opacity-60 lg:border-rose-500/20 lg:bg-rose-500/10 lg:text-rose-100 lg:hover:bg-rose-500/15"
           >
             {isLoggingOut ? (
               <>
@@ -614,7 +614,7 @@ export default function AkunPage() {
           </button>
 
           {/* App version */}
-          <p className="text-center text-[11px] text-slate-300 -mt-1 mb-2">
+          <p className="-mt-1 mb-2 text-center text-[11px] text-slate-300 lg:text-slate-500">
             {siteName} v1.0.0 · PPOB &amp; Top Up Game
           </p>
         </div>

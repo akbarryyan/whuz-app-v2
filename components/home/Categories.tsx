@@ -45,15 +45,12 @@ export default function Categories({ activeCategory, onCategoryChange }: Categor
 
   return (
     <div
-      className={`bg-white border-b border-slate-200 transition-all duration-300 ${
-        isSticky ? "sticky z-30 shadow-md" : ""
+      className={`border-b border-slate-200 bg-white transition-all duration-300 lg:border-0 lg:bg-transparent ${
+        isSticky ? "sticky top-[52px] z-30 shadow-md lg:top-auto lg:shadow-none" : ""
       }`}
-      style={{
-        top: isSticky ? "52px" : "0",
-      }}
     >
-      <div className="overflow-x-auto hide-scrollbar">
-        <div className="flex gap-6 px-4 relative">
+      <div className="overflow-x-auto hide-scrollbar lg:overflow-visible">
+        <div className="relative flex gap-6 px-4 lg:flex-wrap lg:items-center lg:justify-start lg:gap-4 lg:px-0 lg:py-0">
           {categories.map((category, idx) => (
             <button
               key={idx}
@@ -61,10 +58,10 @@ export default function Categories({ activeCategory, onCategoryChange }: Categor
                 tabsRef.current[idx] = el;
               }}
               onClick={() => onCategoryChange(category.value)}
-              className={`py-3 text-sm font-medium whitespace-nowrap transition-all duration-300 relative flex-shrink-0 ${
+              className={`relative flex-shrink-0 whitespace-nowrap py-3 text-sm font-medium transition-all duration-300 lg:rounded-full lg:px-8 lg:py-3 lg:text-[15px] lg:font-semibold ${
                 resolvedIdx === idx
-                  ? "text-purple-600 scale-105"
-                  : "text-slate-500 hover:text-slate-700"
+                  ? "scale-105 text-purple-600 lg:scale-100 lg:bg-[#2E5F95] lg:text-white"
+                  : "text-slate-500 hover:text-slate-700 lg:bg-[#232B36] lg:text-white lg:hover:bg-[#2a3441]"
               }`}
             >
               {category.label}
@@ -72,7 +69,7 @@ export default function Categories({ activeCategory, onCategoryChange }: Categor
           ))}
           {/* Animated underline */}
           <div
-            className="absolute bottom-0 h-0.5 bg-purple-600 transition-all duration-300 ease-out"
+            className="absolute bottom-0 h-0.5 bg-purple-600 transition-all duration-300 ease-out lg:hidden"
             style={{
               left: `${underlineStyle.left}px`,
               width: `${underlineStyle.width}px`,
