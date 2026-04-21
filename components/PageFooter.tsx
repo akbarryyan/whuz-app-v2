@@ -64,9 +64,9 @@ export default function PageFooter() {
   };
 
   return (
-    <footer className="bg-white border-t border-slate-100 px-5 pt-6 pb-28">
+    <footer className="border-t border-slate-100 bg-white px-5 pt-6 pb-28 lg:rounded-[28px] lg:border-white/10 lg:bg-white/[0.04] lg:px-7 lg:pt-7 lg:pb-12">
       {/* Logo + tagline */}
-      <div className="mb-4">
+      <div className="mb-4 lg:mb-6">
         {logoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={logoUrl} alt={siteName} className="h-10 w-auto object-contain mb-2" />
@@ -75,38 +75,38 @@ export default function PageFooter() {
             <div className="bg-[#003D99] rounded-lg px-2 py-1">
               <span className="text-white font-bold text-sm tracking-wide">{getBrandInitials(siteName)}</span>
             </div>
-            <span className="text-slate-800 font-bold text-base">{siteName}</span>
+            <span className="text-slate-800 font-bold text-base lg:text-white">{siteName}</span>
           </div>
         )}
-        <p className="text-[11px] text-slate-500 font-semibold leading-snug">{tagline}</p>
+        <p className="text-[11px] text-slate-500 font-semibold leading-snug lg:max-w-xl lg:text-slate-300">{tagline}</p>
       </div>
 
-      <div className="mb-5 space-y-4">
+      <div className="mb-5 space-y-4 lg:grid lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1.8fr)] lg:gap-10 lg:space-y-0">
         <div>
-          <p className="text-[11px] font-bold text-slate-700 mb-2">Pengunjung</p>
+          <p className="text-[11px] font-bold text-slate-700 mb-2 lg:text-slate-100">Pengunjung</p>
           <div className="grid grid-cols-3 gap-2 text-[10px] text-slate-600">
-            <div className="rounded-xl bg-slate-50 px-3 py-2 text-center">
-              <p>Vis. today</p>
-              <p className="mt-1 font-bold text-slate-800">{visitorStats.visitorsToday.toLocaleString("id-ID")}</p>
+            <div className="rounded-xl bg-slate-50 px-3 py-2 text-center lg:bg-white/5">
+              <p className="lg:text-slate-400">Vis. today</p>
+              <p className="mt-1 font-bold text-slate-800 lg:text-white">{visitorStats.visitorsToday.toLocaleString("id-ID")}</p>
             </div>
-            <div className="rounded-xl bg-slate-50 px-3 py-2 text-center">
-              <p>Visits</p>
-              <p className="mt-1 font-bold text-slate-800">{visitorStats.totalVisits.toLocaleString("id-ID")}</p>
+            <div className="rounded-xl bg-slate-50 px-3 py-2 text-center lg:bg-white/5">
+              <p className="lg:text-slate-400">Visits</p>
+              <p className="mt-1 font-bold text-slate-800 lg:text-white">{visitorStats.totalVisits.toLocaleString("id-ID")}</p>
             </div>
-            <div className="rounded-xl bg-slate-50 px-3 py-2 text-center">
-              <p>Pag. today</p>
-              <p className="mt-1 font-bold text-slate-800">{visitorStats.pagesToday.toLocaleString("id-ID")}</p>
+            <div className="rounded-xl bg-slate-50 px-3 py-2 text-center lg:bg-white/5">
+              <p className="lg:text-slate-400">Pag. today</p>
+              <p className="mt-1 font-bold text-slate-800 lg:text-white">{visitorStats.pagesToday.toLocaleString("id-ID")}</p>
             </div>
           </div>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-3 lg:grid lg:grid-cols-2 lg:gap-x-8 lg:gap-y-5 lg:space-y-0">
           {footerColumns.map((column) => (
             <div key={column.title}>
-              <p className="text-[11px] font-bold text-slate-700 mb-1">{column.title}</p>
+              <p className="text-[11px] font-bold text-slate-700 mb-1 lg:text-slate-100">{column.title}</p>
               <div className="flex flex-col gap-1">
                 {column.links.map((link) => (
-                  <a key={`${column.title}-${link.label}-${link.href}`} href={link.href} className="text-[12px] font-semibold text-[#6A7389] hover:text-slate-700 transition-colors">
+                  <a key={`${column.title}-${link.label}-${link.href}`} href={link.href} className="text-[12px] font-semibold text-[#6A7389] transition-colors hover:text-slate-700 lg:text-slate-300 lg:hover:text-white">
                     {link.label}
                   </a>
                 ))}
@@ -117,22 +117,22 @@ export default function PageFooter() {
       </div>
 
       {/* Help card */}
-      <a href="/pusat-bantuan" className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 mb-5 hover:bg-slate-100 transition-colors">
+      <a href="/pusat-bantuan" className="mb-5 flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 transition-colors hover:bg-slate-100 lg:border-white/10 lg:bg-white/5 lg:hover:bg-white/[0.08]">
         <div className="w-9 h-9 rounded-full bg-[#003D99] flex items-center justify-center flex-shrink-0">
           <span className="text-white text-lg font-bold">?</span>
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[11px] text-slate-500 leading-none mb-0.5">Punya Pertanyaan?</p>
-          <p className="text-[12px] text-[#003D99] font-semibold">
+          <p className="mb-0.5 text-[11px] leading-none text-slate-500 lg:text-slate-400">Punya Pertanyaan?</p>
+          <p className="text-[12px] font-semibold text-[#003D99] lg:text-blue-300">
             Cek Pusat Bantuan{" "}
-            <span className="text-[#003D99]">&rsaquo;</span>
+            <span className="text-[#003D99] lg:text-blue-300">&rsaquo;</span>
           </p>
         </div>
       </a>
 
       {/* Payment methods — from footer config (same as home Footer) */}
       <div className="mb-2">
-        <p className="text-[11px] font-bold text-slate-700">Pembayaran Lengkap</p>
+        <p className="text-[11px] font-bold text-slate-700 lg:text-slate-100">Pembayaran Lengkap</p>
         <div className="flex flex-wrap gap-2 items-center">
           {paymentMethods.map((pm) =>
             pm.img ? (
@@ -147,7 +147,7 @@ export default function PageFooter() {
             ) : (
               <span
                 key={pm.name}
-                className="bg-slate-200 text-slate-700 rounded-lg px-3 py-1.5 text-[10px] font-bold tracking-wide"
+                className="rounded-lg bg-slate-200 px-3 py-1.5 text-[10px] font-bold tracking-wide text-slate-700 lg:bg-white/8 lg:text-slate-100"
               >
                 {pm.name}
               </span>
@@ -157,9 +157,9 @@ export default function PageFooter() {
       </div>
 
       {/* Copyright */}
-      <div className="border-t border-slate-100 pt-4">
+      <div className="border-t border-slate-100 pt-4 lg:border-white/10">
         {copyright.split("\n").map((line, i) => (
-          <p key={i} className="text-[10px] text-slate-400 leading-relaxed">{line}</p>
+          <p key={i} className="text-[10px] leading-relaxed text-slate-400 lg:text-slate-500">{line}</p>
         ))}
       </div>
     </footer>
