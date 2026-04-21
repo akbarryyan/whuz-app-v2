@@ -638,7 +638,7 @@ export default function BrandDetailPage({
           <BannerCarousel />
 
           {/* == Brand Hero Section == */}
-          <div className="bg-white px-4 pt-4 pb-4 border-b border-slate-100 -mt-3 lg:mx-auto lg:w-full lg:max-w-6xl lg:rounded-[28px] lg:border lg:border-white/10 lg:bg-white/[0.04] lg:px-6 lg:pt-5 lg:pb-5">
+          <div className="bg-white px-4 pt-4 pb-4 border-b border-slate-100 -mt-3 lg:mx-auto lg:mt-6 lg:w-full lg:max-w-6xl lg:rounded-[28px] lg:border lg:border-white/10 lg:bg-white/[0.04] lg:px-6 lg:pt-5 lg:pb-5">
             {/* Breadcrumb */}
             <div className="flex items-center justify-between gap-2 mb-3 lg:mb-4">
               <div className="flex min-w-0 flex-wrap items-center gap-1 text-[11px] text-slate-400 lg:text-[12px]">
