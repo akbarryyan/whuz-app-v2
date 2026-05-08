@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import NotificationDropdown from "@/components/ui/NotificationDropdown";
 
@@ -15,6 +16,7 @@ interface AppHeaderProps {
 export default function AppHeader({ onBack }: AppHeaderProps) {
   const [logoUrl, setLogoUrl] = useState("");
   const [siteName, setSiteName] = useState("Website");
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifUnread, setNotifUnread] = useState(0);
@@ -26,6 +28,12 @@ export default function AppHeader({ onBack }: AppHeaderProps) {
       .then((d) => {
         if (d.data?.site_logo) setLogoUrl(d.data.site_logo);
         if (d.data?.site_name) setSiteName(d.data.site_name);
+      })
+      .catch(() => {});
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d?.isLoggedIn && d?.user?.role) setUserRole(d.user.role);
       })
       .catch(() => {});
     fetch("/api/tickets/unread-count")
@@ -69,7 +77,15 @@ export default function AppHeader({ onBack }: AppHeaderProps) {
         <div className="flex-1" />
 
         {/* Right icons */}
-        <div className="flex items-center flex-shrink-0">
+        <div className="flex items-center flex-shrink-0 gap-1.5 lg:gap-2">
+          {userRole === "ADMIN" && (
+            <Link
+              href="/admin"
+              className="hidden lg:inline-flex items-center rounded-full border border-white/12 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+            >
+              Dashboard Admin
+            </Link>
+          )}
           {/* Chat / CS */}
           <a
             href="/tickets"
