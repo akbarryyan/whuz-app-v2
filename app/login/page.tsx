@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Quicksand } from "@/lib/fonts";
 import { useToast } from "@/hooks/useToast";
@@ -751,12 +752,115 @@ export default function LoginPage() {
   // ===================== RENDER =====================
 
   return (
-    <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5]`}>
+    <div className={`${quicksand.className} min-h-screen bg-[#F5F5F5] lg:bg-[#161B22]`}>
       <ToastContainer toasts={toast.toasts} onRemove={toast.removeToast} />
 
-      <div className="relative w-full max-w-[480px] min-h-screen bg-white shadow-2xl flex flex-col">
-        <div className="flex-1 px-6 flex items-center">
-          <div className="w-full bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+      <div className="mx-auto flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-transparent lg:px-8 lg:py-10 lg:shadow-none">
+        <div className="flex min-h-screen flex-col lg:min-h-[calc(100vh-5rem)] lg:flex-row lg:items-stretch lg:gap-12">
+          <div className="hidden flex-1 flex-col justify-between rounded-[36px] border border-white/8 bg-[linear-gradient(155deg,#1d2430_0%,#171d25_55%,#121821_100%)] px-10 py-10 text-white shadow-[0_32px_90px_rgba(0,0,0,0.28)] lg:flex">
+            <div className="space-y-8">
+              <div className="flex items-center justify-between">
+                <Link
+                  href="/"
+                  className="inline-flex items-center gap-3 text-white transition hover:text-blue-100"
+                >
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-lg font-bold tracking-wide">
+                    {siteName.slice(0, 2).toUpperCase()}
+                  </span>
+                  <span>
+                    <span className="block text-xl font-bold tracking-tight">{siteName}</span>
+                    <span className="block text-sm text-blue-100/70">Masuk dan mulai transaksi lebih cepat</span>
+                  </span>
+                </Link>
+
+                <div className="flex items-center gap-3">
+                  <Link
+                    href="/"
+                    className="rounded-full border border-white/12 px-4 py-2 text-sm font-semibold text-blue-50 transition hover:border-white/20 hover:bg-white/6"
+                  >
+                    Kembali ke Beranda
+                  </Link>
+                </div>
+              </div>
+
+              <div className="max-w-2xl space-y-5 pt-8">
+                <span className="inline-flex rounded-full border border-blue-300/20 bg-blue-400/12 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-blue-100/85">
+                  Portal Member & Merchant
+                </span>
+                <div className="space-y-4">
+                  <h1 className="max-w-2xl text-5xl font-bold leading-[1.08] tracking-tight text-white">
+                    Akses akun {siteName} dengan pengalaman yang lebih nyaman di layar besar.
+                  </h1>
+                  <p className="max-w-xl text-lg leading-8 text-slate-300">
+                    Login untuk melanjutkan transaksi, cek pesanan, kelola wallet, atau daftar akun
+                    baru tanpa mengubah pengalaman mobile yang sudah berjalan baik.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid max-w-3xl grid-cols-3 gap-4 pt-6">
+                {[
+                  {
+                    title: "Transaksi lebih cepat",
+                    copy: "Lanjutkan checkout, top up, dan pembelian tanpa pindah perangkat.",
+                  },
+                  {
+                    title: "Akses riwayat akun",
+                    copy: "Pantau order, saldo, dan voucher langsung dari satu tempat.",
+                  },
+                  {
+                    title: "Registrasi tetap ringan",
+                    copy: "Tampilan besar, tapi alur daftar dan OTP tetap familiar.",
+                  },
+                ].map((item) => (
+                  <div
+                    key={item.title}
+                    className="rounded-3xl border border-white/8 bg-white/[0.04] p-5 backdrop-blur-sm"
+                  >
+                    <p className="text-sm font-semibold text-white">{item.title}</p>
+                    <p className="mt-2 text-sm leading-6 text-slate-300">{item.copy}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid max-w-3xl grid-cols-3 gap-4">
+              {[
+                { label: "OTP fleksibel", value: "Email / WhatsApp" },
+                { label: "Akses akun", value: "Member & Merchant" },
+                { label: "Tampilan", value: "Desktop & Mobile" },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="rounded-3xl border border-white/8 bg-black/10 px-5 py-4"
+                >
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-100/55">
+                    {item.label}
+                  </p>
+                  <p className="mt-2 text-base font-semibold text-white">{item.value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex w-full items-center lg:max-w-[540px]">
+            <div className="w-full bg-white lg:rounded-[36px] lg:border lg:border-white/10 lg:p-4 lg:shadow-[0_32px_90px_rgba(0,0,0,0.3)]">
+              <div className="overflow-hidden bg-white lg:rounded-[28px] lg:border lg:border-slate-100">
+                <div className="hidden border-b border-slate-100 px-8 py-6 lg:block">
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#003D99]">
+                    Akun {siteName}
+                  </p>
+                  <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">
+                    {activeTab === "login" ? "Masuk ke akun kamu" : "Daftar akun baru"}
+                  </h2>
+                  <p className="mt-2 text-sm leading-6 text-slate-500">
+                    Gunakan WhatsApp atau email untuk melanjutkan akses akun dengan aman.
+                  </p>
+                </div>
+
+                <div className="px-2 py-2">
+        <div className="flex flex-1 items-center px-6 py-6 lg:px-8 lg:py-8">
+          <div className="w-full bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden lg:rounded-[24px] lg:border-0 lg:shadow-none">
             {/* ---- Top Tab Switcher (Masuk / Daftar) ---- */}
             <div className="flex border-b border-slate-100">
               {(["login", "register"] as Tab[]).map((tab) => (
@@ -1288,6 +1392,12 @@ export default function LoginPage() {
             </div>
           </div>
         </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );

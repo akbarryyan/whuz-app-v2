@@ -16,6 +16,9 @@ export async function GET() {
     if (!summary.hasIntegratorToken) missing.push("POPPAY_INTEGRATOR_TOKEN");
     if (!summary.hasAggregatorCode) missing.push("POPPAY_AGGREGATOR_CODE");
     if (!summary.hasMerchantAccountNumber) missing.push("POPPAY_MERCHANT_ACCOUNT_NUMBER");
+    if (summary.hasMerchantAccountNumber && !summary.hasValidMerchantAccountNumber) {
+      missing.push("POPPAY_MERCHANT_ACCOUNT_NUMBER tidak valid");
+    }
     if (!summary.hasSecretKey) missing.push("POPPAY_SECRET_KEY");
     if (!summary.hasEmail) missing.push("POPPAY_EMAIL");
     if (!summary.hasPassword) missing.push("POPPAY_PASSWORD");

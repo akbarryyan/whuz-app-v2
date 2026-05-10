@@ -160,6 +160,8 @@ export interface PoppayDebugConfigSummary {
   hasIntegratorToken: boolean;
   hasAggregatorCode: boolean;
   hasMerchantAccountNumber: boolean;
+  merchantAccountNumberPreview?: string | null;
+  hasValidMerchantAccountNumber: boolean;
   hasSecretKey: boolean;
   hasEmail: boolean;
   hasPassword: boolean;
@@ -202,6 +204,22 @@ function buildPoppayVersionPath(value: string): string {
     .replace(/\/+$/, "");
 }
 
+function normalizePoppayMerchantAccountNumber(value: string): string {
+  return value.trim().replace(/[^\d]/g, "");
+}
+
+function parsePoppayMerchantAccountNumber(value: string): number | null {
+  const normalized = normalizePoppayMerchantAccountNumber(value);
+  if (!normalized) return null;
+
+  const parsed = Number(normalized);
+  if (!Number.isFinite(parsed) || !Number.isSafeInteger(parsed) || parsed <= 0) {
+    return null;
+  }
+
+  return parsed;
+}
+
 async function getPoppayRuntimeConfig(): Promise<PoppayRuntimeConfig> {
   const [
     dbApiBaseUrl,
@@ -238,7 +256,9 @@ async function getPoppayRuntimeConfig(): Promise<PoppayRuntimeConfig> {
     versionPath: buildPoppayVersionPath(dbVersion || process.env.POPPAY_VERSION || ""),
     integratorToken: (dbIntegratorToken || process.env.POPPAY_INTEGRATOR_TOKEN || "").trim(),
     aggregatorCode: (dbAggregatorCode || process.env.POPPAY_AGGREGATOR_CODE || "").trim(),
-    merchantAccountNumber: (dbMerchantAccountNumber || process.env.POPPAY_MERCHANT_ACCOUNT_NUMBER || "").trim(),
+    merchantAccountNumber: normalizePoppayMerchantAccountNumber(
+      dbMerchantAccountNumber || process.env.POPPAY_MERCHANT_ACCOUNT_NUMBER || ""
+    ),
     secretKey: (dbSecretKey || process.env.POPPAY_SECRET_KEY || "").trim(),
     email: (dbEmail || process.env.POPPAY_EMAIL || "").trim(),
     password: (dbPassword || process.env.POPPAY_PASSWORD || "").trim(),
@@ -260,12 +280,18 @@ export async function isPoppayConfigured(): Promise<boolean> {
 
 export async function getPoppayDebugConfigSummary(): Promise<PoppayDebugConfigSummary> {
   const cfg = await getPoppayRuntimeConfig();
+  const merchantAccountNumber = cfg.merchantAccountNumber;
+  const merchantAccountNumberPreview = merchantAccountNumber
+    ? `${merchantAccountNumber.slice(0, 3)}...${merchantAccountNumber.slice(-4)}`
+    : null;
   return {
     baseUrl: cfg.baseUrl,
     versionPath: cfg.versionPath,
     hasIntegratorToken: Boolean(cfg.integratorToken),
     hasAggregatorCode: Boolean(cfg.aggregatorCode),
-    hasMerchantAccountNumber: Boolean(cfg.merchantAccountNumber),
+    hasMerchantAccountNumber: Boolean(merchantAccountNumber),
+    merchantAccountNumberPreview,
+    hasValidMerchantAccountNumber: parsePoppayMerchantAccountNumber(merchantAccountNumber) !== null,
     hasSecretKey: Boolean(cfg.secretKey),
     hasEmail: Boolean(cfg.email),
     hasPassword: Boolean(cfg.password),
@@ -476,15 +502,17 @@ export class PoppayClient {
     const config = await this.requireConfig();
     const endpoint = `${config.baseUrl}/${config.versionPath}/transaction/in/create`;
     const aggCode = config.aggregatorCode;
-    const merchantAccNum = config.merchantAccountNumber;
+    const merchantAccNum = parsePoppayMerchantAccountNumber(config.merchantAccountNumber);
 
     if (!aggCode || !merchantAccNum) {
-      throw new Error("POPPAY_AGGREGATOR_CODE dan POPPAY_MERCHANT_ACCOUNT_NUMBER wajib diisi.");
+      throw new Error(
+        "POPPAY_AGGREGATOR_CODE dan POPPAY_MERCHANT_ACCOUNT_NUMBER wajib diisi dengan nilai yang valid."
+      );
     }
 
     const payload = {
       agg_code: aggCode,
-      merchant_acc_num: Number(merchantAccNum),
+      merchant_acc_num: merchantAccNum,
       agg_ref_id: input.aggRefId,
       notes: input.notes,
       amount: input.amount,
@@ -531,15 +559,17 @@ export class PoppayClient {
     const config = await this.requireConfig();
     const endpoint = `${config.baseUrl}/${config.versionPath}/transaction/out/create`;
     const aggCode = config.aggregatorCode;
-    const merchantAccNum = config.merchantAccountNumber;
+    const merchantAccNum = parsePoppayMerchantAccountNumber(config.merchantAccountNumber);
 
     if (!aggCode || !merchantAccNum) {
-      throw new Error("POPPAY_AGGREGATOR_CODE dan POPPAY_MERCHANT_ACCOUNT_NUMBER wajib diisi.");
+      throw new Error(
+        "POPPAY_AGGREGATOR_CODE dan POPPAY_MERCHANT_ACCOUNT_NUMBER wajib diisi dengan nilai yang valid."
+      );
     }
 
     const payload = {
       agg_code: aggCode,
-      merchant_acc_num: Number(merchantAccNum),
+      merchant_acc_num: merchantAccNum,
       bank_code: input.bankCode.trim(),
       dst_acc_num: input.destinationAccountNumber.trim(),
       dst_name: input.destinationAccountName.trim(),
