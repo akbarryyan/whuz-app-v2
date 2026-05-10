@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Quicksand } from "@/lib/fonts";
 import Header from "@/components/home/Header";
 import BannerCarousel from "@/components/home/BannerCarousel";
@@ -16,6 +17,13 @@ const quicksand = Quicksand({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
 });
+
+interface SessionUser {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+}
 
 /* ────────────────────────────────────────────────────────── */
 /*  Skeleton placeholder shown while the page is "loading"   */
@@ -102,11 +110,17 @@ function HomeSkeleton() {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeTypeGroup, setActiveTypeGroup] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const [siteName, setSiteName] = useState("Website");
   const [logoUrl, setLogoUrl] = useState("");
+  const [user, setUser] = useState<SessionUser | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -131,7 +145,51 @@ export default function Home() {
         if (d.data?.site_logo) setLogoUrl(d.data.site_logo);
       })
       .catch(() => {});
+
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d?.isLoggedIn && d?.user) setUser(d.user);
+      })
+      .catch(() => {})
+      .finally(() => setAuthChecked(true));
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setProfileOpen(false);
+      }
+    };
+
+    if (profileOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [profileOpen]);
+
+  const userInitials = user?.name
+    ? user.name
+        .split(" ")
+        .map((word) => word[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase()
+    : "U";
+
+  const handleLogout = async () => {
+    if (loggingOut) return;
+    setLoggingOut(true);
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      setUser(null);
+      setProfileOpen(false);
+      router.refresh();
+    } finally {
+      setLoggingOut(false);
+    }
+  };
 
   return (
     <div className={`${quicksand.className} flex min-h-screen w-full overflow-x-hidden justify-center bg-[#F5F5F5] lg:block`}>
@@ -254,12 +312,98 @@ export default function Home() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <Link href="/login" className="rounded-full border border-white/12 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">
-                    Masuk
-                  </Link>
-                  <Link href="/register" className="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-[#003D99] transition hover:bg-blue-50">
-                    Daftar
-                  </Link>
+                  {authChecked && user ? (
+                    <div className="relative" ref={profileRef}>
+                      <button
+                        type="button"
+                        onClick={() => setProfileOpen((open) => !open)}
+                        className="inline-flex items-center gap-3 rounded-full border border-white/12 bg-white/5 px-3 py-2 text-left text-white transition hover:bg-white/10"
+                      >
+                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-bold text-[#003D99]">
+                          {userInitials}
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block max-w-[180px] truncate text-sm font-semibold">
+                            {user.name || user.email}
+                          </span>
+                          <span className="block text-xs text-blue-100/70">
+                            {user.role === "ADMIN" ? "Administrator" : "Akun aktif"}
+                          </span>
+                        </span>
+                        <svg
+                          className={`h-4 w-4 text-blue-100/70 transition-transform ${profileOpen ? "rotate-180" : ""}`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+
+                      {profileOpen && (
+                        <div className="absolute right-0 top-[calc(100%+12px)] z-50 w-56 rounded-2xl border border-white/10 bg-[#1C232D] p-2 shadow-[0_18px_60px_rgba(0,0,0,0.28)]">
+                          {user.role === "ADMIN" ? (
+                            <>
+                              <Link
+                                href="/admin"
+                                onClick={() => setProfileOpen(false)}
+                                className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/6"
+                              >
+                                <svg className="h-4 w-4 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 13h8V3H3v10zm10 8h8V11h-8v10zM3 21h8v-6H3v6zm10-10h8V3h-8v8z" />
+                                </svg>
+                                Dashboard Admin
+                              </Link>
+                              <button
+                                type="button"
+                                onClick={handleLogout}
+                                disabled={loggingOut}
+                                className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold text-red-300 transition hover:bg-red-500/10 disabled:opacity-60"
+                              >
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                                {loggingOut ? "Logging out..." : "Logout"}
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <Link
+                                href="/akun"
+                                onClick={() => setProfileOpen(false)}
+                                className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/6"
+                              >
+                                <svg className="h-4 w-4 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                Profile
+                              </Link>
+                              <button
+                                type="button"
+                                onClick={handleLogout}
+                                disabled={loggingOut}
+                                className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold text-red-300 transition hover:bg-red-500/10 disabled:opacity-60"
+                              >
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                                {loggingOut ? "Logging out..." : "Logout"}
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <>
+                      <Link href="/login" className="rounded-full border border-white/12 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">
+                        Masuk
+                      </Link>
+                      <Link href="/register" className="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-[#003D99] transition hover:bg-blue-50">
+                        Daftar
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
 
