@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Quicksand } from "@/lib/fonts";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/ui/Toast";
@@ -306,6 +306,7 @@ const PasswordField = ({
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const toast = useToast();
   const otpEnabled = isOtpAuthEnabledClient;
 
@@ -343,6 +344,21 @@ export default function LoginPage() {
   const [regStep, setRegStep] = useState<"form" | "otp">("form");
   const [regOtp, setRegOtp] = useState(["", "", "", "", "", ""]);
   const [regCountdown, setRegCountdown] = useState(0);
+
+  useEffect(() => {
+    const requestedTab = searchParams.get("tab");
+    if (requestedTab === "register") {
+      setActiveTab("register");
+      setRegStep("form");
+      setRegOtp(["", "", "", "", "", ""]);
+      return;
+    }
+    if (requestedTab === "login") {
+      setActiveTab("login");
+      setLoginStep("credentials");
+      setLoginOtp(["", "", "", "", "", ""]);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     fetch("/api/site-branding")
