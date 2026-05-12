@@ -34,6 +34,7 @@ export async function GET(request: Request) {
         skip,
         take: limit,
         select: {
+          id: true,
           orderCode: true,
           status: true,
           amount: true,
@@ -66,6 +67,7 @@ export async function GET(request: Request) {
         skip,
         take: limit,
         select: {
+          id: true,
           orderCode: true,
           status: true,
           amount: true,
