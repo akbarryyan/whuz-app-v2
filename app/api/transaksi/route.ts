@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/src/infra/db/prisma";
 import { syncExpiredOrdersForUser } from "@/src/core/services/order/sync-expired-orders.service";
+import { autoReconcileOrderNow } from "@/src/core/services/provider/reconcile-scheduler.service";
 
 // Status grup per tab
 const TAB_STATUSES: Record<string, string[]> = {
@@ -45,7 +46,7 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    const [total, orders] = await Promise.all([
+    let [total, orders] = await Promise.all([
       prisma.order.count({ where }),
       prisma.order.findMany({
         where,
@@ -72,6 +73,38 @@ export async function GET(req: NextRequest) {
         },
       }),
     ]);
+
+    const reconcileCandidates = orders
+      .filter((order) => order.status === "PAID" || order.status === "PROCESSING_PROVIDER")
+      .slice(0, 5);
+
+    if (reconcileCandidates.length > 0) {
+      await Promise.allSettled(reconcileCandidates.map((order) => autoReconcileOrderNow(order.id)));
+      orders = await prisma.order.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          orderCode: true,
+          status: true,
+          amount: true,
+          paymentMethod: true,
+          targetNumber: true,
+          serialNumber: true,
+          createdAt: true,
+          product: {
+            select: {
+              id: true,
+              name: true,
+              brand: true,
+              category: true,
+            },
+          },
+        },
+      });
+    }
 
     return NextResponse.json({
       success: true,

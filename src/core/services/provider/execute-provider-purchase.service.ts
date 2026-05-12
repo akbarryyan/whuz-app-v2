@@ -3,6 +3,7 @@ import { ProviderFactory } from "@/src/infra/providers/provider.factory";
 import { ProviderType } from "@/src/core/domain/enums/provider.enum";
 import { OrderStatus } from "@/src/core/domain/enums/order.enum";
 import { checkAndUpgradeUserTier } from "@/lib/pricing";
+import { scheduleOrderReconcile } from "./reconcile-scheduler.service";
 
 /**
  * ExecuteProviderPurchaseService
@@ -156,6 +157,7 @@ export class ExecuteProviderPurchaseService {
       await this.orderRepo.updateStatus(orderId, OrderStatus.PROCESSING_PROVIDER, {
         providerRef: result.transactionId,
       });
+      scheduleOrderReconcile(orderId);
 
       console.log(`[Execute] Order ${orderId} PENDING — providerRef=${result.transactionId}. Admin bisa reconcile manual.`);
     } else {

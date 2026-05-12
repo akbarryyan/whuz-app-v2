@@ -12,6 +12,7 @@ import crypto from "crypto";
 import { OrderRepository } from "@/src/infra/db/repositories/order.repository";
 import { getSession } from "@/lib/session";
 import { syncExpiredOrderByCode } from "@/src/core/services/order/sync-expired-orders.service";
+import { autoReconcileOrderNow } from "@/src/core/services/provider/reconcile-scheduler.service";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +30,7 @@ export async function GET(
     await syncExpiredOrderByCode(code);
 
     // ── Fetch order ────────────────────────────────────────────────────────
-    const order = await orderRepo.findByCode(code);
+    let order = await orderRepo.findByCode(code);
 
     if (!order) {
       return NextResponse.json({ success: false, error: "Order not found" }, { status: 404 });
@@ -56,6 +57,13 @@ export async function GET(
       const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
       if (!order.viewTokenHash || order.viewTokenHash !== tokenHash) {
         return NextResponse.json({ success: false, error: "Invalid token" }, { status: 403 });
+      }
+    }
+
+    if (order.status === "PAID" || order.status === "PROCESSING_PROVIDER") {
+      const reconciled = await autoReconcileOrderNow(order.id);
+      if (reconciled) {
+        order = reconciled;
       }
     }
 

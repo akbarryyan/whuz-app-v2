@@ -9,6 +9,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
 import { getSession } from "@/lib/session";
 import { syncExpiredOrdersForUser } from "@/src/core/services/order/sync-expired-orders.service";
+import { autoReconcileOrderNow } from "@/src/core/services/provider/reconcile-scheduler.service";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +27,7 @@ export async function GET(request: Request) {
     const limit = Math.min(50, Math.max(1, Number(searchParams.get("limit") ?? 10)));
     const skip = (page - 1) * limit;
 
-    const [orders, total] = await Promise.all([
+    let [orders, total] = await Promise.all([
       prisma.order.findMany({
         where: { userId: session.userId },
         orderBy: { createdAt: "desc" },
@@ -52,6 +53,37 @@ export async function GET(request: Request) {
       }),
       prisma.order.count({ where: { userId: session.userId } }),
     ]);
+
+    const reconcileCandidates = orders
+      .filter((order) => order.status === "PAID" || order.status === "PROCESSING_PROVIDER")
+      .slice(0, 5);
+
+    if (reconcileCandidates.length > 0) {
+      await Promise.allSettled(reconcileCandidates.map((order) => autoReconcileOrderNow(order.id)));
+      orders = await prisma.order.findMany({
+        where: { userId: session.userId },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+        select: {
+          orderCode: true,
+          status: true,
+          amount: true,
+          fee: true,
+          paymentMethod: true,
+          notes: true,
+          serialNumber: true,
+          createdAt: true,
+          updatedAt: true,
+          product: {
+            select: { name: true, brand: true, category: true },
+          },
+          paymentInvoice: {
+            select: { status: true, method: true, paymentUrl: true, expiredAt: true, paidAt: true },
+          },
+        },
+      });
+    }
 
     return NextResponse.json({
       success: true,
