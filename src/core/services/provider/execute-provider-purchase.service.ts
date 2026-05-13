@@ -84,11 +84,37 @@ export class ExecuteProviderPurchaseService {
     const provider = ProviderFactory.create(providerType);
 
     // Build purchase request
+    const rawTargetData = ((order.targetData as Record<string, unknown>) ?? {});
+    const normalizedTargetData: Record<string, unknown> = {
+      ...rawTargetData,
+    };
+
+    if (
+      (normalizedTargetData.zone === undefined || normalizedTargetData.zone === null || normalizedTargetData.zone === "") &&
+      (rawTargetData.zoneId !== undefined && rawTargetData.zoneId !== null && rawTargetData.zoneId !== "")
+    ) {
+      normalizedTargetData.zone = rawTargetData.zoneId;
+    }
+
+    if (
+      (normalizedTargetData.server_id === undefined || normalizedTargetData.server_id === null || normalizedTargetData.server_id === "") &&
+      (rawTargetData.serverId !== undefined && rawTargetData.serverId !== null && rawTargetData.serverId !== "")
+    ) {
+      normalizedTargetData.server_id = rawTargetData.serverId;
+    }
+
+    if (
+      (normalizedTargetData.user_id === undefined || normalizedTargetData.user_id === null || normalizedTargetData.user_id === "") &&
+      (rawTargetData.userId !== undefined && rawTargetData.userId !== null && rawTargetData.userId !== "")
+    ) {
+      normalizedTargetData.user_id = rawTargetData.userId;
+    }
+
     const purchaseReq = {
       productCode: order.product.providerCode,
       target: order.targetNumber,
       additionalData: {
-        ...(((order.targetData as Record<string, unknown>) ?? {})),
+        ...normalizedTargetData,
         // Pass product type so adapters can route to the correct endpoint
         _productType: order.product.type,
       },

@@ -175,8 +175,13 @@ export class VipResellerAdapter implements IProviderPort {
       await this.ensureConfig();
       const sign = this.sign || this.generateSignature();
       const productType = request.additionalData?._productType as string | undefined;
+      const zoneValue =
+        request.additionalData?.zone ??
+        request.additionalData?.zoneId ??
+        request.additionalData?.server_id ??
+        request.additionalData?.serverId;
       const isJoki = productType === "joki";
-      const isGame = !isJoki && (!!(request.additionalData?.zone) || productType === "game");
+      const isGame = !isJoki && (!!zoneValue || productType === "game");
       const refId = isJoki
         ? `JOKI-VIP-${Date.now()}`
         : isGame
@@ -213,7 +218,11 @@ export class VipResellerAdapter implements IProviderPort {
           ref_id: refId,
         };
         // Zone / server_id: only include if the game actually requires it
-        const zone = request.additionalData?.zone ?? request.additionalData?.server_id;
+        const zone =
+          request.additionalData?.zone ??
+          request.additionalData?.zoneId ??
+          request.additionalData?.server_id ??
+          request.additionalData?.serverId;
         if (zone !== undefined && zone !== null && zone !== "") {
           body.zone = String(zone);
         }
