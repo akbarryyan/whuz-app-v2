@@ -224,7 +224,9 @@ export class VipResellerAdapter implements IProviderPort {
           request.additionalData?.server_id ??
           request.additionalData?.serverId;
         if (zone !== undefined && zone !== null && zone !== "") {
-          body.zone = String(zone);
+          const normalizedZone = String(zone);
+          body.zone = normalizedZone;
+          body.data_zone = normalizedZone;
         }
       } else {
         // Prepaid (pulsa, paket data, token listrik, dll): POST /prepaid
