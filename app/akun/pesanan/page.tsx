@@ -80,7 +80,6 @@ function PesananPageContent() {
 
   // Search form for guests
   const [searchCode, setSearchCode] = useState("");
-  const [searchToken, setSearchToken] = useState("");
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
 
@@ -92,9 +91,9 @@ function PesananPageContent() {
       const loggedIn: boolean = meRes.isLoggedIn === true;
       setIsLoggedIn(loggedIn);
 
-      // Case 1: URL has orderCode + token → load single order (guest deep-link)
+      // Case 1: URL has orderCode (legacy token deep-link is still supported)
       if (orderCodeParam) {
-        await loadSingleOrder(orderCodeParam, tokenParam ?? undefined, loggedIn);
+        await loadSingleOrder(orderCodeParam, tokenParam ?? undefined);
         setLoading(false);
         return;
       }
@@ -113,7 +112,7 @@ function PesananPageContent() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loadSingleOrder = useCallback(async (code: string, token?: string, loggedIn?: boolean) => {
+  const loadSingleOrder = useCallback(async (code: string, token?: string) => {
     try {
       const qs = token ? `?token=${encodeURIComponent(token)}` : "";
       const res = await fetch(`/api/orders/${encodeURIComponent(code)}${qs}`);
@@ -145,8 +144,7 @@ function PesananPageContent() {
     setSearching(true);
     setSearchError(null);
     try {
-      const qs = searchToken.trim() ? `?token=${encodeURIComponent(searchToken.trim())}` : "";
-      const res = await fetch(`/api/orders/${encodeURIComponent(searchCode.trim())}${qs}`);
+      const res = await fetch(`/api/orders/${encodeURIComponent(searchCode.trim())}`);
       const data = await res.json();
       if (data.success) {
         setSingleOrder(data.data as OrderItem);
@@ -360,19 +358,6 @@ function PesananPageContent() {
               className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-mono text-slate-800 placeholder:text-slate-400 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100 transition"
             />
           </div>
-          <div>
-            <label className="text-xs text-slate-500 font-medium block mb-1">
-              Token Akses <span className="text-slate-400 font-normal">(opsional — dari email konfirmasi)</span>
-            </label>
-            <input
-              type="text"
-              value={searchToken}
-              onChange={(e) => setSearchToken(e.target.value)}
-              placeholder="Token keamanan pesanan guest"
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-mono text-slate-800 placeholder:text-slate-400 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100 transition"
-            />
-          </div>
-
           {searchError && (
             <div className="bg-red-50 border border-red-100 rounded-xl px-3 py-2">
               <p className="text-xs text-red-600 font-medium">{searchError}</p>
@@ -401,7 +386,7 @@ function PesananPageContent() {
       <div className="mt-4 text-center">
         <p className="text-xs text-slate-400 mb-2">Punya akun? Login untuk lihat semua pesanan</p>
         <button
-          onClick={() => router.push("/masuk")}
+          onClick={() => router.push("/login")}
           className="text-sm font-semibold text-purple-600 hover:text-purple-700"
         >
           Login Sekarang →

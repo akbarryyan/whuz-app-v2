@@ -1,8 +1,10 @@
 /**
  * GET /api/orders/[code]?token=<viewToken>
  *
- * For guest: requires ?token= (raw viewToken). Hash is computed and compared to DB.
- * For member: session userId must match order.userId.
+ * Supports:
+ * - owner/admin access via session
+ * - legacy guest deep-link access via token
+ * - public code lookup without login/token
  *
  * Rule: No business logic — parse/validate/query/respond.
  */
@@ -41,19 +43,14 @@ export async function GET(
     const sessionUserId = session.isLoggedIn ? session.userId : null;
 
     if (order.userId) {
-      // Member order — must be owner or admin
-      if (session.role !== "ADMIN" && sessionUserId !== order.userId) {
-        return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
+      const isOwnerOrAdmin = session.role === "ADMIN" || sessionUserId === order.userId;
+      if (!isOwnerOrAdmin && rawToken) {
+        const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
+        if (!order.viewTokenHash || order.viewTokenHash !== tokenHash) {
+          return NextResponse.json({ success: false, error: "Invalid token" }, { status: 403 });
+        }
       }
-    } else {
-      // Guest order — requires valid view token
-      if (!rawToken) {
-        return NextResponse.json(
-          { success: false, error: "Access token required for guest orders" },
-          { status: 401 }
-        );
-      }
-
+    } else if (rawToken) {
       const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
       if (!order.viewTokenHash || order.viewTokenHash !== tokenHash) {
         return NextResponse.json({ success: false, error: "Invalid token" }, { status: 403 });
