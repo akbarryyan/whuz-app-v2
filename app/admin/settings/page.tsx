@@ -101,6 +101,8 @@ export default function SettingsPage() {
   const [poppayPassword, setPoppayPassword] = useState("");
   const [paymentGatewayQrisFeeType, setPaymentGatewayQrisFeeType] = useState<"FIXED" | "PERCENT">("FIXED");
   const [paymentGatewayQrisFeeValue, setPaymentGatewayQrisFeeValue] = useState("0");
+  const [merchantPlatformFeeType, setMerchantPlatformFeeType] = useState<"FIXED" | "PERCENT">("FIXED");
+  const [merchantPlatformFeeValue, setMerchantPlatformFeeValue] = useState("0");
   const [showPoppayIntegratorToken, setShowPoppayIntegratorToken] = useState(false);
   const [showPoppaySecretKey, setShowPoppaySecretKey] = useState(false);
   const [showPoppayPassword, setShowPoppayPassword] = useState(false);
@@ -154,6 +156,12 @@ export default function SettingsPage() {
             : "FIXED"
         );
         setPaymentGatewayQrisFeeValue(raw.PAYMENT_GATEWAY_QRIS_FEE_VALUE ?? envDefaults.PAYMENT_GATEWAY_QRIS_FEE_VALUE ?? "0");
+        setMerchantPlatformFeeType(
+          (raw.MERCHANT_PLATFORM_FEE_TYPE ?? envDefaults.MERCHANT_PLATFORM_FEE_TYPE ?? "FIXED") === "PERCENT"
+            ? "PERCENT"
+            : "FIXED"
+        );
+        setMerchantPlatformFeeValue(raw.MERCHANT_PLATFORM_FEE_VALUE ?? envDefaults.MERCHANT_PLATFORM_FEE_VALUE ?? "0");
         setDigiflazzUsername(raw.DIGIFLAZZ_USERNAME ?? envDefaults.DIGIFLAZZ_USERNAME ?? "");
         setDigiflazzApiKey(raw.DIGIFLAZZ_API_KEY ?? envDefaults.DIGIFLAZZ_API_KEY ?? "");
         setDigiflazzBaseUrl(raw.DIGIFLAZZ_BASE_URL ?? envDefaults.DIGIFLAZZ_BASE_URL ?? "https://api.digiflazz.com/v1");
@@ -364,6 +372,8 @@ export default function SettingsPage() {
         { key: "POPPAY_PASSWORD", value: poppayPassword },
         { key: "PAYMENT_GATEWAY_QRIS_FEE_TYPE", value: paymentGatewayQrisFeeType },
         { key: "PAYMENT_GATEWAY_QRIS_FEE_VALUE", value: paymentGatewayQrisFeeValue },
+        { key: "MERCHANT_PLATFORM_FEE_TYPE", value: merchantPlatformFeeType },
+        { key: "MERCHANT_PLATFORM_FEE_VALUE", value: merchantPlatformFeeValue },
       ];
       for (const { key, value } of pairs) {
         const res = await fetch("/api/admin/site-config", {
@@ -1266,6 +1276,49 @@ export default function SettingsPage() {
                       {paymentGatewayQrisFeeType === "PERCENT"
                         ? "Biaya dihitung persen dari nilai transaksi."
                         : "Biaya ditambahkan sebagai nominal tetap per transaksi."}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-4">
+                <div className="mb-3">
+                  <h3 className="text-xs font-bold uppercase tracking-wide text-slate-600">Fee Platform Merchant</h3>
+                  <p className="mt-1 text-[11px] leading-relaxed text-slate-400">
+                    Berlaku global untuk semua transaksi merchant. Nilai ini dipotong dari margin kotor merchant saat order sukses.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-500">
+                      Tipe Fee
+                    </label>
+                    <select
+                      value={merchantPlatformFeeType}
+                      onChange={(e) => setMerchantPlatformFeeType(e.target.value === "PERCENT" ? "PERCENT" : "FIXED")}
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-400"
+                    >
+                      <option value="FIXED">Nominal Tetap</option>
+                      <option value="PERCENT">Persentase</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-500">
+                      Nilai Fee
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step={merchantPlatformFeeType === "PERCENT" ? "0.01" : "1"}
+                      value={merchantPlatformFeeValue}
+                      onChange={(e) => setMerchantPlatformFeeValue(e.target.value)}
+                      placeholder={merchantPlatformFeeType === "PERCENT" ? "Contoh: 20" : "Contoh: 500"}
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-400"
+                    />
+                    <p className="mt-1 text-[10px] text-slate-400">
+                      {merchantPlatformFeeType === "PERCENT"
+                        ? "Dipungut sebagai persentase dari margin kotor merchant."
+                        : "Dipungut sebagai nominal tetap dari margin merchant per transaksi sukses."}
                     </p>
                   </div>
                 </div>

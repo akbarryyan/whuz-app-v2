@@ -97,6 +97,18 @@ export async function getPaymentGatewayFeeConfig(
   });
 }
 
+export async function getMerchantPlatformFeeConfig(): Promise<PaymentGatewayFeeConfig> {
+  const [typeRaw, valueRaw] = await Promise.all([
+    getSiteConfigValue("MERCHANT_PLATFORM_FEE_TYPE", DEFAULT_PAYMENT_GATEWAY_FEE_CONFIG.type),
+    getSiteConfigValue("MERCHANT_PLATFORM_FEE_VALUE", String(DEFAULT_PAYMENT_GATEWAY_FEE_CONFIG.value)),
+  ]);
+
+  return normalizePaymentGatewayFeeConfig({
+    type: normalizePaymentGatewayFeeType(typeRaw),
+    value: Number(valueRaw),
+  });
+}
+
 /** Upsert a config value and invalidate cache */
 export async function setSiteConfig(key: string, value: string): Promise<void> {
   await prisma.siteConfig.upsert({

@@ -12,6 +12,7 @@ import {
   InsufficientBalanceError,
 } from "@/src/core/domain/errors/domain.errors";
 import { getPriceForUser } from "@/lib/pricing";
+import { getMerchantPlatformFeeConfig } from "@/lib/site-config";
 
 export interface CheckoutInput {
   productId: string;
@@ -121,10 +122,11 @@ export class CreateCheckoutService {
     const discount = Math.min(input.voucherDiscount ?? 0, basePrice + markup - 1); // Can't discount to below 1
     const amount = Math.max(1, basePrice + markup - discount); // Customer pays after voucher discount
     const sellerGrossProfit = sellerProduct ? Math.max(0, markup - discount) : 0;
+    const merchantPlatformFee = await getMerchantPlatformFeeConfig();
     const sellerFeeAmount = sellerProduct
       ? this.calculateMerchantFee({
-          feeType: sellerProduct.feeType,
-          feeValue: Number(sellerProduct.feeValue),
+          feeType: merchantPlatformFee.type,
+          feeValue: merchantPlatformFee.value,
           grossProfit: sellerGrossProfit,
         })
       : 0;

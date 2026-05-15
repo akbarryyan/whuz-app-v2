@@ -276,22 +276,21 @@ export default function MerchantOrderDetailPage() {
                       <strong className="text-slate-900">{rupiah(data.sellerProduct?.sellingPrice ?? data.amount)}</strong>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-500">Fee Type</span>
-                      <strong className="text-slate-900">{data.sellerProduct?.feeType || "-"}</strong>
+                      <span className="text-slate-500">Margin Kotor</span>
+                      <strong className="text-slate-900">{rupiah(data.sellerGrossProfit)}</strong>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-500">Fee Value</span>
-                      <strong className="text-slate-900">{rupiah(data.sellerProduct?.feeValue ?? 0)}</strong>
+                      <span className="text-slate-500">Fee Platform</span>
+                      <strong className="text-slate-900">{rupiah(data.sellerFeeAmount)}</strong>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-500">Komisi Type</span>
-                      <strong className="text-slate-900">{data.sellerProduct?.commissionType || "-"}</strong>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-500">Komisi Value</span>
-                      <strong className="text-slate-900">{rupiah(data.sellerProduct?.commissionValue ?? 0)}</strong>
+                      <span className="text-slate-500">Komisi Bersih</span>
+                      <strong className="text-slate-900">{rupiah(data.sellerCommission)}</strong>
                     </div>
                   </div>
+                  <p className="mt-4 text-xs leading-5 text-slate-400">
+                    Fee platform ditentukan global dari dashboard admin dan otomatis dipotong dari margin merchant ketika transaksi sukses.
+                  </p>
                 </section>
               </aside>
             </div>

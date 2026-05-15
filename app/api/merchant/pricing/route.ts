@@ -2,14 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/src/infra/db/prisma";
 import { requireSellerSession } from "@/lib/seller";
+import { getMerchantPlatformFeeConfig } from "@/lib/site-config";
 
 export const dynamic = "force-dynamic";
 
 const PricingSchema = z.object({
   productId: z.string().min(1),
   sellingPrice: z.number().positive(),
-  feeType: z.enum(["PERCENT", "FIXED"]).default("PERCENT"),
-  feeValue: z.number().min(0).max(1000000).default(0),
   isActive: z.boolean().optional(),
 });
 
@@ -18,6 +17,8 @@ export async function GET(req: NextRequest) {
   if ("error" in merchant) {
     return NextResponse.json({ success: false, error: merchant.error }, { status: merchant.status });
   }
+
+  const platformFee = await getMerchantPlatformFeeConfig();
 
   const { searchParams } = new URL(req.url);
   const q = searchParams.get("q")?.trim() ?? "";
@@ -53,8 +54,6 @@ export async function GET(req: NextRequest) {
         id: row.id,
         productId: row.productId,
         isActive: row.isActive,
-        feeType: row.feeType,
-        feeValue: Number(row.feeValue),
         sellingPrice: merchantSellingPrice,
         margin,
         product: {
@@ -70,6 +69,7 @@ export async function GET(req: NextRequest) {
         },
       };
     }),
+    platformFee,
   });
 }
 
@@ -118,16 +118,12 @@ export async function POST(req: NextRequest) {
       sellingPrice: parsed.data.sellingPrice,
       commissionType: "FIXED",
       commissionValue: parsed.data.sellingPrice - providerPrice,
-      feeType: parsed.data.feeType,
-      feeValue: parsed.data.feeValue,
       isActive: parsed.data.isActive ?? true,
     },
     update: {
       sellingPrice: parsed.data.sellingPrice,
       commissionType: "FIXED",
       commissionValue: parsed.data.sellingPrice - providerPrice,
-      feeType: parsed.data.feeType,
-      feeValue: parsed.data.feeValue,
       isActive: parsed.data.isActive ?? true,
     },
     include: { product: true },
@@ -139,9 +135,8 @@ export async function POST(req: NextRequest) {
       id: row.id,
       sellingPrice: row.sellingPrice !== null ? Number(row.sellingPrice) : null,
       margin: Number(row.commissionValue),
-      feeType: row.feeType,
-      feeValue: Number(row.feeValue),
       isActive: row.isActive,
     },
+    platformFee: await getMerchantPlatformFeeConfig(),
   });
 }

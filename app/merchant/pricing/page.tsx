@@ -11,8 +11,6 @@ interface PricingRow {
   id: string;
   productId: string;
   isActive: boolean;
-  feeType: "PERCENT" | "FIXED";
-  feeValue: number;
   sellingPrice: number;
   margin: number;
   product: {
@@ -26,6 +24,11 @@ interface PricingRow {
     defaultSellingPrice: number;
     defaultMargin: number;
   };
+}
+
+interface PlatformFeeConfig {
+  type: "FIXED" | "PERCENT";
+  value: number;
 }
 
 function rupiah(value: number) {
@@ -42,6 +45,7 @@ export default function MerchantPricingPage() {
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [platformFee, setPlatformFee] = useState<PlatformFeeConfig>({ type: "FIXED", value: 0 });
   const { toasts, removeToast, error: showError, success: showSuccess } = useToast();
 
   const loadData = useCallback(async () => {
@@ -53,6 +57,7 @@ export default function MerchantPricingPage() {
       const json = await res.json();
       if (!json.success) throw new Error(json.error || "Gagal memuat pricing");
       setRows(json.data);
+      setPlatformFee(json.platformFee ?? { type: "FIXED", value: 0 });
     } catch (caughtError: unknown) {
       const message = caughtError instanceof Error ? caughtError.message : "Gagal memuat pricing";
       showError(message);
@@ -78,8 +83,6 @@ export default function MerchantPricingPage() {
         body: JSON.stringify({
           productId: row.productId,
           sellingPrice: row.sellingPrice,
-          feeType: row.feeType,
-          feeValue: row.feeValue,
           isActive: row.isActive,
         }),
       });
@@ -103,7 +106,7 @@ export default function MerchantPricingPage() {
         <div className="flex flex-col gap-4 sm:gap-6">
           <MerchantHeader
             title="Pricing Merchant"
-            subtitle="Atur harga jual sendiri dan fee platform untuk tiap produk merchant."
+            subtitle="Atur harga jual sendiri. Fee platform ditetapkan global dari dashboard admin."
             onMenuClick={() => setSidebarOpen(true)}
           />
 
@@ -111,7 +114,7 @@ export default function MerchantPricingPage() {
             <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-slate-800">Katalog Pricing Merchant</p>
-                <p className="text-xs text-slate-400">Cari produk lalu atur harga jual dan fee merchant.</p>
+                <p className="text-xs text-slate-400">Cari produk lalu atur harga jual. Potongan fee platform akan dihitung otomatis dari pengaturan admin.</p>
               </div>
               <div className="flex flex-col gap-2 sm:w-[320px]">
                 <input
@@ -138,6 +141,17 @@ export default function MerchantPricingPage() {
               </div>
             ) : (
               <div className="space-y-4">
+                <div className="rounded-2xl border border-blue-100 bg-blue-50 px-4 py-4 text-sm text-blue-800 sm:rounded-3xl">
+                  <p className="font-semibold">Fee Platform Global</p>
+                  <p className="mt-1 text-xs leading-5 text-blue-700">
+                    Saat ini fee platform diatur admin sebesar{" "}
+                    <span className="font-bold">
+                      {platformFee.type === "PERCENT" ? `${platformFee.value}%` : rupiah(platformFee.value)}
+                    </span>
+                    {" "}dan akan dipotong otomatis dari margin kotor merchant setiap order sukses.
+                  </p>
+                </div>
+
                 {rows.map((row) => (
                   <div key={row.id} className="rounded-2xl border border-slate-200 p-4 sm:rounded-3xl">
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -166,7 +180,7 @@ export default function MerchantPricingPage() {
                       </label>
                     </div>
 
-                    <div className="mt-5 grid gap-4 md:grid-cols-3">
+                    <div className="mt-5 grid gap-4 md:grid-cols-2">
                       <label className="text-sm">
                         <span className="mb-2 block font-medium text-slate-600">Harga Jual</span>
                         <input
@@ -178,28 +192,13 @@ export default function MerchantPricingPage() {
                         />
                       </label>
 
-                      <label className="text-sm">
-                        <span className="mb-2 block font-medium text-slate-600">Fee Type</span>
-                        <select
-                          value={row.feeType}
-                          onChange={(e) => updateRow(row.productId, { feeType: e.target.value as "PERCENT" | "FIXED" })}
-                          className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-emerald-400"
-                        >
-                          <option value="PERCENT">Persen</option>
-                          <option value="FIXED">Nominal</option>
-                        </select>
-                      </label>
-
-                      <label className="text-sm">
-                        <span className="mb-2 block font-medium text-slate-600">Fee Value</span>
-                        <input
-                          type="number"
-                          min={0}
-                          value={row.feeValue}
-                          onChange={(e) => updateRow(row.productId, { feeValue: Number(e.target.value) })}
-                          className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-emerald-400"
-                        />
-                      </label>
+                      <div className="text-sm">
+                        <span className="mb-2 block font-medium text-slate-600">Fee Platform</span>
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-700">
+                          {platformFee.type === "PERCENT" ? `${platformFee.value}% dari margin kotor` : `${rupiah(platformFee.value)} per transaksi sukses`}
+                        </div>
+                        <p className="mt-2 text-xs text-slate-400">Fee platform dikelola admin dan tidak bisa diubah dari dashboard merchant.</p>
+                      </div>
                     </div>
 
                     <div className="mt-5 flex justify-end">
