@@ -363,15 +363,15 @@ export default function AkunPage() {
         <AppHeader onBack={() => router.back()} />
 
         {/* ===== HEADER HERO ===== */}
-        <div className="relative overflow-hidden px-6 pt-20 pb-20 lg:mx-auto lg:mt-6 lg:w-full lg:max-w-6xl lg:rounded-[32px] lg:px-8" style={{ backgroundColor: "#003D99" }}>
+        <div className="relative overflow-hidden px-6 pt-20 pb-20 lg:mx-auto lg:mt-6 lg:w-full lg:max-w-6xl lg:rounded-[32px] lg:px-8 lg:py-10" style={{ backgroundColor: "#003D99" }}>
           {/* Decorative circles */}
           <div className="absolute -top-10 -right-10 h-44 w-44 rounded-full bg-white/10" />
           <div className="absolute top-20 -right-4 h-24 w-24 rounded-full bg-white/5" />
           <div className="absolute -bottom-8 -left-8 h-36 w-36 rounded-full bg-white/10" />
 
-          <div className="relative z-10 flex flex-col items-center gap-3">
+          <div className="relative z-10 flex flex-col items-center gap-3 lg:grid lg:grid-cols-[auto_minmax(0,1fr)_320px] lg:items-center lg:gap-6">
             {/* Avatar */}
-            <div className="relative">
+            <div className="relative lg:justify-self-start">
               <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-2xl font-bold text-white shadow-xl border-2 border-white/30">
                 {getInitials(user.name)}
               </div>
@@ -384,19 +384,23 @@ export default function AkunPage() {
             </div>
 
             {/* Nama & email */}
-            <div className="text-center">
-              <h1 className="text-lg font-bold text-white">
+            <div className="text-center lg:text-left">
+              <h1 className="text-lg font-bold text-white lg:text-2xl">
                 {user.name ?? "Member"}
               </h1>
               <p className="text-purple-200 text-xs mt-0.5">{user.email}</p>
+              <div className="mt-3 flex flex-col items-center gap-2 lg:items-start">
+                <span className="text-[11px] text-purple-200/80 bg-white/10 px-3 py-1 rounded-full">
+                  Member sejak {formatDate(user.createdAt)}
+                </span>
+                {tier ? (
+                  <span className={`text-[11px] font-extrabold px-4 py-1 rounded-full tracking-wide shadow ${getTierBadgeStyle(tier.name).pill}`}>
+                    {tier.label}
+                  </span>
+                ) : null}
+              </div>
             </div>
 
-            {/* Member since */}
-            <span className="text-[11px] text-purple-200/80 bg-white/10 px-3 py-1 rounded-full">
-              Member sejak {formatDate(user.createdAt)}
-            </span>
-
-            {/* ---- Tier badge + progress ---- */}
             {tier && (() => {
               const style = getTierBadgeStyle(tier.name);
               const successCount = stats?.successOrders ?? 0;
@@ -405,35 +409,29 @@ export default function AkunPage() {
                 : 100;
               const remaining = nextTier ? Math.max(0, nextTier.minOrders - successCount) : 0;
               return (
-                <div className="flex flex-col items-center gap-2 w-full max-w-[260px]">
-                  {/* Current tier pill */}
-                  <span className={`text-[11px] font-extrabold px-4 py-1 rounded-full tracking-wide shadow ${style.pill}`}>
-                    {tier.label}
-                  </span>
-
+                <div className="w-full max-w-[260px] lg:ml-auto lg:max-w-[320px]">
                   {nextTier ? (
-                    <>
-                      {/* Progress bar */}
-                      <div className="w-full">
-                        <div className="flex justify-between text-[10px] text-white/60 mb-1">
-                          <span>{successCount} transaksi sukses</span>
-                          <span>{nextTier.minOrders} untuk {nextTier.label}</span>
-                        </div>
-                        <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden">
-                          <div
-                            className={`h-full rounded-full transition-all duration-500 ${style.bar}`}
-                            style={{ width: `${progressPct}%` }}
-                          />
-                        </div>
-                        <p className="text-[10px] text-white/60 mt-1 text-center">
-                          {remaining > 0
-                            ? `${remaining} transaksi lagi naik ke ${nextTier.label}`
-                            : `Siap naik ke ${nextTier.label}!`}
-                        </p>
+                    <div className="rounded-2xl bg-white/10 px-4 py-3 backdrop-blur-sm">
+                      <div className="flex justify-between text-[10px] text-white/70 mb-1">
+                        <span>{successCount} transaksi sukses</span>
+                        <span>{nextTier.minOrders} untuk {nextTier.label}</span>
                       </div>
-                    </>
+                      <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-500 ${style.bar}`}
+                          style={{ width: `${progressPct}%` }}
+                        />
+                      </div>
+                      <p className="mt-2 text-[10px] text-white/70 lg:text-left">
+                        {remaining > 0
+                          ? `${remaining} transaksi lagi naik ke ${nextTier.label}`
+                          : `Siap naik ke ${nextTier.label}!`}
+                      </p>
+                    </div>
                   ) : (
-                    <p className="text-[10px] text-white/60">Tier tertinggi 🎉</p>
+                    <div className="rounded-2xl bg-white/10 px-4 py-3 text-[10px] text-white/70 backdrop-blur-sm">
+                      Tier tertinggi 🎉
+                    </div>
                   )}
                 </div>
               );
@@ -442,7 +440,7 @@ export default function AkunPage() {
         </div>
 
         {/* ===== SCROLLABLE CONTENT ===== */}
-        <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-5 pb-28 -mt-10 lg:mx-auto lg:grid lg:w-full lg:max-w-6xl lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] lg:items-start lg:gap-6 lg:px-0 lg:pb-16">
+        <div className="flex flex-1 flex-col gap-4 overflow-y-auto px-5 pb-28 -mt-10 lg:mx-auto lg:mt-6 lg:grid lg:w-full lg:max-w-6xl lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] lg:items-start lg:gap-6 lg:px-0 lg:pb-16">
 
           <div className="space-y-4 lg:space-y-6">
             {/* ---- WALLET CARD ---- */}
@@ -540,7 +538,7 @@ export default function AkunPage() {
             </p>
           </div>
 
-          <aside className="space-y-4 lg:sticky lg:top-24 lg:space-y-6">
+          <aside className="space-y-4 lg:space-y-6">
             {/* ---- STATS ROW ---- */}
             <div className="grid grid-cols-3 gap-3 lg:grid-cols-1">
               {[
