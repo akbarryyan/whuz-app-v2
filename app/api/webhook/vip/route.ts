@@ -105,9 +105,17 @@ export async function POST(req: NextRequest) {
     return ok();
   }
 
-  // Jika order sudah terminal, skip
-  if (order.status === OrderStatus.SUCCESS || order.status === OrderStatus.FAILED) {
-    console.log(`[Webhook/VIP] Order ${order.id} already ${order.status}. Skipping.`);
+  if (order.status === OrderStatus.SUCCESS) {
+    await orderRepo.creditSellerCommission(order.id).catch((error) => {
+      console.error(`[Webhook/VIP] Failed to backfill seller commission for order ${order.id}:`, error);
+    });
+    console.log(`[Webhook/VIP] Order ${order.id} already SUCCESS. Commission backfill checked.`);
+    return ok();
+  }
+
+  // Jika order sudah terminal gagal, skip
+  if (order.status === OrderStatus.FAILED) {
+    console.log(`[Webhook/VIP] Order ${order.id} already FAILED. Skipping.`);
     return ok();
   }
 
@@ -120,6 +128,8 @@ export async function POST(req: NextRequest) {
       serialNumber,
       notes: `VIP webhook: success${serialNumber ? ` | SN: ${serialNumber}` : ""}`,
     });
+
+    await orderRepo.creditSellerCommission(order.id);
 
     // Finalize wallet debit jika bayar pakai wallet
     if (order.paymentMethod === "WALLET" && order.userId) {
