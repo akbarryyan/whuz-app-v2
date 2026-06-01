@@ -62,17 +62,17 @@ export default function FlashSale() {
   // Not active, no products, or expired → informational placeholder
   if (!config || !config.isActive || config.products.length === 0 || countdown.expired) {
     return (
-      <div className="mt-0 bg-white px-4 py-4 lg:bg-transparent lg:px-0 lg:py-0">
+      <div className="mt-0 bg-white px-4 py-4 lg:bg-white lg:px-0 lg:py-0">
         <div className="mb-3 flex items-center gap-2">
-          <span className="text-xl font-bold text-red-400 lg:text-white lg:text-2xl">⚡ Flash Sale</span>
+          <span className="text-xl font-bold text-red-400 lg:text-slate-800 lg:text-2xl">⚡ Flash Sale</span>
         </div>
-        <div className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-5 lg:border-white/10 lg:bg-transparent">
+        <div className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-5 lg:border-slate-200 lg:bg-white">
           <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-slate-100 text-xl lg:bg-white/10">
             🕐
           </div>
           <div>
-            <p className="text-sm font-semibold text-slate-600 lg:text-white lg:text-xl">Flash Sale belum tersedia</p>
-            <p className="mt-0.5 text-[11px] text-slate-400 lg:text-slate-300 lg:text-[13px]">
+            <p className="text-sm font-semibold text-slate-600 lg:text-slate-800 lg:text-xl">Flash Sale belum tersedia</p>
+            <p className="mt-0.5 text-[11px] text-slate-400 lg:text-slate-500 lg:text-[13px]">
               {countdown.expired
                 ? "Flash sale telah berakhir. Pantau terus untuk penawaran berikutnya!"
                 : "Saat ini belum ada flash sale yang aktif. Pantau terus ya!"}
@@ -84,7 +84,7 @@ export default function FlashSale() {
   }
 
   return (
-    <div className="mt-0 bg-white px-4 pt-4 pb-4 lg:bg-transparent lg:px-0 lg:pt-0 lg:pb-0">
+    <div className="mt-0 bg-white px-4 pt-4 pb-4 lg:bg-white lg:px-0 lg:pt-0 lg:pb-0">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-3">
@@ -111,7 +111,7 @@ export default function FlashSale() {
           {config.products.map((product) => (
             <div
               key={product.id}
-              className="w-[140px] flex-shrink-0 overflow-hidden rounded-xl bg-gradient-to-br from-slate-100 to-slate-50 shadow-md lg:min-w-0 lg:w-auto lg:flex-shrink lg:rounded-[24px] lg:border lg:border-slate-200/70 lg:bg-white/88 lg:shadow-none"
+              className="w-[140px] flex-shrink-0 overflow-hidden rounded-xl bg-gradient-to-br from-slate-100 to-slate-50 shadow-md lg:min-w-0 lg:w-auto lg:flex-shrink lg:rounded-[24px] lg:border lg:border-slate-200/70 lg:bg-white8 lg:shadow-none"
             >
               {/* Brand image */}
               <div className="relative aspect-square bg-gradient-to-br from-purple-100 to-blue-100 flex items-center justify-center overflow-hidden">

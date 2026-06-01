@@ -109,8 +109,8 @@ export default function PusatBantuanPage() {
     : faqs;
 
   return (
-    <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#161B22]`}>
-      <div className="relative flex min-h-screen w-full max-w-[480px] flex-col bg-[#F5F5F5] shadow-2xl lg:max-w-7xl lg:bg-transparent lg:shadow-none">
+    <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#F5F5F5]`}>
+      <div className="relative flex min-h-screen w-full max-w-[480px] flex-col bg-[#F5F5F5] shadow-2xl lg:max-w-7xl lg:bg-[#F5F5F5] lg:shadow-none">
         <AppHeader onBack={() => router.back()} />
         <div className="h-[60px]" />
 
@@ -162,7 +162,7 @@ export default function PusatBantuanPage() {
             <>
               {/* Quick Actions Skeleton */}
               <div className="px-4 -mt-4">
-                <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm animate-pulse lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none">
+                <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm animate-pulse lg:border-slate-200 lg:bg-white lg:shadow-none">
                   <div className="grid grid-cols-2 gap-3">
                     {[1, 2].map((i) => (
                       <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-slate-50">
@@ -182,7 +182,7 @@ export default function PusatBantuanPage() {
                 <div className="h-4 w-32 bg-slate-200 rounded mb-3 animate-pulse" />
                 <div className="space-y-2.5">
                   {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm animate-pulse lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none">
+                    <div key={i} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm animate-pulse lg:border-slate-200 lg:bg-white lg:shadow-none">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-slate-200 flex-shrink-0" />
                         <div className="flex-1">
@@ -201,7 +201,7 @@ export default function PusatBantuanPage() {
                 <div className="h-4 w-40 bg-slate-200 rounded mb-3 animate-pulse" />
                 <div className="space-y-2.5">
                   {[1, 2, 3, 4, 5].map((i) => (
-                    <div key={i} className="rounded-xl border border-slate-100 bg-white p-4 shadow-sm animate-pulse lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none">
+                    <div key={i} className="rounded-xl border border-slate-100 bg-white p-4 shadow-sm animate-pulse lg:border-slate-200 lg:bg-white lg:shadow-none">
                       <div className="flex items-center justify-between">
                         <div className="h-3.5 bg-slate-200 rounded" style={{ width: `${55 + (i * 7) % 30}%` }} />
                         <div className="w-4 h-4 rounded bg-slate-100 flex-shrink-0 ml-4" />
@@ -232,7 +232,7 @@ export default function PusatBantuanPage() {
 
           {/* Quick Actions */}
           <div className="px-4 -mt-4">
-            <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none">
+            <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm lg:border-slate-200 lg:bg-white lg:shadow-none">
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => router.push("/tickets")}
@@ -268,10 +268,10 @@ export default function PusatBantuanPage() {
 
           {/* Help Categories */}
           <div className="px-4 mt-5">
-            <h2 className="mb-3 text-[13px] font-bold text-slate-800 lg:text-white">Kategori Bantuan</h2>
+            <h2 className="mb-3 text-[13px] font-bold text-slate-800 lg:text-slate-800">Kategori Bantuan</h2>
             <div className="space-y-2.5">
               {helpCategories.map((cat, idx) => (
-                <div key={idx} className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none">
+                <div key={idx} className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm lg:border-slate-200 lg:bg-white lg:shadow-none">
                   <button
                     onClick={() => setOpenCategory(openCategory === idx ? null : idx)}
                     className="flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-slate-50 lg:hover:bg-white/[0.06]"
@@ -280,7 +280,7 @@ export default function PusatBantuanPage() {
                       {cat.icon}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[13px] font-bold text-slate-800 lg:text-white">{cat.title}</p>
+                      <p className="text-[13px] font-bold text-slate-800 lg:text-slate-800">{cat.title}</p>
                       <p className="text-[11px] text-slate-400 lg:text-slate-400">{cat.desc}</p>
                     </div>
                     <svg
@@ -301,17 +301,17 @@ export default function PusatBantuanPage() {
                       {cat.items.map((item, i) => (
                         <div
                           key={i}
-                          className="flex cursor-default items-start gap-2.5 rounded-xl bg-slate-50 p-3 transition-colors hover:bg-slate-100 lg:bg-white/5 lg:hover:bg-white/10"
+                          className="flex cursor-default items-start gap-2.5 rounded-xl bg-slate-50 p-3 transition-colors hover:bg-slate-100 lg:bg-slate-50 lg:hover:bg-slate-50"
                         >
                           <div className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center flex-shrink-0 mt-0.5">
                             <span className="text-[9px] font-bold text-slate-500">{i + 1}</span>
                           </div>
-                          <p className="text-[12px] leading-relaxed text-slate-600 lg:text-slate-200">{item}</p>
+                          <p className="text-[12px] leading-relaxed text-slate-600 lg:text-slate-600">{item}</p>
                         </div>
                       ))}
                       <button
                         onClick={() => router.push("/tickets")}
-                        className="mt-1 w-full rounded-xl bg-[#003D99]/5 py-2.5 text-[12px] font-semibold text-[#003D99] transition-colors hover:bg-[#003D99]/10 lg:bg-white/10 lg:text-white lg:hover:bg-white/15"
+                        className="mt-1 w-full rounded-xl bg-[#003D99]/5 py-2.5 text-[12px] font-semibold text-[#003D99] transition-colors hover:bg-[#003D99]/10 lg:bg-white/10 lg:text-slate-800 lg:hover:bg-slate-100"
                       >
                         Butuh bantuan lain? Hubungi CS →
                       </button>
@@ -324,14 +324,14 @@ export default function PusatBantuanPage() {
 
           {/* FAQ Section */}
           <div className="px-4 mt-6">
-            <h2 className="mb-3 text-[13px] font-bold text-slate-800 lg:text-white">Pertanyaan Umum (FAQ)</h2>
+            <h2 className="mb-3 text-[13px] font-bold text-slate-800 lg:text-slate-800">Pertanyaan Umum (FAQ)</h2>
 
             {filteredFaqs.length === 0 ? (
-              <div className="rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none">
+              <div className="rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm lg:border-slate-200 lg:bg-white lg:shadow-none">
                 <svg className="w-12 h-12 text-slate-200 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                <p className="mb-1 text-sm font-semibold text-slate-500 lg:text-slate-200">
+                <p className="mb-1 text-sm font-semibold text-slate-500 lg:text-slate-600">
                   {searchQuery ? "Tidak ditemukan" : "Belum ada FAQ"}
                 </p>
                 <p className="text-[11px] text-slate-400 lg:text-slate-500">
@@ -343,12 +343,12 @@ export default function PusatBantuanPage() {
             ) : (
               <div className="space-y-2.5">
                 {filteredFaqs.map((faq, idx) => (
-                  <div key={idx} className="overflow-hidden rounded-xl border border-slate-100 bg-white shadow-sm lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none">
+                  <div key={idx} className="overflow-hidden rounded-xl border border-slate-100 bg-white shadow-sm lg:border-slate-200 lg:bg-white lg:shadow-none">
                     <button
                       onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
                       className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-slate-50 lg:hover:bg-white/[0.06]"
                     >
-                      <span className="pr-4 text-[12px] font-semibold leading-relaxed text-slate-700 lg:text-white">{faq.question}</span>
+                      <span className="pr-4 text-[12px] font-semibold leading-relaxed text-slate-700 lg:text-slate-800">{faq.question}</span>
                       <svg
                         className={`w-4.5 h-4.5 text-[#003D99] flex-shrink-0 transition-transform duration-200 ${
                           openFaq === idx ? "rotate-180" : ""
@@ -363,7 +363,7 @@ export default function PusatBantuanPage() {
                         openFaq === idx ? "max-h-96" : "max-h-0"
                       }`}
                     >
-                      <div className="border-t border-slate-50 px-4 pb-4 pt-3 text-[12px] leading-relaxed text-slate-500 lg:border-white/10 lg:text-slate-300">
+                      <div className="border-t border-slate-50 px-4 pb-4 pt-3 text-[12px] leading-relaxed text-slate-500 lg:border-slate-200 lg:text-slate-500">
                         {faq.answer}
                       </div>
                     </div>

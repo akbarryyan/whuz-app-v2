@@ -74,8 +74,8 @@ export default function PromoPage() {
   };
 
   return (
-    <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#161B22]`}>
-      <div className="relative w-full max-w-[480px] min-h-screen bg-white shadow-2xl flex flex-col lg:max-w-7xl lg:bg-transparent lg:shadow-none">
+    <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#F5F5F5]`}>
+      <div className="relative w-full max-w-[480px] min-h-screen bg-white shadow-2xl flex flex-col lg:max-w-7xl lg:bg-[#F5F5F5] lg:shadow-none">
         <AppHeader onBack={() => router.back()} />
 
         <div className="flex-1 overflow-y-auto pt-[60px] pb-24 lg:pb-12">
@@ -101,7 +101,7 @@ export default function PromoPage() {
           </div>
 
           {/* ── Search ── */}
-          <div className="px-4 py-3 bg-white sticky top-[60px] z-10 border-b border-slate-100 lg:mx-auto lg:w-full lg:max-w-6xl lg:border-white/10 lg:bg-[#161B22]/95 lg:px-0 lg:backdrop-blur">
+          <div className="px-4 py-3 bg-white sticky top-[60px] z-10 border-b border-slate-100 lg:mx-auto lg:w-full lg:max-w-6xl lg:border-slate-200 lg:bg-[#F5F5F5]/95 lg:px-0 lg:backdrop-blur">
             <div className="relative">
               <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -111,7 +111,7 @@ export default function PromoPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Cari promo..."
-                className="w-full pl-9 pr-4 py-2.5 text-sm bg-slate-100 rounded-xl border-none outline-none text-slate-700 placeholder-slate-400 lg:bg-white/[0.04] lg:text-white lg:placeholder:text-slate-500"
+                className="w-full pl-9 pr-4 py-2.5 text-sm bg-slate-100 rounded-xl border-none outline-none text-slate-700 placeholder-slate-400 lg:bg-white lg:text-slate-800 lg:placeholder:text-slate-400"
               />
               {search && (
                 <button
@@ -130,7 +130,7 @@ export default function PromoPage() {
           <div className="px-4 py-4 lg:mx-auto lg:w-full lg:max-w-6xl lg:px-0 lg:py-6">
 
             {/* Section title */}
-            <p className="text-sm font-bold text-[#003D99] mb-4 lg:text-white">
+            <p className="text-sm font-bold text-[#003D99] mb-4 lg:text-slate-800">
               {search ? `Hasil pencarian "${search}"` : "Promo Bisa Kamu Nikmati"}
             </p>
 
@@ -138,11 +138,11 @@ export default function PromoPage() {
             {loading && (
               <div className="flex flex-col gap-4">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="rounded-2xl overflow-hidden border border-slate-100 lg:border-white/10 lg:bg-white/[0.04]">
-                    <div className="w-full h-[180px] bg-slate-100 animate-pulse lg:bg-white/5" />
+                  <div key={i} className="rounded-2xl overflow-hidden border border-slate-100 lg:border-slate-200 lg:bg-white">
+                    <div className="w-full h-[180px] bg-slate-100 animate-pulse lg:bg-slate-50" />
                     <div className="p-3 space-y-2">
-                      <div className="h-4 w-3/4 bg-slate-100 animate-pulse rounded lg:bg-white/5" />
-                      <div className="h-3 w-1/3 bg-slate-100 animate-pulse rounded lg:bg-white/5" />
+                      <div className="h-4 w-3/4 bg-slate-100 animate-pulse rounded lg:bg-slate-50" />
+                      <div className="h-3 w-1/3 bg-slate-100 animate-pulse rounded lg:bg-slate-50" />
                     </div>
                   </div>
                 ))}
@@ -151,14 +151,14 @@ export default function PromoPage() {
 
             {/* Empty state */}
             {!loading && filtered.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-16 gap-3 text-center lg:rounded-[28px] lg:border lg:border-white/10 lg:bg-white/[0.04]">
-                <div className="w-16 h-16 rounded-full bg-purple-50 flex items-center justify-center lg:bg-white/5">
+              <div className="flex flex-col items-center justify-center py-16 gap-3 text-center lg:rounded-[28px] lg:border lg:border-slate-200 lg:bg-white">
+                <div className="w-16 h-16 rounded-full bg-purple-50 flex items-center justify-center lg:bg-slate-50">
                   <svg className="w-8 h-8 text-purple-300 lg:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                       d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                   </svg>
                 </div>
-                <p className="text-slate-500 font-semibold text-sm lg:text-white">
+                <p className="text-slate-500 font-semibold text-sm lg:text-slate-800">
                   {search ? "Promo tidak ditemukan" : "Belum ada promo aktif"}
                 </p>
                 <p className="text-slate-400 text-xs">
@@ -174,7 +174,7 @@ export default function PromoPage() {
                   <div
                     key={promo.id}
                     onClick={() => handleCardClick(promo)}
-                    className={`rounded-2xl overflow-hidden border border-slate-100 shadow-sm bg-white lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none ${
+                    className={`rounded-2xl overflow-hidden border border-slate-100 shadow-sm bg-white lg:border-slate-200 lg:bg-white lg:shadow-none ${
                       promo.linkUrl ? "cursor-pointer active:scale-[0.98] transition-transform" : ""
                     }`}
                   >
@@ -190,14 +190,14 @@ export default function PromoPage() {
 
                     {/* Card body */}
                     <div className="px-4 py-3">
-                      <p className="text-[11px] font-bold text-[#003D99] leading-snug lg:text-white">{promo.title}</p>
+                      <p className="text-[11px] font-bold text-[#003D99] leading-snug lg:text-slate-800">{promo.title}</p>
                       {promo.description && (
-                        <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-2 lg:text-slate-300">{promo.description}</p>
+                        <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-2 lg:text-slate-500">{promo.description}</p>
                       )}
                       {promo.endDate && (
                         <p className="text-[11px] text-slate-400 mt-1.5">
                           Berlaku s.d{" "}
-                          <span className="font-semibold text-slate-500 lg:text-slate-200">{formatDate(promo.endDate)}</span>
+                          <span className="font-semibold text-slate-500 lg:text-slate-600">{formatDate(promo.endDate)}</span>
                         </p>
                       )}
                     </div>

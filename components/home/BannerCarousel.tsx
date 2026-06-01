@@ -41,14 +41,14 @@ export default function BannerCarousel() {
   // Show skeleton while fetching
   if (banners.length === 0) {
     return (
-      <div className="relative mb-0 bg-white lg:bg-transparent">
+      <div className="relative mb-0 bg-white lg:bg-white">
         <div className="relative w-full aspect-[2/1] -mt-10 bg-slate-200 animate-pulse lg:mt-0 lg:aspect-[16/6.2] lg:rounded-[26px]" />
       </div>
     );
   }
 
   return (
-    <div className="relative -mt-0 mb-0 bg-white lg:bg-transparent">
+    <div className="relative -mt-0 mb-0 bg-white lg:bg-white">
       <div className="relative w-full aspect-[2/1] overflow-hidden -mt-10 lg:mt-0 lg:aspect-[16/6.2] lg:rounded-[30px]">
         <div
           className="flex transition-transform duration-700 ease-in-out h-full"
@@ -70,7 +70,7 @@ export default function BannerCarousel() {
         {/* Navigation Arrows */}
         <button
           onClick={prevBanner}
-          className="absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/80 p-2 shadow-lg transition-all hover:bg-white lg:left-5 lg:bg-black/35 lg:p-3 lg:text-white lg:shadow-none lg:hover:bg-black/50"
+          className="absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/80 p-2 shadow-lg transition-all hover:bg-white lg:left-5 lg:bg-white/90 lg:p-3 lg:text-slate-800 lg:shadow-none lg:hover:bg-white"
         >
           <svg className="w-5 h-5 text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -78,7 +78,7 @@ export default function BannerCarousel() {
         </button>
         <button
           onClick={nextBanner}
-          className="absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/80 p-2 shadow-lg transition-all hover:bg-white lg:right-5 lg:bg-black/35 lg:p-3 lg:text-white lg:shadow-none lg:hover:bg-black/50"
+          className="absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/80 p-2 shadow-lg transition-all hover:bg-white lg:right-5 lg:bg-white/90 lg:p-3 lg:text-slate-800 lg:shadow-none lg:hover:bg-white"
         >
           <svg className="w-5 h-5 text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

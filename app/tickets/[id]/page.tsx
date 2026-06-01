@@ -92,8 +92,8 @@ export default function TicketDetailPage({ params }: { params: Promise<{ id: str
   const st = ticket ? (STATUS_MAP[ticket.status] ?? STATUS_MAP.OPEN) : STATUS_MAP.OPEN;
 
   return (
-    <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#161B22]`}>
-      <div className="relative flex min-h-screen w-full max-w-[480px] flex-col bg-[#F5F5F5] shadow-2xl lg:max-w-7xl lg:bg-transparent lg:shadow-none">
+    <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#F5F5F5]`}>
+      <div className="relative flex min-h-screen w-full max-w-[480px] flex-col bg-[#F5F5F5] shadow-2xl lg:max-w-7xl lg:bg-[#F5F5F5] lg:shadow-none">
         <AppHeader onBack={() => router.push("/tickets")} />
         <div className="h-[60px]" />
 
@@ -103,14 +103,14 @@ export default function TicketDetailPage({ params }: { params: Promise<{ id: str
           </div>
         ) : !ticket ? (
           <div className="flex-1 flex items-center justify-center">
-            <p className="text-sm text-slate-400 lg:text-slate-300">Tiket tidak ditemukan</p>
+            <p className="text-sm text-slate-400 lg:text-slate-500">Tiket tidak ditemukan</p>
           </div>
         ) : (
           <>
             {/* Ticket header */}
-            <div className="border-b border-slate-100 bg-white px-4 py-3 lg:mx-auto lg:mt-6 lg:w-full lg:max-w-5xl lg:rounded-[28px] lg:border-white/10 lg:bg-white/[0.04]">
+            <div className="border-b border-slate-100 bg-white px-4 py-3 lg:mx-auto lg:mt-6 lg:w-full lg:max-w-5xl lg:rounded-[28px] lg:border-slate-200 lg:bg-white">
               <div className="flex items-start justify-between gap-2">
-                <h1 className="flex-1 text-sm font-bold text-slate-800 lg:text-white">{ticket.subject}</h1>
+                <h1 className="flex-1 text-sm font-bold text-slate-800 lg:text-slate-800">{ticket.subject}</h1>
                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${st.bg} ${st.color}`}>
                   {st.label}
                 </span>
@@ -128,7 +128,7 @@ export default function TicketDetailPage({ params }: { params: Promise<{ id: str
                       className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 ${
                         isUser
                           ? "bg-[#003D99] text-white rounded-br-md"
-                          : "bg-white text-slate-800 border border-slate-200 rounded-bl-md lg:border-white/10 lg:bg-white/[0.04] lg:text-slate-100"
+                          : "bg-white text-slate-800 border border-slate-200 rounded-bl-md lg:border-slate-200 lg:bg-white lg:text-slate-700"
                       }`}
                     >
                       <p className="text-[11px] font-bold mb-0.5 opacity-70">
@@ -147,11 +147,11 @@ export default function TicketDetailPage({ params }: { params: Promise<{ id: str
 
             {/* Reply box or closed state */}
             {ticket.status === "CLOSED" ? (
-              <div className="border-t border-slate-200 bg-slate-50 px-4 py-4 pb-24 text-center lg:mx-auto lg:w-full lg:max-w-5xl lg:border-white/10 lg:bg-white/[0.04] lg:pb-14">
-                <p className="text-xs font-semibold text-slate-400 lg:text-slate-300">Tiket ini sudah ditutup</p>
+              <div className="border-t border-slate-200 bg-slate-50 px-4 py-4 pb-24 text-center lg:mx-auto lg:w-full lg:max-w-5xl lg:border-slate-200 lg:bg-white lg:pb-14">
+                <p className="text-xs font-semibold text-slate-400 lg:text-slate-500">Tiket ini sudah ditutup</p>
               </div>
             ) : (
-              <div className="border-t border-slate-200 bg-white px-3 py-3 pb-24 lg:mx-auto lg:w-full lg:max-w-5xl lg:border-white/10 lg:bg-white/[0.04] lg:pb-14">
+              <div className="border-t border-slate-200 bg-white px-3 py-3 pb-24 lg:mx-auto lg:w-full lg:max-w-5xl lg:border-slate-200 lg:bg-white lg:pb-14">
                 <div className="flex gap-2 items-end">
                   <textarea
                     value={reply}
@@ -159,7 +159,7 @@ export default function TicketDetailPage({ params }: { params: Promise<{ id: str
                     onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendReply(); } }}
                     placeholder="Tulis balasan..."
                     rows={1}
-                    className="max-h-24 flex-1 resize-none rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 outline-none focus:border-blue-400 lg:border-white/10 lg:bg-white/5 lg:text-white lg:placeholder:text-slate-500"
+                    className="max-h-24 flex-1 resize-none rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 outline-none focus:border-blue-400 lg:border-slate-200 lg:bg-slate-50 lg:text-slate-800 lg:placeholder:text-slate-400"
                   />
                   <button
                     onClick={sendReply}

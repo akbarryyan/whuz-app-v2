@@ -282,7 +282,7 @@ export default function Home() {
         </div>
 
         <div className="hidden lg:block">
-          <div className="border-b border-[#232a34] bg-[#171D25] text-white">
+          <div className="border-b border-slate-200 bg-[#003D99] text-white">
             <div className="mx-auto max-w-7xl">
               <div className="flex items-center gap-6 px-6 pt-5 pb-4">
                 <Link href="/" className="flex min-w-[160px] items-center gap-3">
@@ -442,40 +442,40 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="bg-[#161B22] px-6 py-10">
+          <div className="bg-white px-6 py-10">
             <div className="mx-auto max-w-7xl">
               <div className="overflow-hidden rounded-[34px]">
                 <BannerCarousel />
               </div>
 
-              <div className="mt-8 border-t border-white/10 pt-8">
+              <div className="mt-8 border-t border-slate-200 pt-8">
                 <FlashSale />
               </div>
 
               <div className="mt-6 grid grid-cols-2 gap-4">
                 <Link
                   href="/seller"
-                  className="rounded-[28px] border border-white/8 bg-white/[0.04] p-7 text-white transition hover:-translate-y-0.5 hover:bg-white/[0.06]"
+                  className="rounded-[28px] border border-slate-200 bg-white p-7 text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50"
                 >
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">Merchant</p>
-                  <h2 className="mt-3 text-[28px] font-bold leading-tight text-white">Lihat Merchant</h2>
-                  <p className="mt-3 max-w-xl text-sm leading-7 text-slate-300">Temukan merchant aktif dan produk digital yang sudah siap dijual tanpa harus berpindah halaman terlalu jauh.</p>
-                  <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-white/90">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">Merchant</p>
+                  <h2 className="mt-3 text-[28px] font-bold leading-tight text-slate-900">Lihat Merchant</h2>
+                  <p className="mt-3 max-w-xl text-sm leading-7 text-slate-600">Temukan merchant aktif dan produk digital yang sudah siap dijual tanpa harus berpindah halaman terlalu jauh.</p>
+                  <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#003D99]">
                     <span>Buka direktori</span>
-                    <span className="text-white/50">→</span>
+                    <span className="text-slate-400">→</span>
                   </div>
                 </Link>
 
                 <Link
                   href="/promo"
-                  className="rounded-[28px] border border-white/8 bg-white/[0.04] p-7 text-white transition hover:-translate-y-0.5 hover:bg-white/[0.06]"
+                  className="rounded-[28px] border border-slate-200 bg-white p-7 text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50"
                 >
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">Promo</p>
-                  <h2 className="mt-3 text-[28px] font-bold leading-tight text-white">Promo Terbaru</h2>
-                  <p className="mt-3 max-w-xl text-sm leading-7 text-slate-300">Pantau penawaran aktif, campaign berjalan, dan produk dengan momentum terbaik untuk dijual.</p>
-                  <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-white/90">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">Promo</p>
+                  <h2 className="mt-3 text-[28px] font-bold leading-tight text-slate-900">Promo Terbaru</h2>
+                  <p className="mt-3 max-w-xl text-sm leading-7 text-slate-600">Pantau penawaran aktif, campaign berjalan, dan produk dengan momentum terbaik untuk dijual.</p>
+                  <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#003D99]">
                     <span>Lihat promo aktif</span>
-                    <span className="text-white/50">→</span>
+                    <span className="text-slate-400">→</span>
                   </div>
                 </Link>
               </div>
@@ -485,36 +485,36 @@ export default function Home() {
               </div>
 
               <div className="mt-10 grid grid-cols-[1.4fr_0.42fr] gap-8">
-                <div className="rounded-[32px] border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
+                <div className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-sm">
                   <GameGrid category={activeTypeGroup} />
                 </div>
 
                 <div className="space-y-4">
                   <Link
                     href="/seller"
-                    className="block rounded-[28px] border border-white/10 bg-white/6 p-6 text-white transition hover:-translate-y-0.5 hover:bg-white/10"
+                    className="block rounded-[28px] border border-slate-200 bg-white p-6 text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50"
                   >
-                    <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-blue-200">Butuh Merchant?</p>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#003D99]">Butuh Merchant?</p>
                     <h3 className="mt-2 text-xl font-bold">Buka direktori merchant</h3>
-                    <p className="mt-2 text-sm leading-6 text-slate-300">Jelajahi partner aktif dan produk digital yang sudah siap dijual.</p>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">Jelajahi partner aktif dan produk digital yang sudah siap dijual.</p>
                   </Link>
 
                   <Link
                     href="/pusat-bantuan"
-                    className="block rounded-[28px] border border-white/10 bg-white/6 p-6 text-white transition hover:-translate-y-0.5 hover:bg-white/10"
+                    className="block rounded-[28px] border border-slate-200 bg-white p-6 text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50"
                   >
-                    <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-emerald-200">Butuh Bantuan?</p>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-emerald-600">Butuh Bantuan?</p>
                     <h3 className="mt-2 text-xl font-bold">Lihat pusat bantuan</h3>
-                    <p className="mt-2 text-sm leading-6 text-slate-300">Temukan panduan transaksi, pembayaran, dan jawaban cepat untuk pertanyaan umum.</p>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">Temukan panduan transaksi, pembayaran, dan jawaban cepat untuk pertanyaan umum.</p>
                   </Link>
                 </div>
               </div>
 
-              <div className="mt-10 border-t border-white/10 pt-10">
+              <div className="mt-10 border-t border-slate-200 pt-10">
                 <AboutFAQ />
               </div>
 
-              <div className="mt-10 border-t border-white/10 pt-10">
+              <div className="mt-10 border-t border-slate-200 pt-10">
                 <Footer />
               </div>
             </div>

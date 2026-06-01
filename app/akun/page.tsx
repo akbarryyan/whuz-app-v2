@@ -209,8 +209,8 @@ export default function AkunPage() {
 
   if (isLoading) {
     return (
-      <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#161B22]`}>
-        <div className="w-full max-w-[480px] min-h-screen bg-white shadow-2xl lg:max-w-7xl lg:bg-transparent lg:shadow-none">
+      <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#F5F5F5]`}>
+        <div className="w-full max-w-[480px] min-h-screen bg-white shadow-2xl lg:max-w-7xl lg:bg-[#F5F5F5] lg:shadow-none">
           {/* ---- Brand Header ---- */}
           <AppHeader />
 
@@ -354,10 +354,10 @@ export default function AkunPage() {
   // ===================== RENDER =====================
 
   return (
-    <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#161B22]`}>
+    <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#F5F5F5]`}>
       <ToastContainer toasts={toast.toasts} onRemove={toast.removeToast} />
 
-      <div className="relative flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-transparent lg:shadow-none">
+      <div className="relative flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-[#F5F5F5] lg:shadow-none">
 
         {/* ---- Brand Header ---- */}
         <AppHeader onBack={() => router.back()} />
@@ -444,20 +444,20 @@ export default function AkunPage() {
 
           <div className="space-y-4 lg:space-y-6">
             {/* ---- WALLET CARD ---- */}
-            <div className="relative overflow-hidden rounded-t-3xl border border-slate-100 bg-white p-5 shadow-lg lg:rounded-3xl lg:border-white/10 lg:bg-white/[0.04] lg:p-6 lg:shadow-none">
+            <div className="relative overflow-hidden rounded-t-3xl border border-slate-100 bg-white p-5 shadow-lg lg:rounded-3xl lg:border-slate-200 lg:bg-white lg:p-6 lg:shadow-none">
               <div className="absolute right-0 top-0 h-full w-32 rounded-r-3xl bg-gradient-to-l from-purple-50 to-transparent lg:from-white/[0.06]" />
 
               <div className="relative z-10 flex items-center justify-between">
                 <div>
-                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400 lg:text-slate-300">
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400 lg:text-slate-500">
                       Saldo Wallet
                     </p>
-                    <p className="text-2xl font-bold text-slate-800 lg:text-[2rem] lg:text-white">
+                    <p className="text-2xl font-bold text-slate-800 lg:text-[2rem] lg:text-slate-800">
                       {formatBalance(wallet?.balance ?? 0)}
                     </p>
                     <button
                       onClick={() => router.push("/topup")}
-                      className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-purple-50 px-3 py-1.5 text-xs font-semibold text-purple-600 transition hover:bg-purple-100 lg:bg-white/10 lg:px-4 lg:py-2 lg:text-sm lg:text-white lg:hover:bg-white/15"
+                      className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-purple-50 px-3 py-1.5 text-xs font-semibold text-purple-600 transition hover:bg-purple-100 lg:bg-white/10 lg:px-4 lg:py-2 lg:text-sm lg:text-slate-800 lg:hover:bg-slate-100"
                     >
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
@@ -480,10 +480,10 @@ export default function AkunPage() {
             <div className="space-y-4 lg:grid lg:grid-cols-2 lg:gap-6 lg:space-y-0">
               {menuItems.map((group) => (
                 <div key={group.group}>
-                  <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-slate-400 lg:mb-3 lg:text-slate-300">
+                  <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-slate-400 lg:mb-3 lg:text-slate-500">
                     {group.group}
                   </p>
-                  <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm divide-y divide-slate-50 lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none lg:divide-white/10">
+                  <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm divide-y divide-slate-50 lg:border-slate-200 lg:bg-white lg:shadow-none lg:divide-slate-100">
                     {group.items.map((item, idx) => (
                       <button
                         key={idx}
@@ -494,7 +494,7 @@ export default function AkunPage() {
                           {item.icon}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-slate-800 lg:text-white">{item.label}</p>
+                          <p className="text-sm font-semibold text-slate-800 lg:text-slate-800">{item.label}</p>
                           <p className="mt-0.5 text-xs text-slate-400 lg:text-slate-400">{item.sub}</p>
                         </div>
                         <svg className="h-4 w-4 flex-shrink-0 text-slate-300 lg:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -574,39 +574,39 @@ export default function AkunPage() {
                   bg: "bg-rose-50",
                 },
               ].map((stat) => (
-                <div key={stat.label} className="flex flex-col items-center gap-1.5 rounded-2xl border border-slate-100 bg-white p-3 shadow-sm lg:flex-row lg:justify-between lg:gap-3 lg:border-white/10 lg:bg-white/[0.04] lg:px-4 lg:py-4 lg:shadow-none">
+                <div key={stat.label} className="flex flex-col items-center gap-1.5 rounded-2xl border border-slate-100 bg-white p-3 shadow-sm lg:flex-row lg:justify-between lg:gap-3 lg:border-slate-200 lg:bg-white lg:px-4 lg:py-4 lg:shadow-none">
                   <div className={`rounded-xl p-2 ${stat.bg}`}>{stat.icon}</div>
                   <div className="lg:flex-1 lg:text-right">
-                    <p className="text-xl font-bold text-slate-800 lg:text-2xl lg:text-white">{stat.value}</p>
+                    <p className="text-xl font-bold text-slate-800 lg:text-2xl lg:text-slate-800">{stat.value}</p>
                     <p className="text-center text-[10px] leading-tight text-slate-400 lg:text-right lg:text-xs lg:text-slate-400">{stat.label}</p>
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none">
+            <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm lg:border-slate-200 lg:bg-white lg:shadow-none">
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400 lg:text-slate-400">
                 Akun
               </p>
               <div className="mt-3 space-y-2 text-sm">
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-slate-500 lg:text-slate-400">Nama</span>
-                  <span className="text-right font-semibold text-slate-800 lg:text-white">{user.name ?? "Member"}</span>
+                  <span className="text-right font-semibold text-slate-800 lg:text-slate-800">{user.name ?? "Member"}</span>
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-slate-500 lg:text-slate-400">Email</span>
-                  <span className="text-right font-medium text-slate-700 lg:text-slate-200">{user.email ?? "-"}</span>
+                  <span className="text-right font-medium text-slate-700 lg:text-slate-600">{user.email ?? "-"}</span>
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-slate-500 lg:text-slate-400">Peran</span>
-                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700 lg:bg-white/10 lg:text-slate-100">
+                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700 lg:bg-white/10 lg:text-slate-700">
                     {user.role}
                   </span>
                 </div>
                 {tier ? (
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-slate-500 lg:text-slate-400">Tier</span>
-                    <span className="text-right font-semibold text-slate-800 lg:text-white">{tier.label}</span>
+                    <span className="text-right font-semibold text-slate-800 lg:text-slate-800">{tier.label}</span>
                   </div>
                 ) : null}
               </div>
@@ -616,7 +616,7 @@ export default function AkunPage() {
               <button
                 type="button"
                 onClick={() => router.push("/admin")}
-                className="group w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 text-left shadow-sm transition hover:border-slate-300 hover:shadow-md lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none lg:hover:bg-white/[0.06]"
+                className="group w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 text-left shadow-sm transition hover:border-slate-300 hover:shadow-md lg:border-slate-200 lg:bg-white lg:shadow-none lg:hover:bg-white/[0.06]"
               >
                 <div className="flex items-center gap-3">
                   <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-slate-900 text-white">
@@ -633,14 +633,14 @@ export default function AkunPage() {
                     <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400 lg:text-slate-400">
                       Admin
                     </p>
-                    <p className="mt-1 text-sm font-bold text-slate-800 lg:text-white">
+                    <p className="mt-1 text-sm font-bold text-slate-800 lg:text-slate-800">
                       Buka Dashboard Admin
                     </p>
                     <p className="mt-1 text-xs leading-relaxed text-slate-500 lg:text-slate-400">
                       Akses panel pengelolaan website tanpa keluar dari akun ini.
                     </p>
                   </div>
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition group-hover:bg-slate-900 group-hover:text-white lg:bg-white/10 lg:text-slate-300 lg:group-hover:bg-white/15">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition group-hover:bg-slate-900 group-hover:text-white lg:bg-white/10 lg:text-slate-500 lg:group-hover:bg-white/15">
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>

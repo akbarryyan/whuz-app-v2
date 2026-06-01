@@ -45,7 +45,7 @@ export default function Categories({ activeCategory, onCategoryChange }: Categor
 
   return (
     <div
-      className={`border-b border-slate-200 bg-white transition-all duration-300 lg:border-0 lg:bg-transparent ${
+      className={`border-b border-slate-200 bg-white transition-all duration-300 lg:border-0 lg:bg-white ${
         isSticky ? "sticky top-[52px] z-30 shadow-md lg:top-auto lg:shadow-none" : ""
       }`}
     >
@@ -60,8 +60,8 @@ export default function Categories({ activeCategory, onCategoryChange }: Categor
               onClick={() => onCategoryChange(category.value)}
               className={`relative flex-shrink-0 whitespace-nowrap py-3 text-sm font-medium transition-all duration-300 lg:rounded-full lg:px-8 lg:py-3 lg:text-[15px] lg:font-semibold ${
                 resolvedIdx === idx
-                  ? "scale-105 text-purple-600 lg:scale-100 lg:bg-[#2E5F95] lg:text-white"
-                  : "text-slate-500 hover:text-slate-700 lg:bg-[#232B36] lg:text-white lg:hover:bg-[#2a3441]"
+                  ? "scale-105 text-purple-600 lg:scale-100 lg:bg-[#003D99] lg:text-white lg:shadow-sm"
+                  : "text-slate-500 hover:text-slate-700 lg:border lg:border-slate-200 lg:bg-slate-50 lg:text-slate-600 lg:hover:border-slate-300 lg:hover:bg-slate-100 lg:hover:text-slate-800"
               }`}
             >
               {category.label}

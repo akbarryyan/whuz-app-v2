@@ -35,22 +35,6 @@ html {
   --font-mono: var(--font-display);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0b0f14;
-    --foreground: #e5e7eb;
-    --surface: #111827;
-    --surface-muted: #0f172a;
-    --primary: #e5e7eb;
-    --primary-strong: #f8fafc;
-    --accent: #22c55e;
-    --accent-soft: rgba(34, 197, 94, 0.16);
-    --warning: #fbbf24;
-    --danger: #f87171;
-    --border: rgba(148, 163, 184, 0.22);
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);

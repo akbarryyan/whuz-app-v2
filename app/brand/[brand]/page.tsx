@@ -537,9 +537,9 @@ export default function BrandDetailPage({
   if (loading) {
     return (
       <div
-        className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#161B22]`}
+        className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#F5F5F5]`}
       >
-        <div className="relative flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-transparent lg:shadow-none">
+        <div className="relative flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-[#F5F5F5] lg:shadow-none">
           {/* Header skeleton */}
           <div className="px-3 py-3 flex items-center gap-2" style={{ backgroundColor: "#003D99" }}>
             <div className="w-9 h-9 rounded-full bg-white/20 animate-pulse flex-shrink-0" />
@@ -553,7 +553,7 @@ export default function BrandDetailPage({
             </div>
           </div>
           {/* Content skeleton */}
-          <div className="flex-1 bg-slate-50 px-4 py-4 lg:mx-auto lg:w-full lg:max-w-6xl lg:bg-transparent lg:px-0 lg:pt-10">
+          <div className="flex-1 bg-slate-50 px-4 py-4 lg:mx-auto lg:w-full lg:max-w-6xl lg:bg-[#F5F5F5] lg:px-0 lg:pt-10">
             {/* Tab skeleton */}
             <div className="flex gap-2 mb-4">
               {[1, 2, 3].map((i) => (
@@ -568,7 +568,7 @@ export default function BrandDetailPage({
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className="rounded-xl bg-white p-3 shadow-sm animate-pulse lg:border lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none"
+                  className="rounded-xl bg-white p-3 shadow-sm animate-pulse lg:border lg:border-slate-200 lg:bg-white lg:shadow-none"
                 >
                   <div className="h-3 w-full bg-slate-200 rounded mb-2" />
                   <div className="h-3 w-2/3 bg-slate-200 rounded mb-3" />
@@ -586,9 +586,9 @@ export default function BrandDetailPage({
   if (error) {
     return (
       <div
-        className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#161B22]`}
+        className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#F5F5F5]`}
       >
-        <div className="relative flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-transparent lg:shadow-none">
+        <div className="relative flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-[#F5F5F5] lg:shadow-none">
           <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
             <svg
               className="w-16 h-16 text-slate-300 mb-4"
@@ -603,7 +603,7 @@ export default function BrandDetailPage({
                 d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"
               />
             </svg>
-            <p className="mb-1 font-semibold text-slate-600 lg:text-white">{error}</p>
+            <p className="mb-1 font-semibold text-slate-600 lg:text-slate-800">{error}</p>
             <p className="mb-6 text-sm text-slate-400">
               Coba kembali ke halaman utama.
             </p>
@@ -622,11 +622,11 @@ export default function BrandDetailPage({
   // ===================== MAIN RENDER =====================
   return (
     <div
-      className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#161B22]`}
+      className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#F5F5F5]`}
     >
       <ToastContainer toasts={toast.toasts} onRemove={toast.removeToast} />
 
-      <div className="relative flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-transparent lg:shadow-none">
+      <div className="relative flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-[#F5F5F5] lg:shadow-none">
         {/* ---- Brand Header ---- */}
         <AppHeader onBack={() => router.back()} />
 
@@ -634,11 +634,11 @@ export default function BrandDetailPage({
         <div className="h-[60px]" />
 
         {/* ---- Main Content ---- */}
-        <div className="flex-1 bg-slate-50 pb-12 lg:bg-transparent">
+        <div className="flex-1 bg-slate-50 pb-12 lg:bg-[#F5F5F5]">
           <BannerCarousel />
 
           {/* == Brand Hero Section == */}
-          <div className="bg-white px-4 pt-4 pb-4 border-b border-slate-100 -mt-3 lg:mx-auto lg:mt-6 lg:w-full lg:max-w-6xl lg:rounded-[28px] lg:border lg:border-white/10 lg:bg-white/[0.04] lg:px-6 lg:pt-5 lg:pb-5">
+          <div className="bg-white px-4 pt-4 pb-4 border-b border-slate-100 -mt-3 lg:mx-auto lg:mt-6 lg:w-full lg:max-w-6xl lg:rounded-[28px] lg:border lg:border-slate-200 lg:bg-white lg:px-6 lg:pt-5 lg:pb-5">
             {/* Breadcrumb */}
             <div className="flex items-center justify-between gap-2 mb-3 lg:mb-4">
               <div className="flex min-w-0 flex-wrap items-center gap-1 text-[11px] text-slate-400 lg:text-[12px]">
@@ -654,14 +654,14 @@ export default function BrandDetailPage({
                 <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
-                <span className="font-medium text-slate-600 truncate lg:text-slate-200">{brandName}</span>
+                <span className="font-medium text-slate-600 truncate lg:text-slate-600">{brandName}</span>
               </div>
             </div>
 
             {sellerStore && (
               <div className="mb-3 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 lg:mb-4 lg:border-emerald-500/20 lg:bg-emerald-500/10 lg:px-5 lg:py-4">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-700 lg:text-[10px] lg:tracking-[0.28em] lg:text-emerald-200">Toko Merchant</p>
-                <p className="mt-1 text-sm font-bold text-slate-900 lg:mt-1.5 lg:text-base lg:text-white">{sellerStore.displayName}</p>
+                <p className="mt-1 text-sm font-bold text-slate-900 lg:mt-1.5 lg:text-base lg:text-slate-800">{sellerStore.displayName}</p>
                 {sellerStore.description && (
                   <p className="mt-1 text-xs text-slate-600 lg:mt-1.5 lg:max-w-3xl lg:text-[12px] lg:leading-5 lg:text-emerald-50/80">{sellerStore.description}</p>
                 )}
@@ -693,7 +693,7 @@ export default function BrandDetailPage({
               <div className="flex-1 min-w-0">
                 <div className="flex items-start gap-2">
                   <div className="flex-1 min-w-0">
-                    <h1 className="text-sm font-bold leading-snug text-slate-800 lg:text-[20px] lg:leading-7 lg:text-white">
+                    <h1 className="text-sm font-bold leading-snug text-slate-800 lg:text-[20px] lg:leading-7 lg:text-slate-800">
                       Top Up {brandName} Murah
                     </h1>
                     <p className="mt-0.5 text-[11px] text-slate-400 lg:mt-1 lg:text-[12px] lg:text-slate-400">{products.length} produk tersedia</p>
@@ -712,10 +712,10 @@ export default function BrandDetailPage({
             </div>
 
             {/* Rating row */}
-            <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100 lg:mt-4 lg:border-white/10 lg:pt-4">
+            <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100 lg:mt-4 lg:border-slate-200 lg:pt-4">
               <div className="flex items-center gap-1.5 lg:gap-2">
                 <span className="text-yellow-400 text-base lg:text-lg">★</span>
-                <span className="text-sm font-bold text-slate-800 lg:text-[15px] lg:text-white">
+                <span className="text-sm font-bold text-slate-800 lg:text-[15px] lg:text-slate-800">
                   {reviewMeta && reviewMeta.totalRatings > 0
                     ? reviewMeta.avgRating.toFixed(1)
                     : "-"}
@@ -742,7 +742,7 @@ export default function BrandDetailPage({
                   setReviewSubmitSuccess(false);
                   setShowReviewSheet(true);
                 }}
-                className="flex items-center gap-1 text-[11px] font-semibold text-purple-600 transition-colors hover:text-purple-800 lg:gap-1.5 lg:text-[12px] lg:text-slate-200 lg:hover:text-white"
+                className="flex items-center gap-1 text-[11px] font-semibold text-purple-600 transition-colors hover:text-purple-800 lg:gap-1.5 lg:text-[12px] lg:text-slate-600 lg:hover:text-white"
               >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -768,10 +768,10 @@ export default function BrandDetailPage({
                   return (
                     <div
                       key={review.id}
-                      className="flex-shrink-0 w-[160px] rounded-xl border border-slate-100 bg-slate-50 p-2.5 lg:w-[190px] lg:rounded-2xl lg:border-white/10 lg:bg-white/5 lg:p-3"
+                      className="flex-shrink-0 w-[160px] rounded-xl border border-slate-100 bg-slate-50 p-2.5 lg:w-[190px] lg:rounded-2xl lg:border-slate-200 lg:bg-slate-50 lg:p-3"
                     >
                       <div className="flex items-center justify-between mb-1">
-                        <span className="max-w-[90px] truncate text-[11px] font-semibold text-slate-700 lg:max-w-[112px] lg:text-[12px] lg:text-white">{masked}</span>
+                        <span className="max-w-[90px] truncate text-[11px] font-semibold text-slate-700 lg:max-w-[112px] lg:text-[12px] lg:text-slate-800">{masked}</span>
                         <div className="flex">
                           {Array.from({ length: 5 }).map((_, s) => (
                             <span key={s} className={`text-[10px] ${s < review.rating ? "text-yellow-400" : "text-slate-200"}`}>★</span>
@@ -858,24 +858,24 @@ export default function BrandDetailPage({
           </div>
 
           {/* == Dynamic Input Fields Section == */}
-          <div className="bg-white px-4 py-4 border-b border-slate-100 lg:mx-auto lg:mt-5 lg:w-full lg:max-w-6xl lg:rounded-[24px] lg:border lg:border-white/10 lg:bg-white/[0.04] lg:px-6 lg:py-5">
+          <div className="bg-white px-4 py-4 border-b border-slate-100 lg:mx-auto lg:mt-5 lg:w-full lg:max-w-6xl lg:rounded-[24px] lg:border lg:border-slate-200 lg:bg-white lg:px-6 lg:py-5">
             <div className="flex items-center gap-2 mb-3 lg:mb-4">
               <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
-              <span className="text-sm font-semibold text-slate-700 lg:text-[15px] lg:text-white">Masukkan Data Akun</span>
+              <span className="text-sm font-semibold text-slate-700 lg:text-[15px] lg:text-slate-800">Masukkan Data Akun</span>
             </div>
 
             <div className={inputFields.length > 1 ? "flex flex-col gap-2 lg:gap-3" : "flex gap-2 lg:gap-3"}>
               {inputFields.map((field) => (
                 <div key={field.key} className={inputFields.length > 1 ? "w-full" : field.width === "fixed" ? "w-28 flex-shrink-0" : "flex-1 min-w-[120px]"}>
-                  <label className="mb-1 block text-xs font-medium text-slate-500 lg:mb-1.5 lg:text-[12px] lg:text-slate-300">{field.label}</label>
+                  <label className="mb-1 block text-xs font-medium text-slate-500 lg:mb-1.5 lg:text-[12px] lg:text-slate-500">{field.label}</label>
                   <input
                     type="text"
                     placeholder={field.placeholder}
                     value={fieldValues[field.key] ?? ""}
                     onChange={(e) => setFieldValues((prev) => ({ ...prev, [field.key]: e.target.value }))}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100 transition lg:rounded-2xl lg:border-white/10 lg:bg-white/5 lg:px-4 lg:py-3 lg:text-[14px] lg:text-white lg:placeholder:text-slate-500"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100 transition lg:rounded-2xl lg:border-slate-200 lg:bg-slate-50 lg:px-4 lg:py-3 lg:text-[14px] lg:text-slate-800 lg:placeholder:text-slate-400"
                   />
                 </div>
               ))}
@@ -893,7 +893,7 @@ export default function BrandDetailPage({
               <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
-              <span className="text-sm font-semibold text-slate-700 lg:text-[15px] lg:text-white">Pilih Produk</span>
+              <span className="text-sm font-semibold text-slate-700 lg:text-[15px] lg:text-slate-800">Pilih Produk</span>
             </div>
             {!(types.length === 1 && ["game", "saldo-emoney"].includes(types[0].toLowerCase())) && (
             <div className="flex gap-2 overflow-x-auto hide-scrollbar lg:gap-2.5">
@@ -902,7 +902,7 @@ export default function BrandDetailPage({
                 className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-all lg:px-5 lg:py-2.5 lg:text-[12px] ${
                   activeType === "Semua"
                     ? "bg-purple-600 text-white shadow-md shadow-purple-200"
-                    : "bg-white text-slate-600 border border-slate-200 hover:border-purple-300 hover:text-purple-600 lg:border-white/10 lg:bg-white/[0.04] lg:text-slate-200 lg:hover:text-white"
+                    : "bg-white text-slate-600 border border-slate-200 hover:border-purple-300 hover:text-purple-600 lg:border-slate-200 lg:bg-white lg:text-slate-600 lg:hover:text-white"
                 }`}
               >
                 Semua
@@ -918,7 +918,7 @@ export default function BrandDetailPage({
                     className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-all whitespace-nowrap lg:px-5 lg:py-2.5 lg:text-[12px] ${
                       activeType === type
                         ? "bg-purple-600 text-white shadow-md shadow-purple-200"
-                        : "bg-white text-slate-600 border border-slate-200 hover:border-purple-300 hover:text-purple-600 lg:border-white/10 lg:bg-white/[0.04] lg:text-slate-200 lg:hover:text-white"
+                        : "bg-white text-slate-600 border border-slate-200 hover:border-purple-300 hover:text-purple-600 lg:border-slate-200 lg:bg-white lg:text-slate-600 lg:hover:text-white"
                     }`}
                   >
                     {label}
@@ -932,7 +932,7 @@ export default function BrandDetailPage({
           {/* == Product Grid == */}
           <div className="px-4 py-2 lg:mx-auto lg:w-full lg:max-w-6xl lg:pb-0">
             {filteredProducts.length === 0 ? (
-              <div className="rounded-2xl bg-white p-8 text-center shadow-sm lg:border lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none">
+              <div className="rounded-2xl bg-white p-8 text-center shadow-sm lg:border lg:border-slate-200 lg:bg-white lg:shadow-none">
                 <svg
                   className="w-10 h-10 text-slate-300 mx-auto mb-2"
                   fill="none"
@@ -946,7 +946,7 @@ export default function BrandDetailPage({
                     d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
                   />
                 </svg>
-                <p className="text-sm text-slate-500 lg:text-slate-300">
+                <p className="text-sm text-slate-500 lg:text-slate-500">
                   {products.length === 0
                     ? "Belum ada merchant yang menjual brand ini."
                     : "Tidak ada produk untuk kategori ini."}
@@ -972,7 +972,7 @@ export default function BrandDetailPage({
                       className={`relative text-left rounded-xl p-3 transition-all border-2 lg:rounded-2xl lg:p-4 ${
                         isSelected
                           ? "border-purple-500 bg-purple-50 shadow-md shadow-purple-100"
-                          : "border-transparent bg-white shadow-sm hover:shadow-md hover:border-purple-200 lg:bg-white/[0.04] lg:shadow-none lg:hover:bg-white/[0.06]"
+                          : "border-transparent bg-white shadow-sm hover:shadow-md hover:border-purple-200 lg:bg-white lg:shadow-none lg:hover:bg-white/[0.06]"
                       }`}
                     >
                       {/* Discount badge */}
@@ -1004,7 +1004,7 @@ export default function BrandDetailPage({
                       {/* Product name */}
                       <p
                         className={`text-xs font-semibold leading-tight mb-2 pr-5 ${
-                          isSelected ? "text-purple-700 lg:text-white" : "text-slate-700 lg:text-slate-100"
+                          isSelected ? "text-purple-700 lg:text-slate-800" : "text-slate-700 lg:text-slate-700"
                         }`}
                       >
                         {product.name}
@@ -1050,12 +1050,12 @@ export default function BrandDetailPage({
           </div>
 
           {/* == Payment Method == */}
-          <div className="bg-white px-4 py-4 border-b border-slate-100 lg:mx-auto lg:mt-5 lg:w-full lg:max-w-6xl lg:rounded-[24px] lg:border lg:border-white/10 lg:bg-white/[0.04] lg:px-6 lg:py-5">
+          <div className="bg-white px-4 py-4 border-b border-slate-100 lg:mx-auto lg:mt-5 lg:w-full lg:max-w-6xl lg:rounded-[24px] lg:border lg:border-slate-200 lg:bg-white lg:px-6 lg:py-5">
             <div className="flex items-center gap-2 mb-3 lg:mb-4">
               <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
               </svg>
-              <span className="text-sm font-semibold text-slate-700 lg:text-[15px] lg:text-white">Metode Pembayaran</span>
+              <span className="text-sm font-semibold text-slate-700 lg:text-[15px] lg:text-slate-800">Metode Pembayaran</span>
             </div>
 
             {/* Saldo Wallet — inline */}
@@ -1064,7 +1064,7 @@ export default function BrandDetailPage({
               const isDisabled = !isLoggedIn;
               return (
                 <div className={`relative rounded-xl border mb-3 overflow-hidden transition-all lg:mb-4 lg:rounded-2xl ${
-                  isDisabled ? "border-slate-200 bg-slate-50 opacity-60 lg:border-white/10 lg:bg-white/5" : "border-slate-200 bg-white lg:border-white/10 lg:bg-white/[0.04]"
+                  isDisabled ? "border-slate-200 bg-slate-50 opacity-60 lg:border-slate-200 lg:bg-slate-50" : "border-slate-200 bg-white lg:border-slate-200 lg:bg-white"
                 }`}>
                   {/* Gratis Biaya Admin badge */}
                   <div className="absolute top-0 right-0">
@@ -1090,7 +1090,7 @@ export default function BrandDetailPage({
                     </div>
                     {/* Text */}
                     <div className="flex-1 text-left min-w-0">
-                      <p className="text-[12px] text-slate-500 lg:text-slate-300">
+                      <p className="text-[12px] text-slate-500 lg:text-slate-500">
                         Saldo Pembeli:{" "}
                         <span className={
                           isDisabled
@@ -1140,11 +1140,11 @@ export default function BrandDetailPage({
                   className={`w-full flex items-center gap-3 rounded-xl border-2 px-3.5 py-3 transition-all lg:rounded-2xl lg:px-4 lg:py-3.5 ${
                     paymentMethod === "PAYMENT_GATEWAY"
                       ? "border-purple-500 bg-purple-50 lg:bg-[#2E5F95]/16"
-                      : "border-slate-200 bg-white hover:border-purple-200 lg:border-white/10 lg:bg-white/[0.04] lg:hover:bg-white/[0.06]"
+                      : "border-slate-200 bg-white hover:border-purple-200 lg:border-slate-200 lg:bg-white lg:hover:bg-white/[0.06]"
                   }`}
                 >
                   {/* Icon — show selected method logo or generic icon */}
-                  <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white lg:border-white/10 lg:bg-white/5">
+                  <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white lg:border-slate-200 lg:bg-slate-50">
                     {activePg?.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={activePg.imageUrl} alt={activePg.label} className="w-full h-full object-contain p-1" />
@@ -1160,10 +1160,10 @@ export default function BrandDetailPage({
                     {activePg ? (
                       <>
                         <p className="mb-0.5 text-[10px] leading-none text-slate-400 lg:text-slate-500">Metode Pembayaran</p>
-                        <p className="truncate text-[13px] font-bold text-slate-800 lg:text-white">{activePg.label}</p>
+                        <p className="truncate text-[13px] font-bold text-slate-800 lg:text-slate-800">{activePg.label}</p>
                       </>
                     ) : (
-                      <p className="text-[13px] font-semibold text-slate-700 lg:text-slate-100">Metode Pembayaran Lainnya</p>
+                      <p className="text-[13px] font-semibold text-slate-700 lg:text-slate-700">Metode Pembayaran Lainnya</p>
                     )}
                   </div>
                   <svg className="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1175,12 +1175,12 @@ export default function BrandDetailPage({
           </div>
 
           {/* == WhatsApp Number == */}
-          <div className="bg-white px-4 py-4 border-b border-slate-100 lg:mx-auto lg:mt-5 lg:w-full lg:max-w-6xl lg:rounded-[24px] lg:border lg:border-white/10 lg:bg-white/[0.04] lg:px-6 lg:py-5">
+          <div className="bg-white px-4 py-4 border-b border-slate-100 lg:mx-auto lg:mt-5 lg:w-full lg:max-w-6xl lg:rounded-[24px] lg:border lg:border-slate-200 lg:bg-white lg:px-6 lg:py-5">
             <div className="flex items-center gap-2 mb-3 lg:mb-4">
               <svg className="w-4 h-4 text-green-600" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
               </svg>
-              <span className="text-sm font-semibold text-slate-700 lg:text-[15px] lg:text-white">Nomor WhatsApp</span>
+              <span className="text-sm font-semibold text-slate-700 lg:text-[15px] lg:text-slate-800">Nomor WhatsApp</span>
               <span className="text-[10px] text-slate-400 lg:text-slate-500">(opsional)</span>
             </div>
             <div className="relative">
@@ -1195,7 +1195,7 @@ export default function BrandDetailPage({
                   setWhatsapp(val);
                 }}
                 maxLength={15}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-12 pr-4 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-green-400 focus:outline-none focus:ring-2 focus:ring-green-100 transition lg:rounded-2xl lg:border-white/10 lg:bg-white/5 lg:py-3 lg:text-[14px] lg:text-white lg:placeholder:text-slate-500"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-12 pr-4 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-green-400 focus:outline-none focus:ring-2 focus:ring-green-100 transition lg:rounded-2xl lg:border-slate-200 lg:bg-slate-50 lg:py-3 lg:text-[14px] lg:text-slate-800 lg:placeholder:text-slate-400"
               />
             </div>
             <p className="mt-2 text-[11px] leading-relaxed text-slate-400 lg:mt-3 lg:max-w-3xl lg:text-[12px] lg:leading-5 lg:text-slate-400">
@@ -1204,12 +1204,12 @@ export default function BrandDetailPage({
           </div>
 
           {/* == Voucher Section == */}
-          <div className="bg-white px-4 py-4 border-b border-slate-100 lg:mx-auto lg:mt-5 lg:w-full lg:max-w-6xl lg:rounded-[24px] lg:border lg:border-white/10 lg:bg-white/[0.04] lg:px-6 lg:py-5">
+          <div className="bg-white px-4 py-4 border-b border-slate-100 lg:mx-auto lg:mt-5 lg:w-full lg:max-w-6xl lg:rounded-[24px] lg:border lg:border-slate-200 lg:bg-white lg:px-6 lg:py-5">
             <div className="flex items-center gap-2 mb-3 lg:mb-4">
               <svg className="w-4 h-4 text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
               </svg>
-              <span className="text-sm font-semibold text-slate-700 lg:text-[15px] lg:text-white">Voucher</span>
+              <span className="text-sm font-semibold text-slate-700 lg:text-[15px] lg:text-slate-800">Voucher</span>
               {claimedVouchers.length > 0 && !appliedVoucher && (
                 <span className="text-[10px] font-bold bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded-full">
                   {claimedVouchers.length} tersedia
@@ -1246,7 +1246,7 @@ export default function BrandDetailPage({
             ) : !isLoggedIn ? (
               <button
                 onClick={() => router.push("/login")}
-                className="w-full flex items-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-3.5 py-3 hover:border-orange-300 hover:bg-orange-50 transition-all lg:rounded-2xl lg:border-white/15 lg:bg-white/5 lg:px-4 lg:py-3.5 lg:hover:bg-white/[0.08]"
+                className="w-full flex items-center gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50 px-3.5 py-3 hover:border-orange-300 hover:bg-orange-50 transition-all lg:rounded-2xl lg:border-slate-200 lg:bg-slate-50 lg:px-4 lg:py-3.5 lg:hover:bg-slate-100"
               >
                 <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center flex-shrink-0">
                   <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1328,7 +1328,7 @@ export default function BrandDetailPage({
           />
           {/* Sheet */}
           <div
-            className={`absolute bottom-0 left-0 right-0 flex flex-col rounded-t-3xl bg-white shadow-2xl transition-transform duration-300 ease-out lg:mx-auto lg:max-w-3xl lg:rounded-[28px] lg:border lg:border-white/10 lg:bg-[#171D25] lg:shadow-[0_24px_80px_rgba(0,0,0,0.45)] ${
+            className={`absolute bottom-0 left-0 right-0 flex flex-col rounded-t-3xl bg-white shadow-2xl transition-transform duration-300 ease-out lg:mx-auto lg:max-w-3xl lg:rounded-[28px] lg:border lg:border-slate-200 lg:bg-white lg:shadow-[0_24px_80px_rgba(0,0,0,0.45)] ${
               showPaymentSheet ? "translate-y-0" : "translate-y-full"
             }`}
             style={{ maxHeight: "78vh" }}
@@ -1339,12 +1339,12 @@ export default function BrandDetailPage({
             </div>
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-3 flex-shrink-0">
-              <p className="text-[14px] font-bold text-[#003D99] lg:text-white">Metode Pembayaran Lainnya</p>
+              <p className="text-[14px] font-bold text-[#003D99] lg:text-slate-800">Metode Pembayaran Lainnya</p>
               <button
                 onClick={() => setShowPaymentSheet(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors lg:bg-white/5 lg:hover:bg-white/10"
+                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors lg:bg-slate-50 lg:hover:bg-slate-50"
               >
-                <svg className="w-4 h-4 text-slate-500 lg:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-slate-500 lg:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -1363,7 +1363,7 @@ export default function BrandDetailPage({
               const qrisItems = pgMethods.filter((m) => m.group === "QRIS");
               if (qrisItems.length === 0) return null;
               return (
-                <div className="px-4 flex-shrink-0 border-b border-slate-100 lg:border-white/10">
+                <div className="px-4 flex-shrink-0 border-b border-slate-100 lg:border-slate-200">
                   <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wide pt-3 pb-2 lg:text-slate-400">E-Wallet &amp; QRIS</p>
                   {qrisItems.map((m) => {
                     const isActive = paymentMethod === "PAYMENT_GATEWAY" && pgMethod === m.key;
@@ -1374,14 +1374,14 @@ export default function BrandDetailPage({
                       <button
                         key={m.key}
                         onClick={() => { setPaymentMethod("PAYMENT_GATEWAY"); setPgMethod(m.key); setShowPaymentSheet(false); }}
-                        className="w-full flex items-center gap-3 py-3 border-b border-slate-100 last:border-b-0 lg:border-white/10 lg:hover:bg-white/[0.03]"
+                        className="w-full flex items-center gap-3 py-3 border-b border-slate-100 last:border-b-0 lg:border-slate-200 lg:hover:bg-white/[0.03]"
                       >
-                        <div className="w-10 h-10 rounded-xl border border-slate-200 bg-white flex items-center justify-center flex-shrink-0 overflow-hidden lg:border-white/10 lg:bg-white/5">
+                        <div className="w-10 h-10 rounded-xl border border-slate-200 bg-white flex items-center justify-center flex-shrink-0 overflow-hidden lg:border-slate-200 lg:bg-slate-50">
                           {m.imageUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={m.imageUrl} alt={m.label} className="w-full h-full object-contain p-1" />
                           ) : (
-                            <svg className="w-5 h-5 text-slate-600 lg:text-slate-300" viewBox="0 0 24 20" fill="none" stroke="currentColor">
+                            <svg className="w-5 h-5 text-slate-600 lg:text-slate-500" viewBox="0 0 24 20" fill="none" stroke="currentColor">
                               <rect x="1" y="1" width="8" height="8" rx="1" strokeWidth={2} />
                               <rect x="15" y="1" width="8" height="8" rx="1" strokeWidth={2} />
                               <rect x="1" y="12" width="8" height="8" rx="1" strokeWidth={2} />
@@ -1390,14 +1390,14 @@ export default function BrandDetailPage({
                           )}
                         </div>
                         <div className="flex-1 text-left">
-                          <p className="text-sm font-semibold text-slate-800 lg:text-white">{m.label}</p>
+                          <p className="text-sm font-semibold text-slate-800 lg:text-slate-800">{m.label}</p>
                           {fee > 0 && (
                             <p className="text-[10px] text-slate-400 mt-0.5 lg:text-slate-400">+biaya Rp {formatPrice(fee)}</p>
                           )}
                         </div>
                         {base > 0 && (
                           <div className="text-right flex-shrink-0 mr-2">
-                            <p className="text-sm font-bold text-slate-800 lg:text-white">Rp {formatPrice(total)}</p>
+                            <p className="text-sm font-bold text-slate-800 lg:text-slate-800">Rp {formatPrice(total)}</p>
                             {fee > 0 && (
                               <p className="text-[10px] text-slate-400 lg:text-slate-400">harga + biaya</p>
                             )}
@@ -1435,25 +1435,25 @@ export default function BrandDetailPage({
                       <button
                         key={m.key}
                         onClick={() => { setPaymentMethod("PAYMENT_GATEWAY"); setPgMethod(m.key); setShowPaymentSheet(false); }}
-                        className="w-full flex items-center gap-3 py-3 border-b border-slate-100 last:border-b-0 lg:border-white/10 lg:hover:bg-white/[0.03]"
+                        className="w-full flex items-center gap-3 py-3 border-b border-slate-100 last:border-b-0 lg:border-slate-200 lg:hover:bg-white/[0.03]"
                       >
-                        <div className="w-10 h-10 rounded-xl border border-slate-200 bg-white flex items-center justify-center flex-shrink-0 overflow-hidden lg:border-white/10 lg:bg-white/5">
+                        <div className="w-10 h-10 rounded-xl border border-slate-200 bg-white flex items-center justify-center flex-shrink-0 overflow-hidden lg:border-slate-200 lg:bg-slate-50">
                           {m.imageUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={m.imageUrl} alt={m.label} className="w-full h-full object-contain p-1" />
                           ) : (
-                            <span className="text-[9px] font-black text-slate-600 lg:text-slate-300">{abbr}</span>
+                            <span className="text-[9px] font-black text-slate-600 lg:text-slate-500">{abbr}</span>
                           )}
                         </div>
                         <div className="flex-1 text-left">
-                          <p className="text-sm font-semibold text-slate-800 lg:text-white">{m.label}</p>
+                          <p className="text-sm font-semibold text-slate-800 lg:text-slate-800">{m.label}</p>
                           {fee > 0 && (
                             <p className="text-[10px] text-slate-400 mt-0.5 lg:text-slate-400">+biaya Rp {formatPrice(fee)}</p>
                           )}
                         </div>
                         {base > 0 && (
                           <div className="text-right flex-shrink-0 mr-2">
-                            <p className="text-sm font-bold text-slate-800 lg:text-white">Rp {formatPrice(total)}</p>
+                            <p className="text-sm font-bold text-slate-800 lg:text-slate-800">Rp {formatPrice(total)}</p>
                             {fee > 0 && (
                               <p className="text-[10px] text-slate-400 lg:text-slate-400">harga + biaya</p>
                             )}
@@ -1489,7 +1489,7 @@ export default function BrandDetailPage({
           />
           {/* Sheet */}
           <div
-            className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl flex flex-col transition-transform duration-300 ease-out lg:mx-auto lg:max-w-3xl lg:rounded-[28px] lg:border lg:border-white/10 lg:bg-[#171D25] lg:shadow-[0_24px_80px_rgba(0,0,0,0.45)] ${
+            className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl flex flex-col transition-transform duration-300 ease-out lg:mx-auto lg:max-w-3xl lg:rounded-[28px] lg:border lg:border-slate-200 lg:bg-white lg:shadow-[0_24px_80px_rgba(0,0,0,0.45)] ${
               showVoucherSheet ? "translate-y-0" : "translate-y-full"
             }`}
             style={{ maxHeight: "78vh" }}
@@ -1499,16 +1499,16 @@ export default function BrandDetailPage({
               <div className="w-10 h-1 rounded-full bg-slate-300 lg:bg-white/20" />
             </div>
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-3 flex-shrink-0 border-b border-slate-100 lg:border-white/10">
+            <div className="flex items-center justify-between px-5 py-3 flex-shrink-0 border-b border-slate-100 lg:border-slate-200">
               <div>
                 <p className="text-[14px] font-bold text-orange-600 lg:text-orange-300">Voucher Saya</p>
                 <p className="text-[11px] text-slate-400">{claimedVouchers.length} voucher dapat digunakan</p>
               </div>
               <button
                 onClick={() => setShowVoucherSheet(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors lg:bg-white/5 lg:hover:bg-white/10"
+                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors lg:bg-slate-50 lg:hover:bg-slate-50"
               >
-                <svg className="w-4 h-4 text-slate-500 lg:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-slate-500 lg:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -1525,7 +1525,7 @@ export default function BrandDetailPage({
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
                     </svg>
                   </div>
-                  <p className="text-sm font-semibold text-slate-600 mb-1 lg:text-white">Belum ada voucher</p>
+                  <p className="text-sm font-semibold text-slate-600 mb-1 lg:text-slate-800">Belum ada voucher</p>
                   <p className="text-xs text-slate-400">Klaim voucher di halaman Voucher</p>
                 </div>
               ) : (
@@ -1541,8 +1541,8 @@ export default function BrandDetailPage({
                       disabled={isInvalid || voucherLoading}
                       className={`w-full text-left rounded-2xl border-2 overflow-hidden transition-all ${
                         isInvalid
-                          ? "border-slate-200 opacity-60 cursor-not-allowed lg:border-white/10"
-                          : "border-orange-200 hover:border-orange-400 hover:shadow-md active:scale-[0.99] cursor-pointer lg:border-orange-400/30 lg:bg-white/[0.04] lg:hover:border-orange-300"
+                          ? "border-slate-200 opacity-60 cursor-not-allowed lg:border-slate-200"
+                          : "border-orange-200 hover:border-orange-400 hover:shadow-md active:scale-[0.99] cursor-pointer lg:border-orange-400/30 lg:bg-white lg:hover:border-orange-300"
                       }`}
                     >
                       <div className={`h-1.5 ${
@@ -1551,7 +1551,7 @@ export default function BrandDetailPage({
                       <div className="px-3.5 py-3">
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex-1 min-w-0">
-                            <p className="text-[13px] font-bold text-slate-800 truncate lg:text-white">{v.title}</p>
+                            <p className="text-[13px] font-bold text-slate-800 truncate lg:text-slate-800">{v.title}</p>
                             <p className="text-[11px] font-mono font-semibold text-orange-600 mt-0.5 tracking-wider">{v.code}</p>
                           </div>
                           <div className="flex-shrink-0 bg-orange-100 rounded-xl px-2.5 py-1.5 text-right lg:bg-orange-500/15">
@@ -1560,9 +1560,9 @@ export default function BrandDetailPage({
                           </div>
                         </div>
                         {v.description && (
-                          <p className="text-[11px] text-slate-500 mt-1.5 line-clamp-2 lg:text-slate-300">{v.description}</p>
+                          <p className="text-[11px] text-slate-500 mt-1.5 line-clamp-2 lg:text-slate-500">{v.description}</p>
                         )}
-                        <div className="flex items-center flex-wrap gap-x-3 gap-y-1 mt-2 pt-2 border-t border-slate-100 lg:border-white/10">
+                        <div className="flex items-center flex-wrap gap-x-3 gap-y-1 mt-2 pt-2 border-t border-slate-100 lg:border-slate-200">
                           {v.minPurchase > 0 && (
                             <span className={`text-[10px] font-semibold ${
                               isInvalid ? "text-red-400" : "text-slate-500"
@@ -1590,7 +1590,7 @@ export default function BrandDetailPage({
 
         {/* ---- Sticky Bottom Bar ---- */}
         <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-30 lg:max-w-7xl">
-          <div className="bg-white border-t border-slate-200 px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] lg:mx-auto lg:max-w-6xl lg:rounded-t-[24px] lg:border lg:border-white/10 lg:bg-[#171D25] lg:shadow-[0_-24px_48px_rgba(0,0,0,0.25)]">
+          <div className="bg-white border-t border-slate-200 px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] lg:mx-auto lg:max-w-6xl lg:rounded-t-[24px] lg:border lg:border-slate-200 lg:bg-white lg:shadow-[0_-24px_48px_rgba(0,0,0,0.25)]">
             {selectedProduct ? (
               <div className="flex items-center gap-3">
                 {/* Selected product info */}
@@ -1600,7 +1600,7 @@ export default function BrandDetailPage({
                   </p>
                   {appliedVoucher ? (
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <p className="text-lg font-bold text-slate-800 lg:text-white">
+                      <p className="text-lg font-bold text-slate-800 lg:text-slate-800">
                         Rp {formatPrice(finalPrice)}
                       </p>
                       <p className="text-xs text-slate-400 line-through lg:text-slate-500">
@@ -1611,7 +1611,7 @@ export default function BrandDetailPage({
                       </span>
                     </div>
                   ) : (
-                    <p className="text-lg font-bold text-slate-800 lg:text-white">
+                    <p className="text-lg font-bold text-slate-800 lg:text-slate-800">
                       Rp {formatPrice(selectedProduct.sellingPrice)}
                     </p>
                   )}
@@ -1663,7 +1663,7 @@ export default function BrandDetailPage({
           />
           {/* Sheet */}
           <div
-            className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl flex flex-col transition-transform duration-300 ease-out lg:mx-auto lg:max-w-3xl lg:rounded-[28px] lg:border lg:border-white/10 lg:bg-[#171D25] lg:shadow-[0_24px_80px_rgba(0,0,0,0.45)] ${
+            className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl flex flex-col transition-transform duration-300 ease-out lg:mx-auto lg:max-w-3xl lg:rounded-[28px] lg:border lg:border-slate-200 lg:bg-white lg:shadow-[0_24px_80px_rgba(0,0,0,0.45)] ${
               showReviewSheet ? "translate-y-0" : "translate-y-full"
             }`}
             style={{ maxHeight: "80vh" }}
@@ -1673,18 +1673,18 @@ export default function BrandDetailPage({
               <div className="w-10 h-1 rounded-full bg-slate-300 lg:bg-white/20" />
             </div>
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-3 flex-shrink-0 border-b border-slate-100 lg:border-white/10">
+            <div className="flex items-center justify-between px-5 py-3 flex-shrink-0 border-b border-slate-100 lg:border-slate-200">
               <div>
-                <p className="text-[14px] font-bold text-purple-700 lg:text-white">
+                <p className="text-[14px] font-bold text-purple-700 lg:text-slate-800">
                   {userReview ? "Edit Ulasan" : "Tulis Ulasan"}
                 </p>
                 <p className="text-[11px] text-slate-400">{brandName}</p>
               </div>
               <button
                 onClick={() => setShowReviewSheet(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors lg:bg-white/5 lg:hover:bg-white/10"
+                className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors lg:bg-slate-50 lg:hover:bg-slate-50"
               >
-                <svg className="w-4 h-4 text-slate-500 lg:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-slate-500 lg:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -1693,14 +1693,14 @@ export default function BrandDetailPage({
             <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-4">
               {/* Star rating picker */}
               <div>
-                <p className="text-xs font-semibold text-slate-600 mb-2 lg:text-slate-200">Rating kamu</p>
+                <p className="text-xs font-semibold text-slate-600 mb-2 lg:text-slate-600">Rating kamu</p>
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
                       key={star}
                       onClick={() => setReviewRating(star)}
                       className={`text-3xl transition-transform active:scale-90 ${
-                        star <= reviewRating ? "text-yellow-400" : "text-slate-200 lg:text-white/15"
+                        star <= reviewRating ? "text-yellow-400" : "text-slate-200 lg:text-slate-800/15"
                       }`}
                     >
                       ★
@@ -1713,14 +1713,14 @@ export default function BrandDetailPage({
               </div>
               {/* Comment */}
               <div>
-                <p className="text-xs font-semibold text-slate-600 mb-2 lg:text-slate-200">Komentar</p>
+                <p className="text-xs font-semibold text-slate-600 mb-2 lg:text-slate-600">Komentar</p>
                 <textarea
                   rows={4}
                   maxLength={500}
                   placeholder="Bagikan pengalaman kamu top up di sini..."
                   value={reviewComment}
                   onChange={(e) => setReviewComment(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100 transition resize-none lg:border-white/10 lg:bg-white/5 lg:text-white lg:placeholder:text-slate-500"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100 transition resize-none lg:border-slate-200 lg:bg-slate-50 lg:text-slate-800 lg:placeholder:text-slate-400"
                 />
                 <p className="text-[11px] text-slate-400 text-right mt-1">{reviewComment.length}/500</p>
               </div>
@@ -1745,7 +1745,7 @@ export default function BrandDetailPage({
               )}
             </div>
             {/* Footer */}
-            <div className="px-5 py-4 border-t border-slate-100 flex-shrink-0 lg:border-white/10">
+            <div className="px-5 py-4 border-t border-slate-100 flex-shrink-0 lg:border-slate-200">
               <button
                 onClick={handleSubmitReview}
                 disabled={reviewSubmitting || reviewComment.trim().length < 5}
@@ -1795,7 +1795,7 @@ export default function BrandDetailPage({
               onClick={() => setCheckoutResult(null)}
             />
             {/* Sheet */}
-            <div className="relative w-full max-w-[480px] bg-white rounded-t-3xl px-5 py-6 shadow-2xl animate-in slide-in-from-bottom duration-300 lg:max-w-3xl lg:rounded-[28px] lg:border lg:border-white/10 lg:bg-[#171D25] lg:text-white">
+            <div className="relative w-full max-w-[480px] bg-white rounded-t-3xl px-5 py-6 shadow-2xl animate-in slide-in-from-bottom duration-300 lg:max-w-3xl lg:rounded-[28px] lg:border lg:border-slate-200 lg:bg-white lg:text-slate-800">
               {/* Handle */}
               <div className="absolute top-3 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-slate-300 lg:bg-white/20" />
 
@@ -1806,10 +1806,10 @@ export default function BrandDetailPage({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <h2 className="text-lg font-bold text-slate-800 mb-1 lg:text-white">
+                <h2 className="text-lg font-bold text-slate-800 mb-1 lg:text-slate-800">
                   {checkoutResult.status === "PAID" ? "Pesanan Dibuat!" : "Menunggu Pembayaran"}
                 </h2>
-                <p className="text-sm text-slate-500 lg:text-slate-300">
+                <p className="text-sm text-slate-500 lg:text-slate-500">
                   {checkoutResult.status === "PAID"
                     ? "Pesananmu sedang diproses. Serial number akan dikirim segera."
                     : "Selesaikan pembayaran untuk memproses pesananmu."}
@@ -1822,10 +1822,10 @@ export default function BrandDetailPage({
               </div>
 
               {/* Order details */}
-              <div className="bg-slate-50 rounded-2xl p-4 mb-4 space-y-2 lg:bg-white/[0.04] lg:border lg:border-white/10">
+              <div className="bg-slate-50 rounded-2xl p-4 mb-4 space-y-2 lg:bg-white lg:border lg:border-slate-200">
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-slate-500 lg:text-slate-400">Produk</span>
-                  <span className="text-xs font-semibold text-slate-700 text-right max-w-[60%] truncate lg:text-slate-100">{checkoutResult.productName}</span>
+                  <span className="text-xs font-semibold text-slate-700 text-right max-w-[60%] truncate lg:text-slate-700">{checkoutResult.productName}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-slate-500 lg:text-slate-400">Kode Pesanan</span>
@@ -1833,7 +1833,7 @@ export default function BrandDetailPage({
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-slate-500 lg:text-slate-400">Total Bayar</span>
-                  <span className="text-sm font-bold text-slate-800 lg:text-white">Rp {formatPrice(checkoutResult.amount)}</span>
+                  <span className="text-sm font-bold text-slate-800 lg:text-slate-800">Rp {formatPrice(checkoutResult.amount)}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-slate-500 lg:text-slate-400">Status</span>

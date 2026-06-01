@@ -161,8 +161,8 @@ function OrderDetailPageContent() {
   // ── Skeleton ──────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#f5f7fb] lg:bg-[#161B22]`}>
-        <div className="flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-transparent lg:shadow-none">
+      <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#f5f7fb] lg:bg-[#F5F5F5]`}>
+        <div className="flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-[#F5F5F5] lg:shadow-none">
           <div className="bg-[#003D99] px-4 py-4 flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-white/20 animate-pulse" />
             <div className="flex-1 space-y-1.5">
@@ -189,8 +189,8 @@ function OrderDetailPageContent() {
   // ── Error state ───────────────────────────────────────────────────────────
   if (error) {
     return (
-      <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#f5f7fb] lg:bg-[#161B22]`}>
-        <div className="flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-transparent lg:shadow-none">
+      <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#f5f7fb] lg:bg-[#F5F5F5]`}>
+        <div className="flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-[#F5F5F5] lg:shadow-none">
           <header className="bg-[#003D99] px-4 py-4 flex items-center gap-3">
             <button
               onClick={() => router.back()}
@@ -209,7 +209,7 @@ function OrderDetailPageContent() {
                   d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
             </div>
-            <p className="mb-1 text-sm font-semibold text-slate-700 lg:text-white">{error}</p>
+            <p className="mb-1 text-sm font-semibold text-slate-700 lg:text-slate-800">{error}</p>
             <p className="mb-4 text-xs text-slate-400">
               Kode: <span className="font-mono font-semibold text-slate-600">{params.code}</span>
             </p>
@@ -322,8 +322,8 @@ function OrderDetailPageContent() {
   };
 
   return (
-    <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#f5f7fb] lg:bg-[#161B22]`}>
-      <div className="flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-transparent lg:shadow-none">
+    <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#f5f7fb] lg:bg-[#F5F5F5]`}>
+      <div className="flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-[#F5F5F5] lg:shadow-none">
         {/* Header */}
         <header className="flex flex-shrink-0 items-center gap-3 bg-[#003D99] px-4 py-4 lg:mx-auto lg:mt-6 lg:w-full lg:max-w-3xl lg:rounded-[28px]">
           <button
@@ -453,12 +453,12 @@ function OrderDetailPageContent() {
           )}
 
           {/* ── Order Card ────────────────────────────────────────────────── */}
-          <div className="rounded-2xl border border-slate-100 bg-white shadow-sm lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none">
+          <div className="rounded-2xl border border-slate-100 bg-white shadow-sm lg:border-slate-200 lg:bg-white lg:shadow-none">
             {/* Card header */}
             <div className="px-4 pt-4 pb-3 flex items-start justify-between gap-2 border-b border-slate-100">
               <div>
                 <p className="text-[11px] text-slate-400 mb-0.5">Kode Pesanan</p>
-                <p className="text-sm font-mono font-bold text-purple-700 lg:text-white">{order.orderCode}</p>
+                <p className="text-sm font-mono font-bold text-purple-700 lg:text-slate-800">{order.orderCode}</p>
               </div>
               <StatusBadge status={order.status} />
             </div>
@@ -467,7 +467,7 @@ function OrderDetailPageContent() {
             <div className="px-4 py-3 space-y-2.5">
               <div className="flex justify-between items-start gap-2">
                 <span className="text-xs text-slate-500">Produk</span>
-                  <span className="max-w-[60%] text-right text-xs font-semibold leading-relaxed text-slate-700 lg:text-white">
+                  <span className="max-w-[60%] text-right text-xs font-semibold leading-relaxed text-slate-700 lg:text-slate-800">
                   {order.product.name}
                 </span>
               </div>
@@ -477,7 +477,7 @@ function OrderDetailPageContent() {
               </div>
               <div className="flex justify-between">
                 <span className="text-xs text-slate-500">Harga Produk</span>
-                <span className="text-xs font-semibold text-slate-700 lg:text-slate-100">
+                <span className="text-xs font-semibold text-slate-700 lg:text-slate-700">
                   Rp {formatPrice(order.amount - order.fee)}
                 </span>
               </div>
@@ -489,11 +489,11 @@ function OrderDetailPageContent() {
               )}
               <div className="border-t border-slate-100 pt-2 flex justify-between">
                 <span className="text-xs font-bold text-slate-600">Total Bayar</span>
-                <span className="text-sm font-black text-slate-800 lg:text-white">Rp {formatPrice(order.amount)}</span>
+                <span className="text-sm font-black text-slate-800 lg:text-slate-800">Rp {formatPrice(order.amount)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-xs text-slate-500">Metode</span>
-                <span className="text-xs text-slate-600 lg:text-slate-300">
+                <span className="text-xs text-slate-600 lg:text-slate-500">
                   {order.paymentMethod === "WALLET"
                     ? "Saldo Wallet"
                     : (order.paymentInvoice?.method?.toUpperCase() ?? "Payment Gateway")}
@@ -501,19 +501,19 @@ function OrderDetailPageContent() {
               </div>
               <div className="flex justify-between">
                 <span className="text-xs text-slate-500">Waktu</span>
-                <span className="text-xs text-slate-600 lg:text-slate-300">{formatDate(order.createdAt)}</span>
+                <span className="text-xs text-slate-600 lg:text-slate-500">{formatDate(order.createdAt)}</span>
               </div>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-slate-100 bg-white shadow-sm lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none">
+          <div className="rounded-2xl border border-slate-100 bg-white shadow-sm lg:border-slate-200 lg:bg-white lg:shadow-none">
             <div className="px-4 pt-4 pb-3 border-b border-slate-100">
               <p className="text-xs font-bold text-slate-600">Data Tujuan</p>
             </div>
             <div className="px-4 py-3 space-y-3">
               <div className="flex justify-between items-start gap-3">
                 <span className="text-xs text-slate-500">Tujuan Utama</span>
-                <span className="max-w-[65%] break-all text-right text-xs font-semibold text-slate-700 lg:text-white">
+                <span className="max-w-[65%] break-all text-right text-xs font-semibold text-slate-700 lg:text-slate-800">
                   {order.targetNumber}
                 </span>
               </div>
@@ -523,7 +523,7 @@ function OrderDetailPageContent() {
                   {extraTargetEntries.map(([key, value]) => (
                     <div key={key} className="flex justify-between items-start gap-3">
                       <span className="text-xs text-slate-500">{formatTargetLabel(key)}</span>
-                      <span className="max-w-[65%] break-all text-right text-xs font-medium text-slate-700 lg:text-slate-100">
+                      <span className="max-w-[65%] break-all text-right text-xs font-medium text-slate-700 lg:text-slate-700">
                         {String(value)}
                       </span>
                     </div>
@@ -550,7 +550,7 @@ function OrderDetailPageContent() {
 
           {/* ── Payment Invoice ───────────────────────────────────────────── */}
           {order.paymentInvoice && (
-            <div className="rounded-2xl border border-slate-100 bg-white shadow-sm lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none">
+            <div className="rounded-2xl border border-slate-100 bg-white shadow-sm lg:border-slate-200 lg:bg-white lg:shadow-none">
               <div className="px-4 pt-4 pb-3 border-b border-slate-100">
                 <p className="text-xs font-bold text-slate-600">Info Pembayaran</p>
               </div>
@@ -589,7 +589,7 @@ function OrderDetailPageContent() {
               {isPendingPayment && (
                 <div className="px-4 pb-4 space-y-3">
                   {hasInternalQris && order.paymentInvoice.paymentNumber && (
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:border-white/10 lg:bg-white/5">
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:border-slate-200 lg:bg-slate-50">
                       <p className="text-xs font-bold text-slate-700">
                         Scan QRIS untuk membayar
                       </p>
@@ -633,7 +633,7 @@ function OrderDetailPageContent() {
                           </button>
                           <button
                             onClick={() => router.push("/")}
-                            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 lg:border-white/10 lg:bg-white/5 lg:text-slate-200 lg:hover:bg-white/10"
+                            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 lg:border-slate-200 lg:bg-slate-50 lg:text-slate-600 lg:hover:bg-slate-50"
                           >
                             Buat Pesanan Baru
                           </button>
@@ -641,12 +641,12 @@ function OrderDetailPageContent() {
                       ) : !isQrisExpired ? (
                         <button
                           onClick={handleCopyQrString}
-                          className="mt-4 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 lg:border-white/10 lg:bg-white/5 lg:text-slate-200 lg:hover:bg-white/10"
+                          className="mt-4 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 lg:border-slate-200 lg:bg-slate-50 lg:text-slate-600 lg:hover:bg-slate-50"
                         >
                           {copyingQr ? "Menyalin..." : copyQrLabel}
                         </button>
                       ) : (
-                        <div className="mt-4 rounded-xl border border-slate-200 bg-white px-4 py-3 text-center text-sm font-semibold text-slate-500 lg:border-white/10 lg:bg-white/5 lg:text-slate-300">
+                        <div className="mt-4 rounded-xl border border-slate-200 bg-white px-4 py-3 text-center text-sm font-semibold text-slate-500 lg:border-slate-200 lg:bg-slate-50 lg:text-slate-500">
                           QRIS ini sudah tidak aktif.
                         </div>
                       )}
@@ -672,7 +672,7 @@ function OrderDetailPageContent() {
           {/* ── Back to home ──────────────────────────────────────────────── */}
           <button
             onClick={() => router.push("/")}
-            className="w-full rounded-2xl border border-slate-200 py-3 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50 lg:border-white/10 lg:bg-white/5 lg:text-slate-200 lg:hover:bg-white/10"
+            className="w-full rounded-2xl border border-slate-200 py-3 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50 lg:border-slate-200 lg:bg-slate-50 lg:text-slate-600 lg:hover:bg-slate-50"
           >
             ← Kembali ke Beranda
           </button>

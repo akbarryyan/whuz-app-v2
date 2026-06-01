@@ -139,8 +139,8 @@ function TopupStatusPageContent({
   // ── Loading ─────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#161B22]`}>
-        <div className="w-full max-w-[480px] min-h-screen bg-white shadow-2xl lg:max-w-7xl lg:bg-transparent lg:shadow-none">
+      <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#F5F5F5]`}>
+        <div className="w-full max-w-[480px] min-h-screen bg-white shadow-2xl lg:max-w-7xl lg:bg-[#F5F5F5] lg:shadow-none">
           <div className="w-full h-14" style={{ backgroundColor: "#003D99" }} />
           <div className="flex flex-col items-center gap-6 px-5 pt-10 lg:mx-auto lg:max-w-3xl lg:px-0">
             <div className="w-20 h-20 rounded-full bg-slate-100 animate-pulse" />
@@ -160,8 +160,8 @@ function TopupStatusPageContent({
     !!topup.paymentNumber;
 
   return (
-    <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#161B22]`}>
-      <div className="relative flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-transparent lg:shadow-none">
+    <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5]`}>
+      <div className="relative flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-[#F5F5F5] lg:shadow-none">
         <AppHeader onBack={() => router.replace("/topup")} />
 
         <div className="flex flex-1 flex-col items-center overflow-y-auto px-5 pt-[60px] pb-10 lg:mx-auto lg:max-w-3xl lg:px-0 lg:pt-24">
@@ -184,7 +184,7 @@ function TopupStatusPageContent({
                 )}
               </div>
               <div>
-                <h2 className="mb-1 text-xl font-bold text-slate-800 lg:text-white">
+                <h2 className="mb-1 text-xl font-bold text-slate-800 lg:text-slate-800">
                   {polling ? "Memverifikasi Pembayaran" : "Menunggu Pembayaran"}
                 </h2>
                 <p className="text-sm leading-relaxed text-slate-400 lg:text-slate-400">
@@ -197,7 +197,7 @@ function TopupStatusPageContent({
               </div>
 
               {hasInternalQris && topup?.paymentNumber && (
-                <div className="w-full rounded-3xl border border-slate-200 bg-white p-5 shadow-sm lg:border-white/10 lg:bg-white/[0.04] lg:shadow-none">
+                <div className="w-full rounded-3xl border border-slate-200 bg-white p-5 shadow-sm lg:border-slate-200 lg:bg-white lg:shadow-none">
                   <div className="flex flex-col items-center gap-4">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
@@ -214,32 +214,32 @@ function TopupStatusPageContent({
 
               {/* Detail card */}
               {topup && (
-                <div className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left space-y-2.5 lg:border-white/10 lg:bg-white/[0.04]">
-                  <p className="text-xs font-bold uppercase tracking-wide text-slate-400 lg:text-slate-300">Detail Transaksi</p>
+                <div className="w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left space-y-2.5 lg:border-slate-200 lg:bg-white">
+                  <p className="text-xs font-bold uppercase tracking-wide text-slate-400 lg:text-slate-500">Detail Transaksi</p>
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-500 lg:text-slate-400">Kode</span>
-                    <span className="font-mono text-xs font-bold text-slate-700 lg:text-white">{topup.topupCode}</span>
+                    <span className="font-mono text-xs font-bold text-slate-700 lg:text-slate-800">{topup.topupCode}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-500 lg:text-slate-400">Nominal</span>
-                    <span className="font-bold text-slate-800 lg:text-white">{formatRp(topup.amount)}</span>
+                    <span className="font-bold text-slate-800 lg:text-slate-800">{formatRp(topup.amount)}</span>
                   </div>
                   {topup.fee > 0 && (
                     <div className="flex justify-between text-sm">
                       <span className="text-slate-500 lg:text-slate-400">Biaya Admin</span>
-                      <span className="font-semibold text-slate-600 lg:text-slate-200">{formatRp(topup.fee)}</span>
+                      <span className="font-semibold text-slate-600 lg:text-slate-600">{formatRp(topup.fee)}</span>
                     </div>
                   )}
                   {topup.totalPayment > 0 && (
-                    <div className="flex justify-between border-t border-slate-200 pt-2.5 text-sm lg:border-white/10">
-                      <span className="font-bold text-slate-700 lg:text-white">Total Bayar</span>
-                      <span className="font-bold text-[#003D99] lg:text-white">{formatRp(topup.totalPayment)}</span>
+                    <div className="flex justify-between border-t border-slate-200 pt-2.5 text-sm lg:border-slate-200">
+                      <span className="font-bold text-slate-700 lg:text-slate-800">Total Bayar</span>
+                      <span className="font-bold text-[#003D99] lg:text-slate-800">{formatRp(topup.totalPayment)}</span>
                     </div>
                   )}
                   {topup.expiredAt && (
                     <div className="flex justify-between text-sm">
                       <span className="text-slate-500 lg:text-slate-400">Kedaluwarsa</span>
-                      <span className="font-semibold text-slate-700 lg:text-slate-200">{formatDateTime(topup.expiredAt)}</span>
+                      <span className="font-semibold text-slate-700 lg:text-slate-600">{formatDateTime(topup.expiredAt)}</span>
                     </div>
                   )}
                 </div>
@@ -266,14 +266,14 @@ function TopupStatusPageContent({
                 </svg>
               </div>
               <div>
-                <h2 className="mb-1 text-xl font-bold text-slate-800 lg:text-white">Top Up Berhasil!</h2>
+                <h2 className="mb-1 text-xl font-bold text-slate-800 lg:text-slate-800">Top Up Berhasil!</h2>
                 <p className="text-sm text-slate-400">Saldo kamu berhasil ditambah</p>
               </div>
 
               <div className="w-full rounded-2xl border border-emerald-100 bg-emerald-50 p-5 text-left space-y-3 lg:border-emerald-500/20 lg:bg-emerald-500/10">
                 <div className="flex justify-between text-sm">
                     <span className="text-slate-500 lg:text-emerald-100/80">Nominal Top Up</span>
-                    <span className="font-bold text-slate-800 lg:text-white">{formatRp(topup.amount)}</span>
+                    <span className="font-bold text-slate-800 lg:text-slate-800">{formatRp(topup.amount)}</span>
                 </div>
                 {topup.fee > 0 && (
                   <div className="flex justify-between text-sm">
@@ -319,7 +319,7 @@ function TopupStatusPageContent({
                 </svg>
               </div>
               <div>
-                <h2 className="mb-1 text-xl font-bold text-slate-800 lg:text-white">
+                <h2 className="mb-1 text-xl font-bold text-slate-800 lg:text-slate-800">
                   {status === "EXPIRED" ? "Pembayaran Kedaluwarsa" : "Pembayaran Gagal"}
                 </h2>
                 <p className="text-sm leading-relaxed text-slate-400">

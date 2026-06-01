@@ -752,10 +752,10 @@ export default function LoginPage() {
   // ===================== RENDER =====================
 
   return (
-    <div className={`${quicksand.className} min-h-screen bg-[#F5F5F5] lg:bg-[#161B22]`}>
+    <div className={`${quicksand.className} min-h-screen bg-[#F5F5F5] lg:bg-[#F5F5F5]`}>
       <ToastContainer toasts={toast.toasts} onRemove={toast.removeToast} />
 
-      <div className="mx-auto flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-transparent lg:px-8 lg:py-10 lg:shadow-none">
+      <div className="mx-auto flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-[#F5F5F5] lg:px-8 lg:py-10 lg:shadow-none">
         <div className="flex min-h-screen flex-col lg:min-h-[calc(100vh-5rem)] lg:flex-row lg:items-stretch lg:gap-12">
           <div className="hidden flex-1 flex-col justify-between rounded-[36px] border border-white/8 bg-[linear-gradient(155deg,#1d2430_0%,#171d25_55%,#121821_100%)] px-10 py-10 text-white shadow-[0_32px_90px_rgba(0,0,0,0.28)] lg:flex">
             <div className="space-y-8">
@@ -844,7 +844,7 @@ export default function LoginPage() {
           </div>
 
           <div className="flex w-full items-center lg:max-w-[540px]">
-            <div className="w-full bg-white lg:rounded-[36px] lg:border lg:border-white/10 lg:p-4 lg:shadow-[0_32px_90px_rgba(0,0,0,0.3)]">
+            <div className="w-full bg-white lg:rounded-[36px] lg:border lg:border-slate-200 lg:p-4 lg:shadow-[0_32px_90px_rgba(0,0,0,0.3)]">
               <div className="overflow-hidden bg-white lg:rounded-[28px] lg:border lg:border-slate-100">
                 <div className="hidden border-b border-slate-100 px-8 py-6 lg:block">
                   <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#003D99]">

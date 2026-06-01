@@ -142,8 +142,8 @@ export default function TopupPage() {
 
   if (!authChecked) {
     return (
-      <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#161B22]`}>
-        <div className="w-full max-w-[480px] min-h-screen bg-white shadow-2xl lg:max-w-7xl lg:bg-transparent lg:shadow-none">
+      <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#F5F5F5]`}>
+        <div className="w-full max-w-[480px] min-h-screen bg-white shadow-2xl lg:max-w-7xl lg:bg-[#F5F5F5] lg:shadow-none">
           <div className="w-full" style={{ backgroundColor: "#003D99" }}>
             <div className="mx-auto flex max-w-[480px] items-center gap-2 px-3 py-3 lg:max-w-7xl lg:px-5">
               <div className="w-9 h-9 rounded-full bg-white/20 animate-pulse flex-shrink-0" />
@@ -161,8 +161,8 @@ export default function TopupPage() {
   }
 
   return (
-    <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#161B22]`}>
-      <div className="relative flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-transparent lg:shadow-none">
+    <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#F5F5F5]`}>
+      <div className="relative flex min-h-screen w-full max-w-[480px] flex-col bg-white shadow-2xl lg:max-w-7xl lg:bg-[#F5F5F5] lg:shadow-none">
         <AppHeader onBack={() => router.back()} />
 
         <div className="flex-1 overflow-y-auto pt-[60px] pb-24">
@@ -180,7 +180,7 @@ export default function TopupPage() {
 
               {/* Amount selection */}
               <div>
-                <p className="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500 lg:text-slate-300">Pilih Nominal</p>
+                <p className="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500 lg:text-slate-500">Pilih Nominal</p>
                 <div className="grid grid-cols-4 gap-2">
                   {PRESET_AMOUNTS.map((amt) => (
                     <button
@@ -188,8 +188,8 @@ export default function TopupPage() {
                       onClick={() => setSelectedAmount(amt)}
                       className={`py-3 rounded-xl text-sm font-bold border-2 transition ${
                         selectedAmount === amt
-                          ? "border-[#003D99] bg-blue-50 text-[#003D99] lg:bg-[#2E5F95]/20 lg:text-white"
-                          : "border-slate-200 bg-white text-slate-700 hover:border-blue-300 lg:border-white/10 lg:bg-white/[0.04] lg:text-slate-100 lg:hover:border-[#2E5F95]"
+                          ? "border-[#003D99] bg-blue-50 text-[#003D99] lg:bg-[#2E5F95]/20 lg:text-slate-800"
+                          : "border-slate-200 bg-white text-slate-700 hover:border-blue-300 lg:border-slate-200 lg:bg-white lg:text-slate-700 lg:hover:border-[#2E5F95]"
                       }`}
                     >
                       {formatShort(amt)}
@@ -198,14 +198,14 @@ export default function TopupPage() {
                 </div>
                 {selectedAmount && (
                   <p className="mt-2 text-center text-xs text-slate-400 lg:text-slate-400">
-                    Nominal dipilih: <span className="font-bold text-[#003D99] lg:text-white">{formatRp(selectedAmount)}</span>
+                    Nominal dipilih: <span className="font-bold text-[#003D99] lg:text-slate-800">{formatRp(selectedAmount)}</span>
                   </p>
                 )}
               </div>
 
               {/* Payment method */}
               <div>
-                <p className="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500 lg:text-slate-300">Metode Pembayaran</p>
+                <p className="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500 lg:text-slate-500">Metode Pembayaran</p>
                 {methodsLoading ? (
                   <div className="space-y-2">
                     {[1, 2, 3].map((i) => (
@@ -219,7 +219,7 @@ export default function TopupPage() {
                         <p className="mb-1 text-[11px] font-bold uppercase tracking-wide text-slate-500 lg:text-slate-400">
                           {GROUP_LABELS[group] ?? group}
                         </p>
-                        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white divide-y divide-slate-100 lg:border-white/10 lg:bg-white/[0.04] lg:divide-white/10">
+                        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white divide-y divide-slate-100 lg:border-slate-200 lg:bg-white lg:divide-slate-100">
                           {items.map((m) => {
                             const isActive = selectedMethod === m.key;
                             const fee = selectedAmount ? calculatePaymentGatewayFee(m.key, selectedAmount, feeConfig) : 0;
@@ -234,24 +234,24 @@ export default function TopupPage() {
                                 }`}
                               >
                                 {/* Logo */}
-                                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white lg:border-white/10 lg:bg-white/[0.05]">
+                                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white lg:border-slate-200 lg:bg-white/[0.05]">
                                   {m.imageUrl ? (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img src={m.imageUrl} alt={m.label} className="w-full h-full object-contain p-1" />
                                   ) : m.group === "QRIS" ? (
-                                    <svg className="w-5 h-5 text-slate-600 lg:text-slate-200" viewBox="0 0 24 20" fill="none" stroke="currentColor">
+                                    <svg className="w-5 h-5 text-slate-600 lg:text-slate-600" viewBox="0 0 24 20" fill="none" stroke="currentColor">
                                       <rect x="1" y="1" width="8" height="8" rx="1" strokeWidth={2} />
                                       <rect x="15" y="1" width="8" height="8" rx="1" strokeWidth={2} />
                                       <rect x="1" y="12" width="8" height="8" rx="1" strokeWidth={2} />
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12h3v3M21 12v-.01M15 15v3h3M21 17v3h-3" />
                                     </svg>
                                   ) : (
-                                    <span className="text-[9px] font-black text-slate-600 lg:text-slate-200">{abbr}</span>
+                                    <span className="text-[9px] font-black text-slate-600 lg:text-slate-600">{abbr}</span>
                                   )}
                                 </div>
                                 {/* Label + fee */}
                                 <div className="flex-1 text-left">
-                                  <p className="text-sm font-semibold text-slate-800 lg:text-white">{m.label}</p>
+                                  <p className="text-sm font-semibold text-slate-800 lg:text-slate-800">{m.label}</p>
                                   {fee > 0 ? (
                                     <p className="mt-0.5 text-[10px] text-slate-400">+biaya Rp {formatPrice(fee)}</p>
                                   ) : (
@@ -261,7 +261,7 @@ export default function TopupPage() {
                                 {/* Total on right */}
                                 {selectedAmount && (
                                   <div className="text-right flex-shrink-0 mr-2">
-                                    <p className="text-sm font-bold text-slate-800 lg:text-white">Rp {formatPrice(total)}</p>
+                                    <p className="text-sm font-bold text-slate-800 lg:text-slate-800">Rp {formatPrice(total)}</p>
                                     {fee > 0 && (
                                       <p className="text-[10px] text-slate-400">harga + biaya</p>
                                     )}
@@ -299,27 +299,27 @@ export default function TopupPage() {
                 const total = selectedAmount + fee;
                 const methodLabel = methods.find((m) => m.key === selectedMethod)?.label ?? selectedMethod;
                 return (
-                  <div className="space-y-2.5 rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:border-white/10 lg:bg-white/[0.04]">
-                    <p className="text-xs font-bold uppercase tracking-wide text-slate-400 lg:text-slate-300">Ringkasan Pembayaran</p>
+                  <div className="space-y-2.5 rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:border-slate-200 lg:bg-white">
+                    <p className="text-xs font-bold uppercase tracking-wide text-slate-400 lg:text-slate-500">Ringkasan Pembayaran</p>
                     <div className="flex justify-between text-sm">
                       <span className="text-slate-500 lg:text-slate-400">Nominal Top Up</span>
-                      <span className="font-bold text-slate-800 lg:text-white">{formatRp(selectedAmount)}</span>
+                      <span className="font-bold text-slate-800 lg:text-slate-800">{formatRp(selectedAmount)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-slate-500 lg:text-slate-400">Metode</span>
-                      <span className="font-semibold text-slate-700 lg:text-slate-100">{methodLabel}</span>
+                      <span className="font-semibold text-slate-700 lg:text-slate-700">{methodLabel}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-slate-500 lg:text-slate-400">Biaya Admin</span>
                       {fee > 0 ? (
-                        <span className="font-semibold text-slate-600 lg:text-slate-200">Rp {formatPrice(fee)}</span>
+                        <span className="font-semibold text-slate-600 lg:text-slate-600">Rp {formatPrice(fee)}</span>
                       ) : (
                         <span className="font-semibold text-emerald-500">Gratis</span>
                       )}
                     </div>
-                    <div className="flex justify-between border-t border-slate-200 pt-2.5 text-sm lg:border-white/10">
-                      <span className="font-bold text-slate-700 lg:text-white">Total Bayar</span>
-                      <span className="font-bold text-[#003D99] lg:text-white">{formatRp(total)}</span>
+                    <div className="flex justify-between border-t border-slate-200 pt-2.5 text-sm lg:border-slate-200">
+                      <span className="font-bold text-slate-700 lg:text-slate-800">Total Bayar</span>
+                      <span className="font-bold text-[#003D99] lg:text-slate-800">{formatRp(total)}</span>
                     </div>
                     <button
                       onClick={handleSubmit}

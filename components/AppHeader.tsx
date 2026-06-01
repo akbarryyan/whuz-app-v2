@@ -47,7 +47,7 @@ export default function AppHeader({ onBack }: AppHeaderProps) {
   }, []);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-40 bg-[#003D99] lg:bg-[#171D25]">
+    <header className="fixed inset-x-0 top-0 z-40 bg-[#003D99]">
       <div className="mx-auto flex w-full max-w-[480px] items-center gap-2 px-3 py-3 lg:max-w-7xl lg:px-5">
         {/* Back button or spacer */}
         {onBack ? (
@@ -81,7 +81,7 @@ export default function AppHeader({ onBack }: AppHeaderProps) {
           {userRole === "ADMIN" && (
             <Link
               href="/admin"
-              className="hidden lg:inline-flex items-center rounded-full border border-white/12 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+              className="hidden lg:inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/15"
             >
               Dashboard Admin
             </Link>
