@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Sidebar from "@/components/admin/Sidebar";
 import Header from "@/components/admin/Header";
+import ImageUploadField from "@/components/admin/ImageUploadField";
 import { ToastContainer } from "@/components/ui/Toast";
 import { useToast } from "@/hooks/useToast";
 
@@ -224,29 +225,14 @@ export default function AdminPromosPage() {
               <p className="text-[11px] text-slate-400 mt-0.5">Gambar yang muncul di pojok kanan banner ungu pada halaman Promo.</p>
             </div>
             <div className="px-5 py-4 space-y-3">
-              <div className="flex gap-3 items-start">
-                <input
-                  type="url"
-                  value={heroImageUrl}
-                  onChange={(e) => setHeroImageUrl(e.target.value)}
-                  placeholder="https://... (URL gambar)"
-                  className="flex-1 px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400"
-                />
-                <button
-                  onClick={saveHeroImage}
-                  disabled={heroSaving || !heroImageUrl.trim()}
-                  className="px-4 py-2.5 rounded-xl bg-[#6D28D9] hover:bg-purple-800 text-white text-xs font-bold transition disabled:opacity-50 flex-shrink-0"
-                >
-                  {heroSaving ? "Menyimpan..." : "💾 Simpan"}
-                </button>
-              </div>
-              {heroImageUrl && (
-                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={heroImageUrl} alt="Hero preview" className="h-14 w-auto object-contain rounded" />
-                  <p className="text-xs text-slate-400">Preview gambar hero banner</p>
-                </div>
-              )}
+              <ImageUploadField value={heroImageUrl} onChange={setHeroImageUrl} folder="promos" />
+              <button
+                onClick={saveHeroImage}
+                disabled={heroSaving || !heroImageUrl.trim()}
+                className="px-4 py-2.5 rounded-xl bg-[#6D28D9] hover:bg-purple-800 text-white text-xs font-bold transition disabled:opacity-50"
+              >
+                {heroSaving ? "Menyimpan..." : "💾 Simpan"}
+              </button>
             </div>
           </div>
 
@@ -362,23 +348,14 @@ export default function AdminPromosPage() {
             </div>
 
             <div className="px-5 py-4 space-y-4">
-              {/* Image URL + preview */}
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">URL Gambar *</label>
-                <input
-                  type="url"
-                  value={form.imageUrl}
-                  onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))}
-                  placeholder="https://..."
-                  className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400"
-                />
-                {form.imageUrl && (
-                  <div className="mt-2 rounded-xl overflow-hidden border border-slate-100 bg-slate-50">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={form.imageUrl} alt="Preview" className="w-full object-cover max-h-[150px]" />
-                  </div>
-                )}
-              </div>
+              {/* Image upload + preview */}
+              <ImageUploadField
+                label="Gambar Promo *"
+                value={form.imageUrl}
+                onChange={(url) => setForm((f) => ({ ...f, imageUrl: url }))}
+                folder="promos"
+                previewClassName="h-20 w-32 object-cover rounded-xl"
+              />
 
               {/* Title */}
               <div>

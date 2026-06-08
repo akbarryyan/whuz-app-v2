@@ -24,6 +24,10 @@
 .DS_Store
 *.pem
 
+# user-uploaded images (persisted on the server, not tracked in git)
+/public/uploads/*
+!/public/uploads/.gitkeep
+
 # debug
 npm-debug.log*
 yarn-debug.log*

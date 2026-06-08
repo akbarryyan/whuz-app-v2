@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
 import Sidebar from "@/components/admin/Sidebar";
 import Header from "@/components/admin/Header";
+import ImageUploadField from "@/components/admin/ImageUploadField";
 import { ToastContainer } from "@/components/ui/Toast";
 import { useToast } from "@/hooks/useToast";
 import {
@@ -404,27 +405,17 @@ export default function AdminFooterPage() {
             </div>
             <div className="px-5 py-4 space-y-3">
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">URL Logo</label>
-                <div className="flex gap-2">
-                  <input
-                    type="url"
-                    value={logoUrl}
-                    onChange={(e) => setLogoUrl(e.target.value)}
-                    placeholder="https://... (kosongkan untuk badge WZ)"
-                    className="flex-1 px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400"
-                  />
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Logo (kosongkan untuk badge WZ default)</label>
+                <div className="flex flex-col sm:flex-row gap-2 items-start">
+                  <div className="flex-1 w-full">
+                    <ImageUploadField value={logoUrl} onChange={setLogoUrl} folder="footer" previewClassName="h-8 w-auto object-contain rounded" />
+                  </div>
                   <button onClick={() => save("footer_logo_url", logoUrl, "Logo")}
                     disabled={saving === "footer_logo_url"}
-                    className="px-4 py-2 rounded-xl bg-[#2563eb] text-white text-xs font-bold hover:bg-blue-700 transition disabled:opacity-50 flex-shrink-0">
+                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-[#2563eb] text-white text-xs font-bold hover:bg-blue-700 transition disabled:opacity-50 flex-shrink-0">
                     {saving === "footer_logo_url" ? "..." : "💾 Simpan"}
                   </button>
                 </div>
-                {logoUrl && (
-                  <div className="mt-2 p-2 bg-slate-50 rounded-xl inline-block">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={logoUrl} alt="Logo preview" className="h-8 w-auto object-contain" />
-                  </div>
-                )}
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Tagline</label>
@@ -467,22 +458,14 @@ export default function AdminFooterPage() {
                       placeholder="Nama (mis. GoPay)"
                       className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400"
                     />
-                    <input
+                    <ImageUploadField
                       value={pm.img}
-                      onChange={(e) => setPaymentMethods(paymentMethods.map((p, j) => j === i ? { ...p, img: e.target.value } : p))}
-                      placeholder="URL gambar logo"
-                      className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400"
+                      onChange={(url) => setPaymentMethods(paymentMethods.map((p, j) => j === i ? { ...p, img: url } : p))}
+                      folder="footer"
+                      previewClassName="h-8 w-12 object-contain rounded"
                     />
                   </div>
                   <div className="flex-shrink-0 flex flex-col items-center gap-1 pt-1">
-                    {pm.img ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={pm.img} alt={pm.name} className="h-8 w-12 object-contain rounded border border-slate-100 bg-slate-50" />
-                    ) : (
-                      <div className="h-8 w-12 rounded border border-dashed border-slate-300 flex items-center justify-center">
-                        <span className="text-[9px] text-slate-400">No img</span>
-                      </div>
-                    )}
                     <button
                       onClick={() => setPaymentMethods(paymentMethods.filter((_, j) => j !== i))}
                       className="p-1 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-500 transition"

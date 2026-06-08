@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Sidebar from "@/components/admin/Sidebar";
 import Header from "@/components/admin/Header";
+import ImageUploadField from "@/components/admin/ImageUploadField";
 import { ToastContainer } from "@/components/ui/Toast";
 import { useToast } from "@/hooks/useToast";
 
@@ -265,10 +266,13 @@ export default function AdminBrandsPage() {
 
                     {isEditing && (
                       <div className="border-t border-slate-100 px-4 py-3 bg-slate-50">
-                        <label className="text-xs text-slate-500 font-medium block mb-1.5">URL Gambar (HTTPS)</label>
-                        <input type="url" placeholder="https://example.com/image.png" value={editUrl} onChange={(e) => setEditUrl(e.target.value)}
-                          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
-                          autoFocus onKeyDown={(e) => e.key === "Enter" && saveImage(brand.brand)} />
+                        <ImageUploadField
+                          label="Gambar Brand"
+                          value={editUrl}
+                          onChange={setEditUrl}
+                          folder="brands"
+                          previewClassName="h-14 w-14 object-cover rounded-lg"
+                        />
                         <div className="mt-2 flex gap-2">
                           <button onClick={() => saveImage(brand.brand)} disabled={saving}
                             className="px-4 py-2 bg-[#2563eb] text-white text-sm font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors">

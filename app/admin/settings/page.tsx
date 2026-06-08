@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Sidebar from "@/components/admin/Sidebar";
 import Header from "@/components/admin/Header";
+import ImageUploadField from "@/components/admin/ImageUploadField";
 import { ToastContainer } from "@/components/ui/Toast";
 import { useToast } from "@/hooks/useToast";
 
@@ -707,15 +708,11 @@ export default function SettingsPage() {
 
               {/* Site Logo */}
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">URL Logo</label>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <input
-                    type="url"
-                    value={siteLogo}
-                    onChange={(e) => setSiteLogo(e.target.value)}
-                    placeholder="https://cdn.example.com/logo.png"
-                    className="flex-1 px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400 font-mono text-xs"
-                  />
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Logo</label>
+                <div className="flex flex-col sm:flex-row gap-2 items-start">
+                  <div className="flex-1 w-full">
+                    <ImageUploadField value={siteLogo} onChange={setSiteLogo} folder="site" previewClassName="h-10 w-auto object-contain rounded" />
+                  </div>
                   <button
                     onClick={() => saveSiteSetting("site_logo", siteLogo, "Logo")}
                     disabled={siteSaving === "site_logo"}
@@ -724,26 +721,15 @@ export default function SettingsPage() {
                     {siteSaving === "site_logo" ? "..." : "💾 Simpan"}
                   </button>
                 </div>
-                {siteLogo && (
-                  <div className="mt-2 p-3 bg-slate-50 rounded-xl inline-flex items-center gap-3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={siteLogo} alt="Logo preview" className="h-10 w-auto object-contain" />
-                    <span className="text-[10px] text-slate-400">Preview logo</span>
-                  </div>
-                )}
               </div>
 
               {/* Site Favicon */}
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">URL Favicon</label>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <input
-                    type="url"
-                    value={siteFavicon}
-                    onChange={(e) => setSiteFavicon(e.target.value)}
-                    placeholder="https://cdn.example.com/favicon.ico"
-                    className="flex-1 px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400 font-mono text-xs"
-                  />
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Favicon</label>
+                <div className="flex flex-col sm:flex-row gap-2 items-start">
+                  <div className="flex-1 w-full">
+                    <ImageUploadField value={siteFavicon} onChange={setSiteFavicon} folder="site" previewClassName="h-6 w-6 object-contain rounded" />
+                  </div>
                   <button
                     onClick={() => saveSiteSetting("site_favicon", siteFavicon, "Favicon")}
                     disabled={siteSaving === "site_favicon"}
@@ -752,13 +738,6 @@ export default function SettingsPage() {
                     {siteSaving === "site_favicon" ? "..." : "💾 Simpan"}
                   </button>
                 </div>
-                {siteFavicon && (
-                  <div className="mt-2 p-2 bg-slate-50 rounded-xl inline-flex items-center gap-2">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={siteFavicon} alt="Favicon preview" className="h-6 w-6 object-contain" />
-                    <span className="text-[10px] text-slate-400">Preview favicon</span>
-                  </div>
-                )}
               </div>
 
               {/* Site Description */}

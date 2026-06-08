@@ -7,6 +7,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getBannerImages, setBannerImages } from "@/lib/site-config";
+import { imageRefSchema } from "@/lib/upload";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +17,7 @@ export async function GET() {
 }
 
 const PutSchema = z.object({
-  images: z.array(z.string().url("URL tidak valid")).min(1, "Minimal 1 banner"),
+  images: z.array(imageRefSchema).min(1, "Minimal 1 banner"),
 });
 
 export async function PUT(request: Request) {

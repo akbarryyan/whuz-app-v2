@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import ImageUploadField from "@/components/admin/ImageUploadField";
 import MerchantSidebar from "@/components/merchant/Sidebar";
 import MerchantHeader from "@/components/merchant/Header";
 import { ToastContainer } from "@/components/ui/Toast";
@@ -219,36 +220,14 @@ export default function MerchantDashboardPage() {
                       </div>
 
                       <div className="grid gap-3">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white ring-1 ring-slate-200">
-                            {profileForm.profileImageUrl ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                src={profileForm.profileImageUrl}
-                                alt={profileForm.displayName || "Merchant"}
-                                className="h-full w-full object-cover"
-                              />
-                            ) : (
-                              <span className="text-base font-bold text-slate-500">
-                                {(profileForm.displayName || data.merchant.displayName || "M")
-                                  .split(" ")
-                                  .map((part: string) => part[0])
-                                  .slice(0, 2)
-                                  .join("")
-                                  .toUpperCase()}
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <label className="mb-1 block text-xs font-semibold text-slate-500">URL Gambar Profile Merchant</label>
-                            <input
-                              type="url"
-                              value={profileForm.profileImageUrl}
-                              onChange={(e) => setProfileForm((prev) => ({ ...prev, profileImageUrl: e.target.value }))}
-                              placeholder="https://example.com/profile-merchant.png"
-                              className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none transition focus:border-emerald-400"
-                            />
-                          </div>
+                        <div>
+                          <label className="mb-1 block text-xs font-semibold text-slate-500">Gambar Profil Merchant</label>
+                          <ImageUploadField
+                            value={profileForm.profileImageUrl}
+                            onChange={(url) => setProfileForm((prev) => ({ ...prev, profileImageUrl: url }))}
+                            folder="sellers"
+                            previewClassName="h-16 w-16 object-cover rounded-2xl"
+                          />
                         </div>
 
                         <div className="grid gap-3 sm:grid-cols-2">

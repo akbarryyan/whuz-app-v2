@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Sidebar from "@/components/admin/Sidebar";
 import Header from "@/components/admin/Header";
 import { ToastContainer } from "@/components/ui/Toast";
@@ -11,7 +11,8 @@ export default function BannersPage() {
   const [banners, setBanners] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [newUrl, setNewUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [tagline, setTagline] = useState("");
   const [siteName, setSiteName] = useState("Website");
   const [taglineSaving, setTaglineSaving] = useState(false);
@@ -68,16 +69,24 @@ export default function BannersPage() {
     }
   }
 
-  function addBanner() {
-    const url = newUrl.trim();
-    if (!url) return;
-    try { new URL(url); } catch {
-      toast.error("URL tidak valid");
-      return;
+  async function handleBannerUpload(file: File | null) {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "banners");
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!data.success) { toast.error(data.error ?? "Gagal mengunggah gambar"); return; }
+      setBanners((p) => [...p, data.data.url]);
+      toast.success("Banner berhasil diunggah, jangan lupa klik Simpan");
+    } catch {
+      toast.error("Gagal mengunggah gambar");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
-    if (banners.includes(url)) { toast.error("URL sudah ada"); return; }
-    setBanners((p) => [...p, url]);
-    setNewUrl("");
   }
 
   function removeBanner(idx: number) {
@@ -281,25 +290,22 @@ export default function BannersPage() {
             {/* Add new */}
             <div className="px-4 py-4 border-t border-slate-100">
               <p className="text-[11px] font-semibold text-slate-500 mb-2">Tambah Banner Baru</p>
-              <div className="flex gap-2">
-                <input
-                  type="url"
-                  value={newUrl}
-                  onChange={(e) => setNewUrl(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && addBanner()}
-                  placeholder="https://cdn.example.com/banner.jpg"
-                  className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-xs text-slate-700 placeholder:text-slate-400 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-100 transition font-mono min-w-0"
-                />
-                <button
-                  onClick={addBanner}
-                  disabled={!newUrl.trim()}
-                  className="px-4 py-2.5 rounded-xl bg-purple-600 text-white text-xs font-bold hover:bg-purple-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex-shrink-0"
-                >
-                  + Tambah
-                </button>
-              </div>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="px-4 py-2.5 rounded-xl bg-purple-600 text-white text-xs font-bold hover:bg-purple-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                {uploading ? "Mengunggah..." : "+ Unggah Gambar"}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                className="hidden"
+                onChange={(e) => handleBannerUpload(e.target.files?.[0] ?? null)}
+              />
               <p className="text-[10px] text-slate-400 mt-1.5">
-                Gunakan URL publik yang bisa diakses (CDN, Google Drive public link, dsb). Tekan Enter atau klik Tambah.
+                Format PNG/JPG/WEBP/GIF, maksimal 5MB. Setelah diunggah, jangan lupa klik Simpan.
               </p>
             </div>
           </div>

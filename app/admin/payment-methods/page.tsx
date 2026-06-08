@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Sidebar from "@/components/admin/Sidebar";
 import Header from "@/components/admin/Header";
+import ImageUploadField from "@/components/admin/ImageUploadField";
 import { ToastContainer } from "@/components/ui/Toast";
 import { useToast } from "@/hooks/useToast";
 
@@ -177,15 +178,6 @@ export default function AdminPaymentMethodsPage() {
                                 </select>
                               </div>
                               <div>
-                                <label className="text-xs font-semibold text-slate-600 mb-1 block">URL Gambar (logo)</label>
-                                <input
-                                  value={editImageUrl}
-                                  onChange={(e) => setEditImageUrl(e.target.value)}
-                                  placeholder="https://..."
-                                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-                                />
-                              </div>
-                              <div>
                                 <label className="text-xs font-semibold text-slate-600 mb-1 block">Urutan (Sort Order)</label>
                                 <input
                                   type="number"
@@ -195,14 +187,13 @@ export default function AdminPaymentMethodsPage() {
                                 />
                               </div>
                             </div>
-                            {/* Preview image */}
-                            {editImageUrl && (
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs text-slate-500">Preview:</span>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={editImageUrl} alt="preview" className="h-8 w-auto object-contain rounded border border-slate-200 bg-white px-1" />
-                              </div>
-                            )}
+                            <ImageUploadField
+                              label="Gambar (logo)"
+                              value={editImageUrl}
+                              onChange={setEditImageUrl}
+                              folder="payment-methods"
+                              previewClassName="h-10 w-auto object-contain rounded"
+                            />
                             <div className="flex gap-2">
                               <button
                                 onClick={() => saveEdit(item.id)}

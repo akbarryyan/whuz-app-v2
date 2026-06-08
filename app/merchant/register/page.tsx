@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Quicksand } from "@/lib/fonts";
 import AppHeader from "@/components/AppHeader";
+import ImageUploadField from "@/components/admin/ImageUploadField";
 import BottomNavigation from "@/components/BottomNavigation";
 import { ToastContainer } from "@/components/ui/Toast";
 import { useToast } from "@/hooks/useToast";
@@ -205,19 +206,18 @@ export default function MerchantRegisterPage() {
                 />
               </label>
 
-              <label className="block">
-                <span className="mb-2 block text-sm font-semibold text-slate-700">URL Gambar Profile Merchant</span>
-                <input
-                  type="url"
+              <div className="block">
+                <span className="mb-2 block text-sm font-semibold text-slate-700">Gambar Profil Merchant</span>
+                <ImageUploadField
                   value={form.profileImageUrl}
-                  onChange={(e) => setForm((prev) => ({ ...prev, profileImageUrl: e.target.value }))}
-                  placeholder="https://example.com/profile-merchant.png"
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 placeholder:text-slate-300 outline-none transition focus:border-emerald-400 focus:bg-white"
+                  onChange={(url) => setForm((prev) => ({ ...prev, profileImageUrl: url }))}
+                  folder="sellers"
+                  previewClassName="h-14 w-14 object-cover rounded-full"
                 />
                 <p className="mt-2 text-xs text-slate-400">
                   Opsional. Gambar ini akan tampil di daftar merchant dan halaman storefront toko.
                 </p>
-              </label>
+              </div>
             </div>
 
             <div className="mt-6 rounded-3xl border border-emerald-100 bg-emerald-50 px-4 py-4">

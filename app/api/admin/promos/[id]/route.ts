@@ -6,13 +6,14 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/src/infra/db/prisma";
+import { imageRefSchema } from "@/lib/upload";
 
 export const dynamic = "force-dynamic";
 
 const UpdateSchema = z.object({
   title:       z.string().min(1).optional(),
   description: z.string().optional().nullable(),
-  imageUrl:    z.string().url("URL gambar tidak valid").optional(),
+  imageUrl:    imageRefSchema.optional(),
   linkUrl:     z.string().url("URL link tidak valid").optional().nullable().or(z.literal("")),
   startDate:   z.string().datetime().optional().nullable(),
   endDate:     z.string().datetime().optional().nullable(),

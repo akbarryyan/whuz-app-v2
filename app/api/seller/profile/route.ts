@@ -3,12 +3,13 @@ import { z } from "zod";
 import { prisma } from "@/src/infra/db/prisma";
 import { getSession } from "@/lib/session";
 import { slugifySellerName } from "@/lib/seller";
+import { imageRefSchema } from "@/lib/upload";
 
 const SellerProfileSchema = z.object({
   displayName: z.string().min(3).max(120),
   slug: z.string().min(3).max(80).optional(),
   description: z.string().max(1000).optional(),
-  profileImageUrl: z.string().url().max(2048).optional().or(z.literal("")),
+  profileImageUrl: imageRefSchema.max(2048).optional().or(z.literal("")),
 });
 
 export const dynamic = "force-dynamic";
