@@ -295,7 +295,7 @@ export default function Home() {
                     </div>
                   )}
                   <div>
-                    <p className="text-lg font-bold">{siteName}</p>
+                    {!logoUrl && <p className="text-lg font-bold">{siteName}</p>}
                     <p className="text-xs text-blue-100">Top up, PPOB, merchant, dan promo</p>
                   </div>
                 </Link>

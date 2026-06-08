@@ -112,7 +112,7 @@ export default function Header() {
             <img
               src={logoUrl}
               alt={siteName}
-              className="h-10 w-auto object-contain -mt-2"
+              className="h-12 w-auto object-contain -mt-2"
             />
           )}
         </div>
