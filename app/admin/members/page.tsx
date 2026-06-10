@@ -51,7 +51,10 @@ export default function MembersPage() {
   const [filterTier, setFilterTier] = useState<string>("all");
   const [changingTierId, setChangingTierId] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
+  const [page, setPage] = useState(1);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const PAGE_SIZE = 20;
 
   const toast = useToast();
 
@@ -74,6 +77,7 @@ export default function MembersPage() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+  useEffect(() => { setPage(1); }, [search, filterTier]);
 
   async function changeTier(userId: string, tierId: string | null) {
     setChangingTierId(userId);
@@ -139,6 +143,10 @@ export default function MembersPage() {
       (filterTier === "none" ? !m.tierId : m.tier?.name === filterTier);
     return matchSearch && matchTier;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const paginated = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   // Summary counts — users with no tierId fall back to the default tier
   const noTierCount = members.filter((m) => !m.tierId).length;
@@ -231,7 +239,9 @@ export default function MembersPage() {
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
               <h2 className="text-sm font-bold text-slate-700">Daftar Member</h2>
-              <span className="text-[11px] text-slate-400">{filtered.length} dari {members.length} user</span>
+              <span className="text-[11px] text-slate-400">
+                {filtered.length === 0 ? "0" : `${(safePage - 1) * PAGE_SIZE + 1}–${Math.min(safePage * PAGE_SIZE, filtered.length)}`} dari {filtered.length} user
+              </span>
             </div>
 
             {loading ? (
@@ -253,7 +263,7 @@ export default function MembersPage() {
               </div>
             ) : (
               <div className="divide-y divide-slate-50">
-                {filtered.map((member) => {
+                {paginated.map((member) => {
                   const initials = (member.name ?? member.email ?? "?").slice(0, 2).toUpperCase();
                   const tierInfo = member.tier;
                   const tierColor = TIER_COLORS[tierInfo?.name ?? ""] ?? "bg-slate-100 text-slate-600";
@@ -328,6 +338,55 @@ export default function MembersPage() {
               </div>
             )}
           </div>
+
+          {/* Pagination */}
+          {!loading && totalPages > 1 && (
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <p className="text-xs text-slate-500">
+                Halaman <span className="font-semibold text-slate-700">{safePage}</span> dari <span className="font-semibold text-slate-700">{totalPages}</span>
+              </p>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={safePage === 1}
+                  className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  ← Sebelumnya
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((p) => p === 1 || p === totalPages || Math.abs(p - safePage) <= 1)
+                  .reduce<(number | "...")[]>((acc, p, idx, arr) => {
+                    if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push("...");
+                    acc.push(p);
+                    return acc;
+                  }, [])
+                  .map((item, idx) =>
+                    item === "..." ? (
+                      <span key={`ellipsis-${idx}`} className="px-2 text-xs text-slate-400">…</span>
+                    ) : (
+                      <button
+                        key={item}
+                        onClick={() => setPage(item as number)}
+                        className={`w-8 h-8 rounded-lg border text-xs font-semibold transition ${
+                          safePage === item
+                            ? "border-purple-400 bg-purple-50 text-purple-700"
+                            : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                        }`}
+                      >
+                        {item}
+                      </button>
+                    )
+                  )}
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={safePage === totalPages}
+                  className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-600 hover:bg-slate-50 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Selanjutnya →
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
