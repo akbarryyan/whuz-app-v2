@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
 
 interface OrderRow {
   id: string;
@@ -146,10 +145,9 @@ export default function TransactionTable() {
             });
 
             return (
-              <Link
+              <div
                 key={row.id}
-                href={`/admin/transactions/${row.id}`}
-                className="block rounded-xl bg-slate-50 p-3 hover:bg-slate-100 transition-colors md:grid md:grid-cols-[1.1fr_0.8fr_1.3fr_1fr_0.7fr_0.8fr] md:items-center md:gap-3 md:rounded-2xl"
+                className="block rounded-xl bg-slate-50 p-3 md:grid md:grid-cols-[1.1fr_0.8fr_1.3fr_1fr_0.7fr_0.8fr] md:items-center md:gap-3 md:rounded-2xl"
               >
                 <div className="flex items-center justify-between md:contents">
                   <span className="text-xs font-semibold text-slate-700">{row.orderCode}</span>
@@ -166,7 +164,7 @@ export default function TransactionTable() {
                   </span>
                   <span className="text-xs font-bold text-slate-700">{amountStr}</span>
                 </div>
-              </Link>
+              </div>
             );
           })}
         </div>
