@@ -77,24 +77,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Merchant target tidak ditemukan" }, { status: 404 });
     }
 
-    const sourceProducts = await prisma.sellerProduct.findMany({
-      where: {
-        sellerId: sourceMerchant.userId,
-        isActive: true,
-      },
-      select: {
-        productId: true,
-        product: {
-          select: {
-            sellingPrice: true,
-          },
+    const [sourceProducts, allSourceProducts] = await Promise.all([
+      prisma.sellerProduct.findMany({
+        where: { sellerId: sourceMerchant.userId, isActive: true },
+        select: {
+          productId: true,
+          product: { select: { sellingPrice: true } },
         },
-      },
-    });
+      }),
+      prisma.sellerProduct.count({ where: { sellerId: sourceMerchant.userId } }),
+    ]);
+
+    console.log("[copy-products] sourceMerchantId:", parsed.data.sourceMerchantId);
+    console.log("[copy-products] sourceMerchant.userId:", sourceMerchant.userId);
+    console.log("[copy-products] active products:", sourceProducts.length, "/ total:", allSourceProducts);
 
     if (sourceProducts.length === 0) {
       return NextResponse.json(
-        { success: false, error: "Merchant sumber belum memiliki produk aktif untuk disalin" },
+        {
+          success: false,
+          error: allSourceProducts > 0
+            ? `Merchant sumber memiliki ${allSourceProducts} produk tetapi semuanya tidak aktif. Aktifkan dulu produk di dashboard merchant sebelum menyalin.`
+            : "Merchant sumber belum memiliki produk untuk disalin.",
+          debug: { sourceMerchantUserId: sourceMerchant.userId, activeCount: sourceProducts.length, totalCount: allSourceProducts },
+        },
         { status: 400 }
       );
     }
