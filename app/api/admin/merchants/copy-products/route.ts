@@ -102,12 +102,25 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Find ANY seller_products rows that could belong to this merchant by looking
+    // for sellerIds that look like cuid IDs around the same merchant display name
+    const nearbyProducts = await prisma.sellerProduct.findMany({
+      where: {
+        seller: {
+          sellerProfile: { id: parsed.data.sourceMerchantId },
+        },
+      },
+      select: { id: true, sellerId: true, isActive: true },
+      take: 5,
+    });
+
     console.log("[copy-products] sourceMerchantId:", parsed.data.sourceMerchantId);
     console.log("[copy-products] sourceMerchant.userId:", sourceMerchant.userId);
     console.log("[copy-products] profileWithUser.userId:", profileWithUser?.userId);
     console.log("[copy-products] profileWithUser.user.id:", profileWithUser?.user?.id);
     console.log("[copy-products] relation sellerProducts count:", profileWithUser?.user?.sellerProducts?.length);
     console.log("[copy-products] direct query active products:", sourceProducts.length, "/ total:", allSourceProducts);
+    console.log("[copy-products] via nested profile filter (should match if data consistent):", nearbyProducts.length, nearbyProducts.map(p => p.sellerId));
 
     if (sourceProducts.length === 0) {
       return NextResponse.json(
