@@ -88,9 +88,26 @@ export async function POST(request: NextRequest) {
       prisma.sellerProduct.count({ where: { sellerId: sourceMerchant.userId } }),
     ]);
 
+    // Fetch the actual User.id via relation to verify it matches userId field
+    const profileWithUser = await prisma.sellerProfile.findUnique({
+      where: { id: parsed.data.sourceMerchantId },
+      select: {
+        userId: true,
+        user: {
+          select: {
+            id: true,
+            sellerProducts: { where: { isActive: true }, select: { id: true } },
+          },
+        },
+      },
+    });
+
     console.log("[copy-products] sourceMerchantId:", parsed.data.sourceMerchantId);
     console.log("[copy-products] sourceMerchant.userId:", sourceMerchant.userId);
-    console.log("[copy-products] active products:", sourceProducts.length, "/ total:", allSourceProducts);
+    console.log("[copy-products] profileWithUser.userId:", profileWithUser?.userId);
+    console.log("[copy-products] profileWithUser.user.id:", profileWithUser?.user?.id);
+    console.log("[copy-products] relation sellerProducts count:", profileWithUser?.user?.sellerProducts?.length);
+    console.log("[copy-products] direct query active products:", sourceProducts.length, "/ total:", allSourceProducts);
 
     if (sourceProducts.length === 0) {
       return NextResponse.json(
