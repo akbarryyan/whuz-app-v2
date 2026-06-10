@@ -14,7 +14,8 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const mobileDropdownRef = useRef<HTMLDivElement>(null);
+  const desktopDropdownRef = useRef<HTMLDivElement>(null);
 
   const displayName = user?.name || user?.email || "Admin";
   const initial = displayName.charAt(0).toUpperCase();
@@ -30,7 +31,10 @@ export default function Header({ onMenuClick }: HeaderProps) {
   // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      const inMobile = mobileDropdownRef.current?.contains(target);
+      const inDesktop = desktopDropdownRef.current?.contains(target);
+      if (!inMobile && !inDesktop) {
         setDropdownOpen(false);
       }
     }
@@ -70,7 +74,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
           </div>
 
           {/* Mobile avatar with dropdown */}
-          <div className="relative sm:hidden" ref={dropdownRef}>
+          <div className="relative sm:hidden" ref={mobileDropdownRef}>
             <button
               onClick={() => setDropdownOpen((v) => !v)}
               className="flex h-8 w-8 items-center justify-center rounded-full bg-[#2563eb] text-xs font-medium text-white"
@@ -104,7 +108,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           {/* Desktop avatar with dropdown */}
-          <div className="relative hidden sm:block" ref={dropdownRef}>
+          <div className="relative hidden sm:block" ref={desktopDropdownRef}>
             <button
               onClick={() => setDropdownOpen((v) => !v)}
               className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 transition hover:border-slate-300"
