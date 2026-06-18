@@ -39,9 +39,9 @@ export default function InfoPage({
 
   return (
     <div className={`${quicksand.className} flex min-h-screen justify-center bg-[#F5F5F5] lg:bg-[#F5F5F5]`}>
-      <div className="relative w-full max-w-[480px] min-h-screen bg-[#F5F5F5] shadow-2xl flex flex-col lg:max-w-7xl lg:bg-[#F5F5F5] lg:shadow-none">
+      <div className="relative w-full max-w-120 min-h-screen bg-[#F5F5F5] shadow-2xl flex flex-col lg:max-w-7xl lg:bg-[#F5F5F5] lg:shadow-none">
         <AppHeader onBack={() => router.back()} />
-        <div className="h-[60px]" />
+        <div className="h-15" />
 
         {/* Title bar */}
         <div className="bg-white px-4 py-3 border-b border-slate-100 lg:mx-auto lg:w-full lg:max-w-5xl lg:border-slate-200 lg:bg-white lg:px-6">
@@ -65,8 +65,7 @@ export default function InfoPage({
                   prose-a:text-[#003D99] prose-a:no-underline hover:prose-a:underline
                   prose-strong:text-slate-800
                   prose-img:rounded-xl prose-img:shadow-sm
-                  lg:prose-headings:text-white lg:prose-p:text-slate-200 lg:prose-li:text-slate-200 lg:prose-a:text-blue-300 lg:prose-strong:text-white
-                  [&_*]:text-slate-700 lg:[&_*]:text-slate-200"
+                  **:text-slate-700"
                 dangerouslySetInnerHTML={{ __html: html }}
               />
             </div>
