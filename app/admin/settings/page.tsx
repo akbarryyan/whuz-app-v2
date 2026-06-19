@@ -35,6 +35,16 @@ interface ProviderDef {
   onLabel: string;
 }
 
+const DEFAULT_HEADER_COLOR = "#003D99";
+const HEX_COLOR_RE = /^#[0-9A-Fa-f]{6}$/;
+
+function normalizeColorInput(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  const withHash = trimmed.startsWith("#") ? trimmed : `#${trimmed}`;
+  return withHash.toUpperCase();
+}
+
 const PROVIDERS: ProviderDef[] = [
   {
     key: "PROVIDER_DIGIFLAZZ_MODE",
@@ -74,6 +84,7 @@ export default function SettingsPage() {
   const [siteName, setSiteName] = useState("");
   const [siteLogo, setSiteLogo] = useState("");
   const [siteFavicon, setSiteFavicon] = useState("");
+  const [headerColor, setHeaderColor] = useState(DEFAULT_HEADER_COLOR);
   const [siteDescription, setSiteDescription] = useState("");
   const [siteKeywords, setSiteKeywords] = useState("");
   const [siteSaving, setSiteSaving] = useState<string | null>(null);
@@ -133,6 +144,7 @@ export default function SettingsPage() {
         setSiteName(raw.site_name ?? "Website");
         setSiteLogo(raw.site_logo ?? "");
         setSiteFavicon(raw.site_favicon ?? "");
+        setHeaderColor(raw.HEADER_COLOR ?? envDefaults.HEADER_COLOR ?? DEFAULT_HEADER_COLOR);
         setSiteDescription(raw.site_description ?? "");
         setSiteKeywords(raw.site_keywords ?? "");
         setFonnteToken(raw.FONNTE_TOKEN ?? "");
@@ -260,6 +272,16 @@ export default function SettingsPage() {
     } finally {
       setSiteSaving(null);
     }
+  }
+
+  async function saveHeaderColor() {
+    const normalized = normalizeColorInput(headerColor);
+    if (!HEX_COLOR_RE.test(normalized)) {
+      toast.error("Warna header harus format hex, contoh #003D99");
+      return;
+    }
+    setHeaderColor(normalized);
+    await saveSiteSetting("HEADER_COLOR", normalized, "Warna Header");
   }
 
   // ── Save all SMTP settings at once ─────────────────────────────────────────
@@ -738,6 +760,41 @@ export default function SettingsPage() {
                     {siteSaving === "site_favicon" ? "..." : "💾 Simpan"}
                   </button>
                 </div>
+              </div>
+
+              {/* Header Color */}
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Warna Header</label>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <div className="flex flex-1 items-center gap-2">
+                    <input
+                      type="color"
+                      value={HEX_COLOR_RE.test(headerColor) ? headerColor : DEFAULT_HEADER_COLOR}
+                      onChange={(e) => setHeaderColor(e.target.value.toUpperCase())}
+                      className="h-11 w-14 shrink-0 cursor-pointer rounded-xl border border-slate-200 bg-white p-1"
+                      aria-label="Pilih warna header"
+                    />
+                    <input
+                      type="text"
+                      value={headerColor}
+                      onChange={(e) => setHeaderColor(normalizeColorInput(e.target.value))}
+                      placeholder="#003D99"
+                      className="min-w-0 flex-1 px-3 py-2.5 text-sm border border-slate-200 rounded-xl outline-none focus:border-blue-400 font-mono"
+                    />
+                    <div
+                      className="hidden h-11 w-20 rounded-xl border border-slate-200 sm:block"
+                      style={{ backgroundColor: HEX_COLOR_RE.test(headerColor) ? headerColor : DEFAULT_HEADER_COLOR }}
+                    />
+                  </div>
+                  <button
+                    onClick={saveHeaderColor}
+                    disabled={siteSaving === "HEADER_COLOR"}
+                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-[#2563eb] text-white text-xs font-bold hover:bg-blue-700 transition disabled:opacity-50 flex-shrink-0"
+                  >
+                    {siteSaving === "HEADER_COLOR" ? "..." : "💾 Simpan"}
+                  </button>
+                </div>
+                <p className="text-[10px] text-slate-400 mt-1">Berlaku untuk header utama di halaman publik dan halaman app.</p>
               </div>
 
               {/* Site Description */}

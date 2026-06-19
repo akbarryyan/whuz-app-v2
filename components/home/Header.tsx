@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import NotificationDropdown from "@/components/ui/NotificationDropdown";
 
+const DEFAULT_HEADER_COLOR = "#003D99";
+
 const PLACEHOLDER_TEXTS = [
   "Cari top up Mobile Legends...",
   "Cari top up Free Fire...",
@@ -32,6 +34,7 @@ export default function Header() {
   const [charIdx, setCharIdx] = useState(0);
   const [logoUrl, setLogoUrl] = useState("");
   const [siteName, setSiteName] = useState("Website");
+  const [headerColor, setHeaderColor] = useState(DEFAULT_HEADER_COLOR);
   const [searchValue, setSearchValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -45,6 +48,7 @@ export default function Header() {
       .then((d) => {
         if (d.data?.site_logo) setLogoUrl(d.data.site_logo);
         if (d.data?.site_name) setSiteName(d.data.site_name);
+        if (d.data?.header_color) setHeaderColor(d.data.header_color);
       })
       .catch(() => {});
     fetch("/api/tickets/unread-count")
@@ -96,13 +100,14 @@ export default function Header() {
 
   return (
     <header
-      className={`bg-[#003D99] px-4 ${
+      style={{ backgroundColor: headerColor }}
+      className={`px-4 ${
         isScrolled
           ? "fixed inset-x-0 top-0 z-40 py-2.5 shadow-lg"
           : "relative pt-4 pb-3 lg:pt-5 lg:pb-4"
       }`}
     >
-      <div className="mx-auto w-full max-w-[480px] lg:max-w-6xl">
+      <div className="mx-auto w-full max-w-120 lg:max-w-6xl">
       {/* Logo Row + Icons */}
       <div className="flex items-center justify-between">
         {/* Logo - just hidden when scrolled, no animation */}
@@ -179,7 +184,7 @@ export default function Header() {
           return (
             <div className="absolute inset-0 flex items-center pl-10 pointer-events-none z-[2]">
               <span className="text-[13px] text-slate-400 whitespace-pre">{prefix}</span>
-              <span className="text-[13px] font-semibold text-[#003D99]">{highlight}</span>
+              <span className="text-[13px] font-semibold" style={{ color: headerColor }}>{highlight}</span>
             </div>
           );
         })()}

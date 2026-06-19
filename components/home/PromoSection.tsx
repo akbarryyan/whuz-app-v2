@@ -4,7 +4,7 @@ export default function PromoSection() {
   return (
     <div className="mt-8">
       <h3 className="text-lg font-bold text-slate-800 mb-4">Promo Spesial</h3>
-      <div className="bg-gradient-to-r from-orange-400 to-pink-500 rounded-2xl p-6 text-white">
+      <div className="bg-linear-to-r from-orange-400 to-pink-500 rounded-2xl p-6 text-white">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium mb-1">Diskon Hingga</p>

@@ -7,11 +7,13 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import {
+  DEFAULT_HEADER_COLOR,
   getAllSiteConfig,
   setSiteConfig,
   deleteSiteConfig,
   getAllProviderModes,
   invalidateSiteConfigCache,
+  normalizeHexColor,
 } from "@/lib/site-config";
 import { initProviderModesFromDB } from "@/src/infra/providers/provider.factory";
 
@@ -34,6 +36,7 @@ export async function GET() {
       envDefaults: {
         PROVIDER_DIGIFLAZZ_MODE: process.env.PROVIDER_DIGIFLAZZ_MODE ?? "mock",
         PROVIDER_VIP_MODE: process.env.PROVIDER_VIP_MODE ?? "mock",
+        HEADER_COLOR: normalizeHexColor(process.env.HEADER_COLOR, DEFAULT_HEADER_COLOR),
         POPPAY_API_BASE_URL: process.env.POPPAY_API_BASE_URL ?? "",
         POPPAY_URL: process.env.POPPAY_URL ?? "",
         POPPAY_PORT: process.env.POPPAY_PORT ?? "",
@@ -79,6 +82,17 @@ export async function PATCH(request: Request) {
       { success: false, error: "Validation error", details: parsed.error.flatten() },
       { status: 422 }
     );
+  }
+
+  if (parsed.data.key === "HEADER_COLOR" && parsed.data.value !== "") {
+    const normalized = normalizeHexColor(parsed.data.value, "");
+    if (!normalized) {
+      return NextResponse.json(
+        { success: false, error: "HEADER_COLOR must use #RRGGBB format" },
+        { status: 422 }
+      );
+    }
+    parsed.data.value = normalized;
   }
 
   // If value is empty, delete the key so it falls back to .env default

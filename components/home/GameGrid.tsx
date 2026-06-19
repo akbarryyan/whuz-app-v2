@@ -101,7 +101,7 @@ export default function GameGrid({ category }: GameGridProps) {
         </div>
         <div className="grid grid-cols-4 gap-3 lg:grid-cols-6 lg:gap-5 xl:grid-cols-7">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="flex flex-col items-center gap-2 bg-white rounded-xl p-2 shadow-sm lg:rounded-[24px] lg:border lg:border-slate-200 lg:bg-white lg:p-3 lg:shadow-none">
+            <div key={i} className="flex flex-col items-center gap-2 bg-white rounded-xl p-2 shadow-sm lg:rounded-3xl lg:border lg:border-slate-200 lg:bg-white lg:p-3 lg:shadow-none">
               <div className="w-full aspect-square rounded-lg bg-slate-200 animate-pulse lg:bg-white/10" />
               <div className="h-3 w-14 rounded bg-slate-200 animate-pulse lg:bg-white/10" />
             </div>
@@ -158,10 +158,10 @@ export default function GameGrid({ category }: GameGridProps) {
             <button
               key={brand.slug}
               onClick={() => router.push(`/brand/${brand.slug}`)}
-              className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md lg:rounded-[24px] lg:border-slate-200 lg:bg-white lg:shadow-none lg:hover:border-slate-300 lg:hover:bg-white/[0.07] lg:hover:shadow-none"
+              className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md lg:rounded-3xl lg:border-slate-200 lg:bg-white lg:shadow-none lg:hover:border-slate-300 lg:hover:bg-white/[0.07] lg:hover:shadow-none"
             >
               <div className="flex flex-col items-center gap-2 px-3 pb-3 pt-4">
-                <div className="w-full aspect-square overflow-hidden rounded-lg bg-gradient-to-br from-purple-100 to-blue-100 lg:rounded-[18px] lg:from-[#0f223f] lg:to-[#132b4a]">
+                <div className="w-full aspect-square overflow-hidden rounded-lg bg-linear-to-br from-purple-100 to-blue-100 lg:rounded-[18px] lg:from-[#0f223f] lg:to-[#132b4a]">
                   <div className="h-full w-full overflow-hidden rounded-lg">
                     {image ? (
                       /* eslint-disable-next-line @next/next/no-img-element */
@@ -173,7 +173,7 @@ export default function GameGrid({ category }: GameGridProps) {
                       />
                     ) : (
                       <div
-                        className={`flex h-full w-full items-center justify-center bg-gradient-to-br ${gradient} transition-transform group-hover:scale-105`}
+                        className={`flex h-full w-full items-center justify-center bg-linear-to-br ${gradient} transition-transform group-hover:scale-105`}
                       >
                         <span className="text-lg font-bold text-white drop-shadow-sm">
                           {initials}

@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
-import { getSiteConfig, getSiteName } from "@/lib/site-config";
+import { getHeaderColor, getSiteConfig, getSiteName } from "@/lib/site-config";
 
 /**
  * GET /api/site-branding — public endpoint returning site identity (logo, name, etc.)
  */
 export async function GET() {
-  const [siteName, siteLogo] = await Promise.all([
+  const [siteName, siteLogo, headerColor] = await Promise.all([
     getSiteName(),
     getSiteConfig("site_logo"),
+    getHeaderColor(),
   ]);
 
   return NextResponse.json({
@@ -15,6 +16,7 @@ export async function GET() {
     data: {
       site_name: siteName,
       site_logo: siteLogo || "",
+      header_color: headerColor,
     },
   });
 }

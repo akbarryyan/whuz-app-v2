@@ -19,6 +19,7 @@ import {
 } from "@/lib/payment-gateway-fee";
 
 export const DEFAULT_SITE_NAME = "Website";
+export const DEFAULT_HEADER_COLOR = "#003D99";
 
 // ── In-memory cache to avoid DB hit on every request ─────────────────────────
 const g = globalThis as unknown as {
@@ -80,6 +81,15 @@ export async function getSiteName(): Promise<string> {
     process.env.APP_NAME ||
     DEFAULT_SITE_NAME
   );
+}
+
+export function normalizeHexColor(value: string | null | undefined, fallback = DEFAULT_HEADER_COLOR): string {
+  const color = String(value ?? "").trim();
+  return /^#[0-9A-Fa-f]{6}$/.test(color) ? color.toUpperCase() : fallback;
+}
+
+export async function getHeaderColor(): Promise<string> {
+  return normalizeHexColor(await getSiteConfigValue("HEADER_COLOR", DEFAULT_HEADER_COLOR));
 }
 
 export async function getPaymentGatewayFeeConfig(
