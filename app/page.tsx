@@ -13,6 +13,8 @@ import AboutFAQ from "@/components/home/AboutFAQ";
 import Footer from "@/components/home/Footer";
 import BottomNavigation from "@/components/BottomNavigation";
 
+const DEFAULT_HEADER_COLOR = "#003D99";
+
 const quicksand = Quicksand({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
@@ -28,11 +30,11 @@ interface SessionUser {
 /* ────────────────────────────────────────────────────────── */
 /*  Skeleton placeholder shown while the page is "loading"   */
 /* ────────────────────────────────────────────────────────── */
-function HomeSkeleton() {
+function HomeSkeleton({ headerColor = DEFAULT_HEADER_COLOR }: { headerColor?: string }) {
   return (
     <div className="flex min-h-screen w-full max-w-[480px] flex-col bg-[#F5F5F5] shadow-2xl animate-pulse lg:max-w-none lg:shadow-none">
       {/* ── Header skeleton ── */}
-      <div className="bg-[#003D99] px-4 pt-4 pb-3">
+      <div className="px-4 pt-4 pb-3" style={{ backgroundColor: headerColor }}>
         <div className="flex items-center justify-between">
           <div className="h-10 w-28 bg-white/15 rounded-lg" />
           <div className="flex items-center gap-3">
@@ -116,6 +118,7 @@ export default function Home() {
   const [ready, setReady] = useState(false);
   const [siteName, setSiteName] = useState("Website");
   const [logoUrl, setLogoUrl] = useState("");
+  const [headerColor, setHeaderColor] = useState(DEFAULT_HEADER_COLOR);
   const [user, setUser] = useState<SessionUser | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -143,6 +146,7 @@ export default function Home() {
       .then((d) => {
         if (d.data?.site_name) setSiteName(d.data.site_name);
         if (d.data?.site_logo) setLogoUrl(d.data.site_logo);
+        if (d.data?.header_color) setHeaderColor(d.data.header_color);
       })
       .catch(() => {});
 
@@ -200,7 +204,7 @@ export default function Home() {
         }`}
       >
         <div className="mx-auto w-full lg:max-w-none">
-          <HomeSkeleton />
+          <HomeSkeleton headerColor={headerColor} />
         </div>
       </div>
 
@@ -282,7 +286,7 @@ export default function Home() {
         </div>
 
         <div className="hidden lg:block">
-          <div className="border-b border-slate-200 bg-[#003D99] text-white">
+          <div className="border-b border-slate-200 text-white" style={{ backgroundColor: headerColor }}>
             <div className="mx-auto max-w-7xl">
               <div className="flex items-center gap-6 px-6 pt-5 pb-4">
                 <Link href="/" className="flex min-w-[160px] items-center gap-3">
@@ -319,7 +323,7 @@ export default function Home() {
                         onClick={() => setProfileOpen((open) => !open)}
                         className="inline-flex items-center gap-3 rounded-full border border-white/12 bg-white/5 px-3 py-2 text-left text-white transition hover:bg-white/10"
                       >
-                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-bold text-[#003D99]">
+                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-bold" style={{ color: headerColor }}>
                           {userInitials}
                         </span>
                         <span className="min-w-0">
@@ -399,7 +403,7 @@ export default function Home() {
                       <Link href="/login" className="rounded-full border border-white/12 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">
                         Masuk
                       </Link>
-                      <Link href="/register" className="rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-[#003D99] transition hover:bg-blue-50">
+                      <Link href="/register" className="rounded-full bg-white px-4 py-2.5 text-sm font-semibold transition hover:bg-blue-50" style={{ color: headerColor }}>
                         Daftar
                       </Link>
                     </>
@@ -460,7 +464,7 @@ export default function Home() {
                   <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">Merchant</p>
                   <h2 className="mt-3 text-[28px] font-bold leading-tight text-slate-900">Lihat Merchant</h2>
                   <p className="mt-3 max-w-xl text-sm leading-7 text-slate-600">Temukan merchant aktif dan produk digital yang sudah siap dijual tanpa harus berpindah halaman terlalu jauh.</p>
-                  <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#003D99]">
+                  <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold" style={{ color: headerColor }}>
                     <span>Buka direktori</span>
                     <span className="text-slate-400">→</span>
                   </div>
@@ -473,7 +477,7 @@ export default function Home() {
                   <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">Promo</p>
                   <h2 className="mt-3 text-[28px] font-bold leading-tight text-slate-900">Promo Terbaru</h2>
                   <p className="mt-3 max-w-xl text-sm leading-7 text-slate-600">Pantau penawaran aktif, campaign berjalan, dan produk dengan momentum terbaik untuk dijual.</p>
-                  <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#003D99]">
+                  <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold" style={{ color: headerColor }}>
                     <span>Lihat promo aktif</span>
                     <span className="text-slate-400">→</span>
                   </div>
@@ -494,7 +498,7 @@ export default function Home() {
                     href="/seller"
                     className="block rounded-[28px] border border-slate-200 bg-white p-6 text-slate-900 shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50"
                   >
-                    <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#003D99]">Butuh Merchant?</p>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.22em]" style={{ color: headerColor }}>Butuh Merchant?</p>
                     <h3 className="mt-2 text-xl font-bold">Buka direktori merchant</h3>
                     <p className="mt-2 text-sm leading-6 text-slate-600">Jelajahi partner aktif dan produk digital yang sudah siap dijual.</p>
                   </Link>
