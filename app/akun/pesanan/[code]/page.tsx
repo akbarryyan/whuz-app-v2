@@ -399,8 +399,8 @@ function OrderDetailPageContent() {
                 </svg>
               </div>
               <div>
-                <p className="text-sm font-bold text-yellow-800 lg:text-yellow-50">Belum Dibayar</p>
-                <p className="text-[11px] text-yellow-700 lg:text-yellow-100/80">Selesaikan pembayaran sebelum kedaluwarsa.</p>
+                <p className="text-sm font-bold text-yellow-800">Belum Dibayar</p>
+                <p className="text-[11px] text-yellow-700">Selesaikan pembayaran sebelum kedaluwarsa.</p>
               </div>
             </div>
           )}
