@@ -622,6 +622,14 @@ function OrderDetailPageContent() {
                           />
                         </div>
                       </div>
+                      <div className="mt-3 flex items-center justify-center gap-1.5">
+                        <span className="text-[11px] font-medium text-slate-500">QRIS supported by</span>
+                        <img
+                          src="/images.png"
+                          alt="Manjo"
+                          className="h-4 w-auto"
+                        />
+                      </div>
                       {canRequestNewQris ? (
                         <div className="mt-4 space-y-2">
                           <button
