@@ -8,6 +8,13 @@
  * meng-inline `process.env.NEXT_RUNTIME` jadi literal, sehingga blok ini
  * ter-eliminasi di bundle edge dan `rotating-file-stream` tidak pernah ikut
  * ke sana.
+ *
+ * JANGAN memakai API Node-only di file ini (`process.version`, `process.pid`,
+ * `fs`, dsb) meskipun ada di balik guard. Selama `middleware.ts` masih ada,
+ * Next ikut meng-compile file ini untuk Edge runtime, dan Turbopack menandai
+ * API semacam itu secara statis — build tetap sukses tapi memunculkan warning
+ * di setiap build. Nilai yang butuh API Node ambil di dalam `lib/logger.ts`
+ * atau `lib/http-access-log.ts`, yang hanya dimuat di jalur Node.
  */
 
 type RequestErrorContext = Readonly<{
@@ -33,7 +40,6 @@ export async function register(): Promise<void> {
   const { getLogger } = await import("@/lib/logger");
   getLogger("app").info(
     {
-      nodeVersion: process.version,
       // Diaudit di sini karena format `time` bergantung timezone proses:
       // kalau ini bukan Asia/Jakarta, offset di log jadi bukan +07:00.
       tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
