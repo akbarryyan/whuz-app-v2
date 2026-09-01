@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
@@ -47,7 +50,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error("Failed to get products:", error);
+    log.error({ err: error }, "failed to get products");
     return NextResponse.json(
       {
         success: false,
@@ -136,7 +139,7 @@ export async function PUT(request: Request) {
       message: "Product updated successfully",
     });
   } catch (error) {
-    console.error("Failed to update product:", error);
+    log.error({ err: error }, "failed to update product");
     return NextResponse.json(
       {
         success: false,

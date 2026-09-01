@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("auth");
 
 export async function POST() {
   try {
@@ -11,7 +14,7 @@ export async function POST() {
       message: "Berhasil logout.",
     });
   } catch (error) {
-    console.error("[AUTH LOGOUT ERROR]", error);
+    log.error({ err: error }, "logout failed");
     return NextResponse.json(
       { success: false, message: "Terjadi kesalahan. Coba lagi." },
       { status: 500 }

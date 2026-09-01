@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
 import { getSession } from "@/lib/session";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("catalog");
 
 export const dynamic = "force-dynamic";
 
@@ -80,7 +83,7 @@ export async function GET(
       userReview,
     });
   } catch (error) {
-    console.error("[BRAND REVIEWS GET ERROR]", error);
+    log.error({ err: error }, "catalog brands reviews request failed");
     return NextResponse.json({ success: false, error: "Gagal memuat ulasan." }, { status: 500 });
   }
 }
@@ -169,7 +172,7 @@ export async function POST(
       message: "Ulasan berhasil dikirim dan menunggu persetujuan admin.",
     });
   } catch (error) {
-    console.error("[BRAND REVIEWS POST ERROR]", error);
+    log.error({ err: error }, "catalog brands reviews request failed");
     return NextResponse.json({ success: false, error: "Gagal mengirim ulasan." }, { status: 500 });
   }
 }

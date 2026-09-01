@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +32,7 @@ export async function PATCH(
     const method = await prisma.paymentMethod.update({ where: { id }, data });
     return NextResponse.json({ success: true, data: method });
   } catch (error) {
-    console.error("[ADMIN PAYMENT METHODS PATCH ERROR]", error);
+    log.error({ err: error }, "admin payment methods request failed");
     return NextResponse.json({ success: false, error: "Gagal memperbarui." }, { status: 500 });
   }
 }
@@ -47,7 +50,7 @@ export async function DELETE(
     await prisma.paymentMethod.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("[ADMIN PAYMENT METHODS DELETE ERROR]", error);
+    log.error({ err: error }, "admin payment methods request failed");
     return NextResponse.json({ success: false, error: "Gagal menghapus." }, { status: 500 });
   }
 }

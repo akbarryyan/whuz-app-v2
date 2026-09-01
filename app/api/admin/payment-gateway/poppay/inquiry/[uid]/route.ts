@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { isPoppayConfigured, PoppayClient } from "@/src/infra/payment/poppay/poppay.client";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +35,7 @@ export async function GET(
           : undefined,
     });
   } catch (error) {
-    console.error("[POPPAY INQUIRY ERROR]", error);
+    log.error({ err: error }, "admin payment gateway poppay inquiry request failed");
     return NextResponse.json(
       {
         success: false,

@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/src/infra/db/prisma";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("auth");
 
 export async function GET() {
   try {
@@ -141,7 +144,7 @@ export async function GET() {
         : null,
     });
   } catch (error) {
-    console.error("[AUTH ME ERROR]", error);
+    log.error({ err: error }, "session lookup failed");
     return NextResponse.json({ isLoggedIn: false, user: null });
   }
 }

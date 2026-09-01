@@ -5,6 +5,9 @@
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +41,7 @@ export async function GET() {
 
     return NextResponse.json({ success: true, data: result });
   } catch (err) {
-    console.error("[GET /api/admin/vouchers]", err);
+    log.error({ err }, "admin vouchers request failed");
     return NextResponse.json({ success: false, error: "Gagal memuat voucher." }, { status: 500 });
   }
 }
@@ -86,7 +89,7 @@ export async function POST(request: Request) {
     if ((err as { code?: string }).code === "P2002") {
       return NextResponse.json({ success: false, error: "Kode voucher sudah dipakai." }, { status: 409 });
     }
-    console.error("[POST /api/admin/vouchers]", err);
+    log.error({ err }, "admin vouchers request failed");
     return NextResponse.json({ success: false, error: "Gagal membuat voucher." }, { status: 500 });
   }
 }

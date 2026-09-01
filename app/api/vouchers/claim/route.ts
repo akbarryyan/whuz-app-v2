@@ -5,6 +5,9 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/src/infra/db/prisma";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("catalog");
 
 export const dynamic = "force-dynamic";
 
@@ -82,7 +85,7 @@ export async function POST(request: Request) {
     if ((err as { code?: string }).code === "P2002") {
       return NextResponse.json({ success: false, error: "Kamu sudah mengklaim voucher ini." }, { status: 400 });
     }
-    console.error("[POST /api/vouchers/claim]", err);
+    log.error({ err }, "vouchers claim request failed");
     return NextResponse.json({ success: false, error: "Gagal mengklaim voucher." }, { status: 500 });
   }
 }

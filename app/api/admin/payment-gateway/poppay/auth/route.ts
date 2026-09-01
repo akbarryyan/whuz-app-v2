@@ -3,6 +3,9 @@ import {
   getPoppayDebugConfigSummary,
   PoppayClient,
 } from "@/src/infra/payment/poppay/poppay.client";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
@@ -47,7 +50,7 @@ export async function GET() {
       data: auth,
     });
   } catch (error) {
-    console.error("[POPPAY AUTH DEBUG ERROR]", error);
+    log.error({ err: error }, "admin payment gateway poppay auth request failed");
     return NextResponse.json(
       {
         success: false,

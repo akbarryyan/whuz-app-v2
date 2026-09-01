@@ -18,8 +18,11 @@ import { HandlePakasirWebhookService } from "@/src/core/services/payment/handle-
 import { OrderRepository } from "@/src/infra/db/repositories/order.repository";
 import { PakasirAdapter } from "@/src/infra/payment/pakasir/pakasir.adapter";
 import { handleWalletTopupWebhook } from "@/lib/wallet-topup-webhook";
+import { getLogger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
+
+const log = getLogger("webhook").child({ provider: "pakasir" });
 
 export async function POST(request: Request) {
   let rawBody = "";
@@ -43,7 +46,7 @@ export async function POST(request: Request) {
       const result = await handleWalletTopupWebhook(payload, new PakasirAdapter());
       return NextResponse.json({ received: true, ...result });
     } catch (err: unknown) {
-      console.error("[POST /api/webhooks/payment] Wallet topup error:", err instanceof Error ? err.message : err);
+      log.error({ err, orderCode: payload.order_id }, "wallet topup processing failed");
       return NextResponse.json({ received: true, error: "Topup processing error" }, { status: 200 });
     }
   }
@@ -55,12 +58,12 @@ export async function POST(request: Request) {
       new PakasirAdapter(),
     );
     const result = await webhookService.handle(payload, rawBody);
-    console.log("[POST /api/webhooks/payment]", result);
+    log.debug({ orderCode: payload.order_id, result }, "webhook handled");
     // Always acknowledge to gateway
     return NextResponse.json({ received: true, action: result.action });
   } catch (err: unknown) {
     // Log but still return 200 so gateway doesn't retry indefinitely
-    console.error("[POST /api/webhooks/payment] Error:", err instanceof Error ? err.message : err);
+    log.error({ err, orderCode: payload.order_id }, "webhook processing failed");
     return NextResponse.json({ received: true, error: "Processing error" }, { status: 200 });
   }
 }

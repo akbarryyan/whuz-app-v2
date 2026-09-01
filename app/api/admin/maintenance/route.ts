@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { getSiteConfig, setSiteConfig } from "@/lib/site-config";
 import { cookies } from "next/headers";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("admin");
 
 const KEY = "MAINTENANCE_MODE";
 
@@ -10,7 +13,7 @@ export async function GET() {
     const val = await getSiteConfig(KEY);
     return NextResponse.json({ success: true, enabled: val === "1" });
   } catch (err) {
-    console.error("[GET /api/admin/maintenance]", err);
+    log.error({ err }, "admin maintenance request failed");
     return NextResponse.json({ success: false, enabled: false }, { status: 500 });
   }
 }
@@ -46,7 +49,7 @@ export async function PATCH() {
 
     return NextResponse.json({ success: true, enabled: next === "1" });
   } catch (err) {
-    console.error("[PATCH /api/admin/maintenance]", err);
+    log.error({ err }, "admin maintenance request failed");
     return NextResponse.json({ success: false, message: "Server error" }, { status: 500 });
   }
 }

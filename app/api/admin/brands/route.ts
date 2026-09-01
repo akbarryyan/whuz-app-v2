@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +41,7 @@ export async function GET() {
 
     return NextResponse.json({ success: true, data });
   } catch (error) {
-    console.error("[ADMIN BRANDS GET ERROR]", error);
+    log.error({ err: error }, "admin brands request failed");
     return NextResponse.json({ success: false, error: "Gagal memuat brand." }, { status: 500 });
   }
 }
@@ -65,7 +68,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: meta });
   } catch (error) {
-    console.error("[ADMIN BRANDS PUT ERROR]", error);
+    log.error({ err: error }, "admin brands request failed");
     return NextResponse.json({ success: false, error: "Gagal menyimpan data." }, { status: 500 });
   }
 }
@@ -93,7 +96,7 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: meta });
   } catch (error) {
-    console.error("[ADMIN BRANDS PATCH ERROR]", error);
+    log.error({ err: error }, "admin brands request failed");
     return NextResponse.json({ success: false, error: "Gagal menyimpan konfigurasi." }, { status: 500 });
   }
 }
@@ -120,7 +123,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("[ADMIN BRANDS DELETE ERROR]", error);
+    log.error({ err: error }, "admin brands request failed");
     return NextResponse.json({ success: false, error: "Gagal menghapus data." }, { status: 500 });
   }
 }

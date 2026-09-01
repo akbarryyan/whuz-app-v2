@@ -4,6 +4,9 @@ import { prisma } from "@/src/infra/db/prisma";
 import { getSession } from "@/lib/session";
 import { slugifySellerName } from "@/lib/seller";
 import { imageRefSchema } from "@/lib/upload";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("seller");
 
 const SellerProfileSchema = z.object({
   displayName: z.string().min(3).max(120),
@@ -79,7 +82,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Slug seller sudah dipakai" }, { status: 409 });
     }
 
-    console.error("[seller/profile POST]", error);
+    log.error({ err: error }, "seller profile request failed");
     return NextResponse.json({ success: false, error: "Gagal menyimpan profil seller" }, { status: 500 });
   }
 }

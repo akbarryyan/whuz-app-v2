@@ -6,6 +6,9 @@
  */
 
 import { getSiteConfig } from "@/lib/site-config";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("notify").child({ channel: "whatsapp" });
 
 /**
  * Ambil Fonnte token dari SiteConfig (DB) dulu, fallback ke .env
@@ -32,7 +35,7 @@ export async function sendWhatsAppMessage(
   const token = await getFonnteToken();
 
   if (!token) {
-    console.error("[FONNTE] Token belum dikonfigurasi. Set via Admin Dashboard atau .env");
+    log.warn("fonnte token not configured");
     return { success: false, detail: "Fonnte token belum dikonfigurasi" };
   }
 
@@ -49,14 +52,14 @@ export async function sendWhatsAppMessage(
     });
 
     const data = await res.json();
-    console.log("[FONNTE] Response:", JSON.stringify(data));
+    log.debug({ status: data.status, detail: data.detail }, "fonnte send response");
 
     return {
       success: data.status === true,
       detail: data.detail || data.reason || "Unknown",
     };
   } catch (error) {
-    console.error("[FONNTE] Error:", error);
+    log.error({ err: error }, "fonnte send failed");
     return { success: false, detail: "Network error" };
   }
 }

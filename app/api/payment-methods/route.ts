@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { getPaymentGatewayFeeConfig } from "@/lib/site-config";
 import { prisma } from "@/src/infra/db/prisma";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("catalog");
 
 export const dynamic = "force-dynamic";
 
@@ -53,7 +56,7 @@ export async function GET() {
       data: storefrontMethods.length > 0 ? storefrontMethods : [qrisMethod],
     });
   } catch (error) {
-    console.error("[PAYMENT METHODS GET ERROR]", error);
+    log.error({ err: error }, "payment methods request failed");
     return NextResponse.json({ success: false, error: "Gagal memuat metode pembayaran." }, { status: 500 });
   }
 }

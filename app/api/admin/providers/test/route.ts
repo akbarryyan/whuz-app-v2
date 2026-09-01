@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { ProviderManagementService } from "@/src/core/services/provider/provider-management.service";
 import { ProviderType } from "@/src/core/domain/enums/provider.enum";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
@@ -105,7 +108,7 @@ export async function POST(request: Request) {
       results,
     });
   } catch (error) {
-    console.error("Failed to test provider:", error);
+    log.error({ err: error }, "failed to test provider");
     
     return NextResponse.json(
       {

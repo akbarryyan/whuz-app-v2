@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/src/infra/db/prisma";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
@@ -158,7 +161,7 @@ export async function POST(request: NextRequest) {
       message: "Produk aktif berhasil disalin ke merchant target",
     });
   } catch (error) {
-    console.error("[POST /api/admin/merchants/copy-products]", error);
+    log.error({ err: error }, "admin merchants copy products request failed");
     return NextResponse.json({ success: false, error: "Gagal menyalin produk merchant" }, { status: 500 });
   }
 }

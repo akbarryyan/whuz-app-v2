@@ -10,6 +10,9 @@ import { z } from "zod";
 import { prisma } from "@/src/infra/db/prisma";
 import { getSession } from "@/lib/session";
 import { PoppayAdapter } from "@/src/infra/payment/poppay/poppay.adapter";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("wallet");
 
 export const dynamic = "force-dynamic";
 
@@ -96,7 +99,7 @@ export async function POST(request: Request) {
     } catch (err: unknown) {
       // Roll back the pending record
       await prisma.walletTopup.delete({ where: { id: topup.id } });
-      console.error("[Wallet Topup] Poppay createPayment failed:", err);
+      log.error({ err }, "wallet topup request failed");
       return NextResponse.json(
         { success: false, error: "Gagal membuat invoice pembayaran. Coba lagi." },
         { status: 502 }
@@ -137,7 +140,7 @@ export async function POST(request: Request) {
       { status: 201 }
     );
   } catch (err) {
-    console.error("[POST /api/wallet/topup]", err);
+    log.error({ err }, "wallet topup request failed");
     return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
 }

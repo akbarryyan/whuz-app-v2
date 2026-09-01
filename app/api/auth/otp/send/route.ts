@@ -4,6 +4,9 @@ import { prisma } from "@/src/infra/db/prisma";
 import { generateOTP } from "@/lib/fonnte";
 import { sendOtpEmail } from "@/lib/mailer";
 import { getSiteName } from "@/lib/site-config";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("auth");
 
 export async function POST(req: NextRequest) {
   try {
@@ -130,7 +133,7 @@ export async function POST(req: NextRequest) {
     const result = await sendOtpEmail(normalizedEmail, code, purpose);
 
     if (!result.success) {
-      console.error("[OTP SEND] Email gagal:", result.detail);
+      log.warn({ reason: result.detail }, "otp email delivery failed");
       return NextResponse.json(
         { success: false, message: "Gagal mengirim OTP ke email. Coba lagi nanti." },
         { status: 500 }
@@ -142,7 +145,7 @@ export async function POST(req: NextRequest) {
       message: "Kode OTP berhasil dikirim ke email Anda.",
     });
   } catch (error) {
-    console.error("[OTP SEND ERROR]", error);
+    log.error({ err: error }, "otp send failed");
     return NextResponse.json(
       { success: false, message: "Terjadi kesalahan server. Coba lagi." },
       { status: 500 }

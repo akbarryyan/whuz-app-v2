@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ProviderManagementService } from "@/src/core/services/provider/provider-management.service";
 import { ProviderType } from "@/src/core/domain/enums/provider.enum";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("admin");
 
 const providerService = new ProviderManagementService();
 
@@ -32,7 +35,7 @@ export async function POST(
       data: result,
     });
   } catch (error: any) {
-    console.error("Check balance error:", error);
+    log.error({ err: error }, "check balance error");
     return NextResponse.json(
       { 
         success: false, 

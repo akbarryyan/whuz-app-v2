@@ -3,6 +3,9 @@ import { getSession } from "@/lib/session";
 import { prisma } from "@/src/infra/db/prisma";
 import { syncExpiredOrdersForUser } from "@/src/core/services/order/sync-expired-orders.service";
 import { autoReconcileOrderNow } from "@/src/core/services/provider/reconcile-scheduler.service";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("order");
 
 // Status grup per tab
 const TAB_STATUSES: Record<string, string[]> = {
@@ -120,7 +123,7 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("[TRANSAKSI API ERROR]", error);
+    log.error({ err: error }, "transaksi request failed");
     return NextResponse.json({ success: false, message: "Terjadi kesalahan" }, { status: 500 });
   }
 }

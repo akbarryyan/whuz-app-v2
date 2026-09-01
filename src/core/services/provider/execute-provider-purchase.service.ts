@@ -4,6 +4,9 @@ import { ProviderType } from "@/src/core/domain/enums/provider.enum";
 import { OrderStatus } from "@/src/core/domain/enums/order.enum";
 import { checkAndUpgradeUserTier } from "@/lib/pricing";
 import { scheduleOrderReconcile } from "./reconcile-scheduler.service";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("provider");
 
 /**
  * ExecuteProviderPurchaseService
@@ -55,19 +58,22 @@ export class ExecuteProviderPurchaseService {
     const order = await this.orderRepo.findById(orderId);
 
     if (!order) {
-      console.error(`[Execute] Order ${orderId} not found`);
+      log.warn({ orderId }, "order not found");
       return;
     }
 
     // ── Idempotency guard: terminal state ─────────────────────────────────
     if (order.status === OrderStatus.SUCCESS || order.status === OrderStatus.FAILED) {
-      console.log(`[Execute] Order ${orderId} already ${order.status}. Skipping.`);
+      log.debug({ orderId, status: order.status }, "order already in terminal state, skipping");
       return;
     }
 
     // ── Anti double-execute: providerRef sudah ada → jangan call provider lagi
     if (order.providerRef) {
-      console.log(`[Execute] Order ${orderId} already has providerRef=${order.providerRef}. Skipping — reconcile jika perlu.`);
+      log.debug(
+        { orderId, providerRef: order.providerRef },
+        "order already has provider ref, skipping",
+      );
       return;
     }
 
@@ -75,7 +81,7 @@ export class ExecuteProviderPurchaseService {
     // Hanya satu proses yang bisa menang race condition ini
     const claimed = await this.orderRepo.claimForProcessing(orderId);
     if (!claimed) {
-      console.log(`[Execute] Order ${orderId} failed to claim (already claimed by another process). Skipping.`);
+      log.debug({ orderId }, "order already claimed by another process, skipping");
       return;
     }
 
@@ -176,7 +182,10 @@ export class ExecuteProviderPurchaseService {
         await checkAndUpgradeUserTier(order.userId);
       }
 
-      console.log(`[Execute] Order ${orderId} SUCCESS — SN: ${result.serialNumber}`);
+      log.info(
+        { orderId, serialNumber: result.serialNumber ?? null },
+        "provider purchase success",
+      );
     } else if (result.status === "pending") {
       // Provider returned pending → simpan providerRef, biarkan PROCESSING_PROVIDER
       // Admin bisa reconcile manual via /api/admin/transactions/:id/reconcile
@@ -185,11 +194,14 @@ export class ExecuteProviderPurchaseService {
       });
       scheduleOrderReconcile(orderId);
 
-      console.log(`[Execute] Order ${orderId} PENDING — providerRef=${result.transactionId}. Admin bisa reconcile manual.`);
+      log.info(
+        { orderId, providerRef: result.transactionId ?? null },
+        "provider purchase pending",
+      );
     } else {
       await this.handleProviderFailure(order, result.message, result.transactionId);
 
-      console.log(`[Execute] Order ${orderId} FAILED — ${result.message}`);
+      log.warn({ orderId, reason: result.message }, "provider purchase failed");
     }
   }
 }

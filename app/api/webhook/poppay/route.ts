@@ -2,8 +2,11 @@ import crypto from "crypto";
 import { NextResponse } from "next/server";
 import { getSiteConfigValue } from "@/lib/site-config";
 import { handlePoppayCallback, type PoppayCallbackPayload } from "@/lib/poppay-callback";
+import { getLogger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
+
+const log = getLogger("webhook").child({ provider: "poppay" });
 
 type VerificationResult =
   | { mode: "verified" | "skipped" | "invalid"; reason?: string };
@@ -76,7 +79,7 @@ async function verifyPoppayWebhookSignature(
     if (signatureRequired) {
       return { mode: "invalid", reason: "Header signature callback tidak ditemukan." };
     }
-    console.warn("[Webhook/Poppay] Signature header tidak ditemukan; verifikasi dilewati.");
+    log.warn("signature header missing, verification skipped");
     return { mode: "skipped" };
   }
 
@@ -142,7 +145,10 @@ export async function POST(request: Request) {
   try {
     const verification = await verifyPoppayWebhookSignature(request.headers, rawBody, payload);
     if (verification.mode === "invalid") {
-      console.warn("[Webhook/Poppay] Signature tidak tervalidasi, lanjut dengan cross-check inquiry:", verification.reason);
+      log.warn(
+        { refid: payload.refid, reason: verification.reason },
+        "signature not validated, continuing with inquiry cross-check",
+      );
     }
 
     const result = await handlePoppayCallback(payload, JSON.parse(rawBody));
@@ -160,7 +166,7 @@ export async function POST(request: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("[Webhook/Poppay] Error:", error);
+    log.error({ err: error, refid: payload.refid }, "callback processing failed");
     return NextResponse.json(
       {
         status: "success",

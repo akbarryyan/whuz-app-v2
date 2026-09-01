@@ -1,5 +1,6 @@
 import { getIronSession, IronSession, SessionOptions } from "iron-session";
 import { cookies } from "next/headers";
+import { SESSION_COOKIE_NAME } from "@/lib/session-constants";
 
 export interface SessionData {
   userId?: string;
@@ -19,7 +20,7 @@ function shouldUseSecureCookies(): boolean {
 
 export const sessionOptions: SessionOptions = {
   password: process.env.SESSION_SECRET as string,
-  cookieName: "whuzpay_session",
+  cookieName: SESSION_COOKIE_NAME,
   cookieOptions: {
     secure: shouldUseSecureCookies(),
     httpOnly: true,

@@ -3,6 +3,9 @@ import bcrypt from "bcryptjs";
 import * as XLSX from "xlsx";
 import { prisma } from "@/src/infra/db/prisma";
 import { getSession } from "@/lib/session";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
@@ -273,7 +276,7 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
-    console.error("[POST /api/admin/users/import]", error);
+    log.error({ err: error }, "admin users import request failed");
     return NextResponse.json({ success: false, error: "Gagal memproses import Excel member/merchant." }, { status: 500 });
   }
 }

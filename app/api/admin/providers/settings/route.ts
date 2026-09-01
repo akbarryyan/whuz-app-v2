@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ProviderRepository } from "@/src/infra/db/repositories/provider.repository";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("admin");
 
 const providerRepo = new ProviderRepository();
 
@@ -23,7 +26,7 @@ export async function GET() {
       data: serializedSettings,
     });
   } catch (error: any) {
-    console.error("Get settings error:", error);
+    log.error({ err: error }, "get settings error");
     return NextResponse.json(
       { 
         success: false, 
@@ -101,7 +104,7 @@ export async function PUT(request: NextRequest) {
       data: serializedSetting,
     });
   } catch (error: any) {
-    console.error("Update settings error:", error);
+    log.error({ err: error }, "update settings error");
     return NextResponse.json(
       { 
         success: false, 

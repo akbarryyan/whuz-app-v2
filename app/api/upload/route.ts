@@ -8,6 +8,9 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { saveUploadedImage, UploadError, UPLOAD_FOLDERS, type UploadFolder } from "@/lib/upload";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("http");
 
 export const dynamic = "force-dynamic";
 
@@ -42,7 +45,7 @@ export async function POST(request: Request) {
     if (error instanceof UploadError) {
       return NextResponse.json({ success: false, error: error.message }, { status: error.status });
     }
-    console.error("[POST /api/upload]", error);
+    log.error({ err: error }, "upload request failed");
     return NextResponse.json({ success: false, error: "Gagal mengunggah gambar." }, { status: 500 });
   }
 }

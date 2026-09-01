@@ -7,6 +7,9 @@ import { NextResponse } from "next/server";
 import { getAllSiteConfig, getSiteConfig } from "@/lib/site-config";
 import { FooterLinkItem, findFooterPageBySlug, normalizeFooterLinks } from "@/lib/footer-links";
 import { DEFAULT_FOOTER_COLUMNS, FooterColumnItem, collectFooterColumnPageLinks, normalizeFooterColumns } from "@/lib/footer-columns";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("catalog");
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +43,7 @@ export async function GET(
       data: { slug, title: pageMeta?.label ?? null, content: content ?? "" },
     });
   } catch (err) {
-    console.error(`[GET /api/page-content/${slug}]`, err);
+    log.error({ err, slug }, "page content request failed");
     return NextResponse.json({
       success: true,
       data: { slug, title: null, content: "" },

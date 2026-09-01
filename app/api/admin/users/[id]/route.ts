@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/src/infra/db/prisma";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
@@ -77,7 +80,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error("[GET /api/admin/users/[id]]", error);
+    log.error({ err: error }, "admin users request failed");
     return NextResponse.json({ success: false, error: "Gagal mengambil detail user" }, { status: 500 });
   }
 }

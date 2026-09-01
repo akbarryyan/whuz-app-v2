@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { ProviderManagementService } from "@/src/core/services/provider/provider-management.service";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +36,7 @@ export async function GET(request: Request) {
       },
     });
   } catch (error) {
-    console.error("Failed to get provider logs:", error);
+    log.error({ err: error }, "failed to get provider logs");
     
     return NextResponse.json(
       {

@@ -3,6 +3,9 @@ import { IPaymentGatewayPort } from "@/src/core/ports/payment-gateway.port";
 import { ExecuteProviderPurchaseService } from "@/src/core/services/provider/execute-provider-purchase.service";
 import { OrderStatus, InvoiceStatus, WebhookSource } from "@/src/core/domain/enums/order.enum";
 import { DuplicateWebhookError } from "@/src/core/domain/errors/domain.errors";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("payment").child({ provider: "pakasir" });
 
 export interface PakasirWebhookPayload {
   /** Pakasir sends order_id we passed during createPayment */
@@ -59,7 +62,7 @@ export class HandlePakasirWebhookService {
     });
 
     if (duplicate) {
-      console.log(`[Webhook/Pakasir] Duplicate event ${eventId} — skipping`);
+      log.debug({ eventId }, "duplicate event, skipping");
       return { duplicate: true, action: "ignored" };
     }
 
@@ -78,7 +81,7 @@ export class HandlePakasirWebhookService {
   ): Promise<Omit<WebhookHandleResult, "duplicate">> {
     // Only process "completed" — ignore pending/expired/failed (nothing to do)
     if (payload.status !== "completed") {
-      console.log(`[Webhook/Pakasir] Status=${payload.status} — no action`);
+      log.debug({ orderCode: payload.order_id, status: payload.status }, "status needs no action");
       return { action: "ignored" };
     }
 
@@ -86,7 +89,7 @@ export class HandlePakasirWebhookService {
     const order = await this.orderRepo.findByCode(payload.order_id);
 
     if (!order) {
-      console.error(`[Webhook/Pakasir] Order ${payload.order_id} not found`);
+      log.warn({ orderCode: payload.order_id }, "order not found");
       return { action: "ignored" };
     }
 
@@ -96,7 +99,10 @@ export class HandlePakasirWebhookService {
       order.status === OrderStatus.PROCESSING_PROVIDER ||
       order.status === OrderStatus.SUCCESS
     ) {
-      console.log(`[Webhook/Pakasir] Order ${order.id} already past WAITING_PAYMENT`);
+      log.debug(
+        { orderId: order.id, orderCode: payload.order_id, status: order.status },
+        "order already past waiting payment",
+      );
       return { action: "already_paid", orderId: order.id };
     }
 
@@ -110,8 +116,9 @@ export class HandlePakasirWebhookService {
     }
 
     if (detail.status !== "completed") {
-      console.warn(
-        `[Webhook/Pakasir] detailPayment returned status=${detail.status} for ${payload.order_id}. Ignoring.`
+      log.warn(
+        { orderCode: payload.order_id, detailStatus: detail.status },
+        "gateway cross-check not completed, ignoring",
       );
       return { action: "ignored" };
     }
@@ -134,11 +141,17 @@ export class HandlePakasirWebhookService {
     // ── Execute provider LANGSUNG (inline) ──────────────────────────────────
     try {
       await this.executeService.execute(order.id);
-      console.log(`[Webhook/Pakasir] Order ${order.id} marked PAID → provider executed langsung`);
+      log.info(
+        { orderId: order.id, orderCode: payload.order_id },
+        "order paid and provider executed",
+      );
       return { action: "executed" as const, orderId: order.id };
     } catch (execErr: any) {
       // Provider execution gagal tapi order tetap PAID — admin bisa reconcile
-      console.error(`[Webhook/Pakasir] Order ${order.id} PAID tapi execute gagal:`, execErr.message);
+      log.error(
+        { err: execErr, orderId: order.id, orderCode: payload.order_id },
+        "order paid but provider execute failed",
+      );
       return { action: "execute_failed" as const, orderId: order.id, executeError: execErr.message };
     }
   }

@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("catalog");
 
 export const dynamic = "force-dynamic";
 
@@ -69,7 +72,7 @@ export async function GET() {
       grouped,
     });
   } catch (error) {
-    console.error("[CATALOG JOKI ERROR]", error);
+    log.error({ err: error }, "catalog joki request failed");
     return NextResponse.json(
       { success: false, error: "Gagal memuat produk joki." },
       { status: 500 }

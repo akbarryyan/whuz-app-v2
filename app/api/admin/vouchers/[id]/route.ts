@@ -5,6 +5,9 @@
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +51,7 @@ export async function PATCH(
     if ((err as { code?: string }).code === "P2002") {
       return NextResponse.json({ success: false, error: "Kode voucher sudah dipakai." }, { status: 409 });
     }
-    console.error("[PATCH /api/admin/vouchers]", err);
+    log.error({ err }, "admin vouchers request failed");
     return NextResponse.json({ success: false, error: "Gagal mengupdate voucher." }, { status: 500 });
   }
 }
@@ -65,7 +68,7 @@ export async function DELETE(
     if ((err as { code?: string }).code === "P2025") {
       return NextResponse.json({ success: false, error: "Voucher tidak ditemukan." }, { status: 404 });
     }
-    console.error("[DELETE /api/admin/vouchers]", err);
+    log.error({ err }, "admin vouchers request failed");
     return NextResponse.json({ success: false, error: "Gagal menghapus voucher." }, { status: 500 });
   }
 }

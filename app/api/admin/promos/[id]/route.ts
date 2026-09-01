@@ -7,6 +7,9 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/src/infra/db/prisma";
 import { imageRefSchema } from "@/lib/upload";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +51,7 @@ export async function PUT(
     });
     return NextResponse.json({ success: true, data: promo });
   } catch (err) {
-    console.error("[PUT /api/admin/promos]", err);
+    log.error({ err }, "admin promos request failed");
     return NextResponse.json({ success: false, error: "Gagal memperbarui promo." }, { status: 500 });
   }
 }
@@ -62,7 +65,7 @@ export async function DELETE(
     await prisma.promo.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("[DELETE /api/admin/promos]", err);
+    log.error({ err }, "admin promos request failed");
     return NextResponse.json({ success: false, error: "Gagal menghapus promo." }, { status: 500 });
   }
 }

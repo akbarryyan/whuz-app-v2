@@ -6,6 +6,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/src/infra/db/prisma";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +41,7 @@ export async function GET() {
 
     return NextResponse.json({ success: true, data: user });
   } catch (err) {
-    console.error("[GET /api/admin/profile]", err);
+    log.error({ err }, "admin profile request failed");
     return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
 }
@@ -119,7 +122,7 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json({ success: true, data: updated });
   } catch (err) {
-    console.error("[PATCH /api/admin/profile]", err);
+    log.error({ err }, "admin profile request failed");
     return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
 }

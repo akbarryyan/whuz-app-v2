@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("catalog");
 
 export const dynamic = "force-dynamic";
 
@@ -187,7 +190,7 @@ export async function GET(
       grouped: typeGroups,
     });
   } catch (error) {
-    console.error("[CATALOG BRAND PRODUCTS ERROR]", error);
+    log.error({ err: error }, "catalog brands products request failed");
     return NextResponse.json(
       { success: false, error: "Gagal memuat produk." },
       { status: 500 }

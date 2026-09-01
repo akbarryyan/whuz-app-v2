@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
 import { requireSellerSession } from "@/lib/seller";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("seller");
 
 export const dynamic = "force-dynamic";
 
@@ -136,7 +139,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error("[MERCHANT DASHBOARD ERROR]", error);
+    log.error({ err: error }, "merchant dashboard request failed");
     return NextResponse.json(
       { success: false, error: "Gagal memuat dashboard merchant." },
       { status: 500 }

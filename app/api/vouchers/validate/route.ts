@@ -5,6 +5,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
 import { getSession } from "@/lib/session";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("catalog");
 
 export const dynamic = "force-dynamic";
 
@@ -89,7 +92,7 @@ export async function GET(request: Request) {
       },
     });
   } catch (err) {
-    console.error("[vouchers/validate] error", err);
+    log.error({ err }, "vouchers validate request failed");
     return NextResponse.json({ success: false, error: "Terjadi kesalahan server" }, { status: 500 });
   }
 }

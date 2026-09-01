@@ -2,6 +2,9 @@ import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
 import { getJakartaDayKey } from "@/lib/analytics";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("http");
 
 export const dynamic = "force-dynamic";
 
@@ -60,7 +63,7 @@ export async function POST(request: NextRequest) {
       `;
     });
   } catch (error) {
-    console.error("[POST /api/analytics/track]", error);
+    log.error({ err: error }, "analytics track request failed");
     return NextResponse.json({ success: false, error: "Failed to track analytics" }, { status: 500 });
   }
 

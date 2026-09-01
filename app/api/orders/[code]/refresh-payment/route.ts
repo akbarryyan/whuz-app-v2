@@ -6,6 +6,9 @@ import { PoppayAdapter } from "@/src/infra/payment/poppay/poppay.adapter";
 import { isPoppayConfigured } from "@/src/infra/payment/poppay/poppay.client";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/src/infra/db/prisma";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("order");
 
 export const dynamic = "force-dynamic";
 
@@ -149,7 +152,7 @@ export async function POST(
       },
     });
   } catch (error) {
-    console.error("[POST /api/orders/[code]/refresh-payment]", error);
+    log.error({ err: error }, "orders refresh payment request failed");
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : "Internal server error" },
       { status: 500 }

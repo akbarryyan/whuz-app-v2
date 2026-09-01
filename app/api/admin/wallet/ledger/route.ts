@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
@@ -84,7 +87,7 @@ export async function GET(req: NextRequest) {
       totalPages: Math.ceil(total / limit),
     });
   } catch (err) {
-    console.error("[wallet/ledger GET]", err);
+    log.error({ err }, "admin wallet ledger request failed");
     return NextResponse.json(
       { success: false, error: "Gagal mengambil ledger" },
       { status: 500 }

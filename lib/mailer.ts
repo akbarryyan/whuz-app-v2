@@ -11,6 +11,9 @@
 
 import nodemailer from "nodemailer";
 import { DEFAULT_SITE_NAME, getSiteConfig, getSiteName } from "@/lib/site-config";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("notify").child({ channel: "email" });
 
 interface SmtpConfig {
   host: string;
@@ -60,9 +63,7 @@ export async function sendOtpEmail(
   const brandName = await getMailBrandName();
 
   if (!config) {
-    console.error(
-      "[MAILER] SMTP belum dikonfigurasi. Set via Admin Dashboard atau .env"
-    );
+    log.warn("smtp not configured");
     return { success: false, detail: "SMTP belum dikonfigurasi" };
   }
 
@@ -107,7 +108,7 @@ export async function sendOtpEmail(
 
     return { success: true };
   } catch (error) {
-    console.error("[MAILER] Error:", error);
+    log.error({ err: error }, "email send failed");
     return { success: false, detail: "Gagal mengirim email" };
   }
 }

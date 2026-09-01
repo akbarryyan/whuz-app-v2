@@ -15,6 +15,9 @@ import { OrderRepository } from "@/src/infra/db/repositories/order.repository";
 import { getSession } from "@/lib/session";
 import { syncExpiredOrderByCode } from "@/src/core/services/order/sync-expired-orders.service";
 import { autoReconcileOrderNow } from "@/src/core/services/provider/reconcile-scheduler.service";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("order");
 
 export const dynamic = "force-dynamic";
 
@@ -99,7 +102,7 @@ export async function GET(
       },
     });
   } catch (err) {
-    console.error("[GET /api/orders/[code]]", err);
+    log.error({ err }, "orders request failed");
     return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
 }

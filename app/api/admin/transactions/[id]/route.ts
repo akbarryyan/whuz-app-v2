@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
@@ -116,7 +119,7 @@ export async function GET(
       data: orderData,
     });
   } catch (error) {
-    console.error("Failed to get transaction detail:", error);
+    log.error({ err: error }, "failed to get transaction detail");
     return NextResponse.json(
       {
         success: false,

@@ -4,6 +4,9 @@ import { getSession } from "@/lib/session";
 import { getSiteName } from "@/lib/site-config";
 import { prisma } from "@/src/infra/db/prisma";
 import { normalizePhone, isValidPhone } from "@/lib/fonnte";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("auth");
 
 export async function POST(req: NextRequest) {
   try {
@@ -125,7 +128,7 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("[AUTH REGISTER ERROR]", error);
+    log.error({ err: error }, "register failed");
     return NextResponse.json(
       { success: false, message: "Terjadi kesalahan server. Coba lagi." },
       { status: 500 }

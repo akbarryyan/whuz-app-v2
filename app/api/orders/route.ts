@@ -10,6 +10,9 @@ import { prisma } from "@/src/infra/db/prisma";
 import { getSession } from "@/lib/session";
 import { syncExpiredOrdersForUser } from "@/src/core/services/order/sync-expired-orders.service";
 import { autoReconcileOrderNow } from "@/src/core/services/provider/reconcile-scheduler.service";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("order");
 
 export const dynamic = "force-dynamic";
 
@@ -105,7 +108,7 @@ export async function GET(request: Request) {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (err) {
-    console.error("[GET /api/orders]", err);
+    log.error({ err }, "orders request failed");
     return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
 }

@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +30,7 @@ export async function GET() {
 
     return NextResponse.json({ success: true, data: methods });
   } catch (error) {
-    console.error("[ADMIN PAYMENT METHODS GET ERROR]", error);
+    log.error({ err: error }, "admin payment methods request failed");
     return NextResponse.json({ success: false, error: "Gagal memuat data." }, { status: 500 });
   }
 }
@@ -55,7 +58,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, data: method });
   } catch (error) {
-    console.error("[ADMIN PAYMENT METHODS POST ERROR]", error);
+    log.error({ err: error }, "admin payment methods request failed");
     return NextResponse.json({ success: false, error: "Gagal membuat metode pembayaran." }, { status: 500 });
   }
 }

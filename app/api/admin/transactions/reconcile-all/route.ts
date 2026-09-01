@@ -9,6 +9,9 @@ import { NextResponse } from "next/server";
 import { ReconcileOrderService } from "@/src/core/services/provider/reconcile-order.service";
 import { OrderRepository } from "@/src/infra/db/repositories/order.repository";
 import { getSession } from "@/lib/session";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +30,7 @@ export async function POST() {
 
     return NextResponse.json({ success: true, data: result });
   } catch (err: any) {
-    console.error("[POST /api/admin/transactions/reconcile-all]", err);
+    log.error({ err }, "admin transactions reconcile all request failed");
     return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
 }

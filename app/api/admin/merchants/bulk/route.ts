@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/src/infra/db/prisma";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
@@ -53,7 +56,7 @@ export async function PATCH(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("[PATCH /api/admin/merchants/bulk]", error);
+    log.error({ err: error }, "admin merchants bulk request failed");
     return NextResponse.json({ success: false, error: "Gagal memperbarui merchant massal" }, { status: 500 });
   }
 }

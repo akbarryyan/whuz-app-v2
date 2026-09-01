@@ -5,6 +5,9 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { getSiteConfig, getSiteName } from "@/lib/site-config";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
@@ -72,7 +75,7 @@ export async function POST() {
 
     return NextResponse.json({ success: true, to: user });
   } catch (error) {
-    console.error("[SMTP-TEST] Error:", error);
+    log.error({ err: error }, "admin smtp test request failed");
     const message =
       error instanceof Error ? error.message : "Gagal mengirim email test";
     return NextResponse.json(

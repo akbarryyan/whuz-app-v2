@@ -5,6 +5,9 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/src/infra/db/prisma";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("catalog");
 
 export const dynamic = "force-dynamic";
 
@@ -54,7 +57,7 @@ export async function GET() {
 
     return NextResponse.json({ success: true, data: result });
   } catch (err) {
-    console.error("[GET /api/vouchers]", err);
+    log.error({ err }, "vouchers request failed");
     return NextResponse.json({ success: false, error: "Gagal memuat voucher." }, { status: 500 });
   }
 }

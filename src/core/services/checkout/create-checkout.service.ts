@@ -13,6 +13,9 @@ import {
 } from "@/src/core/domain/errors/domain.errors";
 import { getPriceForUser } from "@/lib/pricing";
 import { getMerchantPlatformFeeConfig } from "@/lib/site-config";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("order");
 
 export interface CheckoutInput {
   productId: string;
@@ -213,8 +216,7 @@ export class CreateCheckoutService {
         await this.executeService.execute(order.id);
       } catch (execErr: unknown) {
         // Execute gagal tapi order sudah PAID — admin bisa reconcile
-        const message = execErr instanceof Error ? execErr.message : "Unknown error";
-        console.error(`[Checkout] Wallet order ${order.id} execute gagal:`, message);
+        log.error({ err: execErr, orderId: order.id }, "wallet order execute failed");
       }
 
       // Re-fetch order untuk return status terbaru

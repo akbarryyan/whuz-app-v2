@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
@@ -120,7 +123,7 @@ export async function GET(request: Request) {
       ...(usePagination ? { total, page, pageSize, totalPages: Math.ceil(total / pageSize) } : {}),
     });
   } catch (error) {
-    console.error("Failed to get transactions:", error);
+    log.error({ err: error }, "failed to get transactions");
     return NextResponse.json(
       { success: false, error: "Failed to fetch transactions" },
       { status: 500 }

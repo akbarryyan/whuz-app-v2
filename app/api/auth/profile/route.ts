@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/src/infra/db/prisma";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("auth");
 
 export async function PATCH(req: NextRequest) {
   try {
@@ -61,7 +64,7 @@ export async function PATCH(req: NextRequest) {
       user: updated,
     });
   } catch (error) {
-    console.error("[PROFILE UPDATE ERROR]", error);
+    log.error({ err: error }, "profile update failed");
     return NextResponse.json(
       { success: false, message: "Terjadi kesalahan server. Coba lagi." },
       { status: 500 }

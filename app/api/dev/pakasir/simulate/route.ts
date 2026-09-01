@@ -10,6 +10,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { PakasirAdapter } from "@/src/infra/payment/pakasir/pakasir.adapter";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("http");
 
 export const dynamic = "force-dynamic";
 
@@ -47,7 +50,7 @@ export async function POST(request: Request) {
       message: `Simulated ${parsed.data.status} for order ${parsed.data.order_id}`,
     });
   } catch (err: any) {
-    console.error("[POST /api/dev/pakasir/simulate]", err);
+    log.error({ err }, "dev pakasir simulate request failed");
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }

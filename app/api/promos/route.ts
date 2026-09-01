@@ -7,6 +7,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
 import { getSiteConfig } from "@/lib/site-config";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("catalog");
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +51,7 @@ export async function GET() {
       heroImageUrl: heroImageUrl ?? DEFAULT_HERO_IMAGE,
     });
   } catch (err) {
-    console.error("[GET /api/promos]", err);
+    log.error({ err }, "promos request failed");
     return NextResponse.json({ success: false, error: "Gagal memuat promo." }, { status: 500 });
   }
 }

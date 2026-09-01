@@ -7,6 +7,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
 import { getSession } from "@/lib/session";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("wallet");
 
 export const dynamic = "force-dynamic";
 
@@ -56,7 +59,7 @@ export async function GET(
       },
     });
   } catch (err) {
-    console.error("[GET /api/wallet/topup/:id]", err);
+    log.error({ err }, "wallet topup request failed");
     return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
   }
 }

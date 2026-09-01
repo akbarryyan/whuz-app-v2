@@ -3,6 +3,9 @@ import { OrderRepository } from "@/src/infra/db/repositories/order.repository";
 import { ExecuteProviderPurchaseService } from "@/src/core/services/provider/execute-provider-purchase.service";
 import { InvoiceStatus, OrderStatus, WebhookSource } from "@/src/core/domain/enums/order.enum";
 import { PoppayClient } from "@/src/infra/payment/poppay/poppay.client";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("payment").child({ provider: "poppay" });
 
 export interface PoppayCallbackPayload {
   refid: string;
@@ -45,7 +48,7 @@ async function confirmCompletedViaInquiry(refId: string): Promise<boolean> {
     const inquiry = await client.inquireIncoming(refId);
     return inquiry.status === "completed";
   } catch (error) {
-    console.error("[Poppay Callback] Inquiry verification failed:", error);
+    log.error({ err: error, refid: refId }, "inquiry verification failed");
     return false;
   }
 }

@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("catalog");
 
 export const dynamic = "force-dynamic";
 
@@ -65,7 +68,7 @@ export async function GET() {
 
     return NextResponse.json({ success: true, data });
   } catch (error) {
-    console.error("[CATALOG SELLERS ERROR]", error);
+    log.error({ err: error }, "catalog sellers request failed");
     return NextResponse.json(
       { success: false, error: "Gagal memuat merchant." },
       { status: 500 }

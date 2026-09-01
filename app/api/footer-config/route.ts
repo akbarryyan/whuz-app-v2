@@ -7,6 +7,9 @@ import { NextResponse } from "next/server";
 import { getAllSiteConfig, getSiteName } from "@/lib/site-config";
 import { getFooterVisitorStats } from "@/lib/analytics";
 import { DEFAULT_FOOTER_COLUMNS } from "@/lib/footer-columns";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("catalog");
 
 export const dynamic = "force-dynamic";
 
@@ -70,7 +73,7 @@ export async function GET() {
       },
     });
   } catch (err) {
-    console.error("[GET /api/footer-config]", err);
+    log.error({ err }, "footer config request failed");
     const defaults = buildFooterDefaults(await getSiteName().catch(() => "Website"));
     return NextResponse.json({
       success: true,

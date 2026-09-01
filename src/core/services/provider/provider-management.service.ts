@@ -6,6 +6,9 @@ import {
   ProviderHealthCheck,
 } from "@/src/core/ports/provider.port";
 import { ProviderRepository } from "@/src/infra/db/repositories/provider.repository";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("provider");
 
 export interface ProviderInfo {
   type: ProviderType;
@@ -165,7 +168,7 @@ export class ProviderManagementService {
           description: p.description,
         }))
       ).catch((error) => {
-        console.error(`Failed to sync products for ${providerType}:`, error);
+        log.error({ err: error, providerType }, "failed to sync products");
       });
 
       return products;
@@ -225,10 +228,10 @@ export class ProviderManagementService {
               description: p.description,
             }))
           ).catch((error) => {
-            console.error(`Failed to sync products for ${type}:`, error);
+            log.error({ err: error, providerType: type }, "failed to sync products");
           });
         } catch (error) {
-          console.error(`Failed to get products from ${type}:`, error);
+          log.error({ err: error, providerType: type }, "failed to get products from provider");
           productsMap.set(type, []);
 
           // Log failed operation

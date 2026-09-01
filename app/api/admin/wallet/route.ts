@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
 import { Prisma } from "@prisma/client";
+import { getLogger } from "@/lib/logger";
+
+const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
@@ -64,7 +67,7 @@ export async function GET(req: NextRequest) {
       })),
     });
   } catch (err) {
-    console.error("[wallet GET]", err);
+    log.error({ err }, "admin wallet request failed");
     return NextResponse.json(
       { success: false, error: "Gagal mengambil data wallet" },
       { status: 500 }
@@ -167,7 +170,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, data: result });
   } catch (err: any) {
-    console.error("[wallet POST]", err);
+    log.error({ err }, "admin wallet request failed");
     return NextResponse.json(
       { success: false, error: err.message ?? "Gagal memproses operasi wallet" },
       { status: 400 }
