@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
 import { getLogger } from "@/lib/logger";
+import { requireAdmin } from "@/lib/admin-auth";
 
 const log = getLogger("admin");
 
@@ -11,6 +12,9 @@ export const dynamic = "force-dynamic";
  * Histori ledger entries untuk user tertentu
  */
 export async function GET(req: NextRequest) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   const { searchParams } = new URL(req.url);
 
   const userId = searchParams.get("userId") ?? "";

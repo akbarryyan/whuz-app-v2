@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/session";
 import { prisma } from "@/src/infra/db/prisma";
+import { requireAdmin, requireAdminVerified } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +12,9 @@ interface Params { params: Promise<{ id: string }> }
  * PATCH /api/admin/tickets/[id]  — update ticket status
  */
 export async function GET(_req: NextRequest, { params }: Params) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   const { id } = await params;
 
   const ticket = await prisma.ticket.findUnique({
@@ -30,8 +33,10 @@ export async function GET(_req: NextRequest, { params }: Params) {
 }
 
 export async function POST(req: NextRequest, { params }: Params) {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   const { id } = await params;
-  const session = await getSession();
 
   const ticket = await prisma.ticket.findUnique({ where: { id } });
   if (!ticket) {
@@ -48,7 +53,7 @@ export async function POST(req: NextRequest, { params }: Params) {
       data: {
         ticketId: id,
         senderRole: "ADMIN",
-        senderId: session.userId ?? null,
+        senderId: auth.session.userId,
         body: message.trim(),
       },
     }),
@@ -62,6 +67,9 @@ export async function POST(req: NextRequest, { params }: Params) {
 }
 
 export async function PATCH(req: NextRequest, { params }: Params) {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   const { id } = await params;
 
   const { status } = await req.json();

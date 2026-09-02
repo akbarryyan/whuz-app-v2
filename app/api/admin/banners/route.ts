@@ -8,10 +8,14 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getBannerImages, setBannerImages } from "@/lib/site-config";
 import { imageRefSchema } from "@/lib/upload";
+import { requireAdmin, requireAdminVerified } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   const images = await getBannerImages();
   return NextResponse.json({ success: true, data: images });
 }
@@ -21,6 +25,9 @@ const PutSchema = z.object({
 });
 
 export async function PUT(request: Request) {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   let body: unknown;
   try {
     body = await request.json();
@@ -41,6 +48,9 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE() {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   // Reset to built-in defaults by removing the DB record
   await setBannerImages([]);
   const images = await getBannerImages();

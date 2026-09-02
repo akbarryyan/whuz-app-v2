@@ -15,10 +15,14 @@ import {
   initProviderModesFromDB,
 } from "@/src/infra/providers/provider.factory";
 import { ProviderType, ProviderMode } from "@/src/core/domain/enums/provider.enum";
+import { requireAdmin, requireAdminVerified } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   // Ensure globalThis is synced from DB on every cold-start
   await initProviderModesFromDB();
 
@@ -48,6 +52,9 @@ const PatchSchema = z.object({
 });
 
 export async function PATCH(request: Request) {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   let body: unknown;
   try {
     body = await request.json();

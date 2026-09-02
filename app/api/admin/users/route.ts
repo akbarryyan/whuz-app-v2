@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
 import { getLogger } from "@/lib/logger";
+import { requireAdminVerified } from "@/lib/admin-auth";
 
 const log = getLogger("admin");
 
@@ -11,6 +12,9 @@ export const dynamic = "force-dynamic";
  * Daftar user ringkas untuk keperluan admin (test transaksi, dll.)
  */
 export async function GET() {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   try {
     const users = await prisma.user.findMany({
       orderBy: [{ role: "asc" }, { createdAt: "asc" }],

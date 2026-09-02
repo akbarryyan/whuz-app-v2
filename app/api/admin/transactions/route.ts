@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
 import { getLogger } from "@/lib/logger";
+import { requireAdmin } from "@/lib/admin-auth";
 
 const log = getLogger("admin");
 
@@ -12,6 +13,9 @@ export const dynamic = "force-dynamic";
  * Add ?page=N&pageSize=M to enable server-side pagination.
  */
 export async function GET(request: Request) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   try {
     const { searchParams } = new URL(request.url);
 

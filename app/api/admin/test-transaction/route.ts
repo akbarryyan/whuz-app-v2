@@ -18,6 +18,7 @@ import { ProviderFactory } from "@/src/infra/providers/provider.factory";
 import { PoppayAdapter } from "@/src/infra/payment/poppay/poppay.adapter";
 import { ProviderType } from "@/src/core/domain/enums/provider.enum";
 import { OrderStatus } from "@/src/core/domain/enums/order.enum";
+import { requireAdminVerified } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +42,9 @@ type Step = {
 };
 
 export async function POST(request: Request) {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   let body: unknown;
   try { body = await request.json(); }
   catch { return NextResponse.json({ success: false, error: "Invalid JSON" }, { status: 400 }); }

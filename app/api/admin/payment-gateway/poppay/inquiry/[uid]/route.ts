@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { isPoppayConfigured, PoppayClient } from "@/src/infra/payment/poppay/poppay.client";
 import { getLogger } from "@/lib/logger";
+import { requireAdmin } from "@/lib/admin-auth";
 
 const log = getLogger("admin");
 
@@ -10,6 +11,9 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ uid: string }> }
 ) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   try {
     if (!(await isPoppayConfigured())) {
       return NextResponse.json(

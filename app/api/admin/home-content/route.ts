@@ -6,10 +6,14 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getHomeContent, setHomeContent, deleteSiteConfig } from "@/lib/site-config";
+import { requireAdmin, requireAdminVerified } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   const data = await getHomeContent();
   return NextResponse.json({ success: true, data });
 }
@@ -31,6 +35,9 @@ const PutSchema = z.object({
 });
 
 export async function PUT(request: Request) {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   let body: unknown;
   try {
     body = await request.json();
@@ -51,6 +58,9 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE() {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   await deleteSiteConfig("HOME_CONTENT");
   const data = await getHomeContent(); // returns defaults
   return NextResponse.json({ success: true, data });

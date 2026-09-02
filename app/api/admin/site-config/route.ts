@@ -16,10 +16,14 @@ import {
   normalizeHexColor,
 } from "@/lib/site-config";
 import { initProviderModesFromDB } from "@/src/infra/providers/provider.factory";
+import { requireAdminVerified } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   // Sync in-memory ProviderFactory from DB on each admin page load
   await initProviderModesFromDB();
 
@@ -69,6 +73,9 @@ const PatchSchema = z.object({
 });
 
 export async function PATCH(request: Request) {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   let body: unknown;
   try {
     body = await request.json();
@@ -110,6 +117,9 @@ export async function PATCH(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   const { searchParams } = new URL(request.url);
   const key = searchParams.get("key");
 

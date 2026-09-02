@@ -4,12 +4,16 @@ import {
   PoppayClient,
 } from "@/src/infra/payment/poppay/poppay.client";
 import { getLogger } from "@/lib/logger";
+import { requireAdminVerified } from "@/lib/admin-auth";
 
 const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   try {
     const summary = await getPoppayDebugConfigSummary();
     const missing: string[] = [];

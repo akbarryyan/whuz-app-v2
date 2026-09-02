@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
 import { getLogger } from "@/lib/logger";
+import { requireAdminVerified } from "@/lib/admin-auth";
 
 const log = getLogger("admin");
 
@@ -14,6 +15,9 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   try {
     const { id } = await params;
     const body = await req.json();
@@ -45,6 +49,9 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   try {
     const { id } = await params;
     await prisma.paymentMethod.delete({ where: { id } });

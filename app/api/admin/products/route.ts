@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
 import { getLogger } from "@/lib/logger";
+import { requireAdmin, requireAdminVerified } from "@/lib/admin-auth";
 
 const log = getLogger("admin");
 
@@ -11,6 +12,9 @@ export const dynamic = "force-dynamic";
  * Get all products with full details
  */
 export async function GET() {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   try {
     const products = await prisma.product.findMany({
       orderBy: [
@@ -66,6 +70,9 @@ export async function GET() {
  * Update product (margin, isActive)
  */
 export async function PUT(request: Request) {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   try {
     const body = await request.json();
     const { id, margin, isActive } = body;

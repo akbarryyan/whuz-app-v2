@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
 import { getLogger } from "@/lib/logger";
+import { requireAdmin } from "@/lib/admin-auth";
 
 const log = getLogger("admin");
 
@@ -11,6 +12,9 @@ export const dynamic = "force-dynamic";
  * Get products from DATABASE only (no external API calls)
  */
 export async function GET() {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   try {
     const allProducts = await prisma.product.findMany({
       orderBy: [

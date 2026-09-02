@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ProviderRepository } from "@/src/infra/db/repositories/provider.repository";
 import { getLogger } from "@/lib/logger";
+import { requireAdmin, requireAdminVerified } from "@/lib/admin-auth";
 
 const log = getLogger("admin");
 
@@ -11,6 +12,9 @@ const providerRepo = new ProviderRepository();
  * Get all provider settings (margin configuration)
  */
 export async function GET() {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   try {
     const settings = await providerRepo.getAllProviderSettings();
 
@@ -49,6 +53,9 @@ export async function GET() {
  * }
  */
 export async function PUT(request: NextRequest) {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   try {
     const body = await request.json();
 

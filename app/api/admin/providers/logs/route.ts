@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ProviderManagementService } from "@/src/core/services/provider/provider-management.service";
 import { getLogger } from "@/lib/logger";
+import { requireAdmin } from "@/lib/admin-auth";
 
 const log = getLogger("admin");
 
@@ -11,6 +12,9 @@ export const dynamic = "force-dynamic";
  * Get provider operation logs
  */
 export async function GET(request: Request) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   try {
     const { searchParams } = new URL(request.url);
     const provider = searchParams.get("provider") || undefined;

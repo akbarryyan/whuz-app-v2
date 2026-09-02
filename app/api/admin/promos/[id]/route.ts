@@ -8,6 +8,7 @@ import { z } from "zod";
 import { prisma } from "@/src/infra/db/prisma";
 import { imageRefSchema } from "@/lib/upload";
 import { getLogger } from "@/lib/logger";
+import { requireAdminVerified } from "@/lib/admin-auth";
 
 const log = getLogger("admin");
 
@@ -28,6 +29,9 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   const { id } = await params;
   let body: unknown;
   try { body = await request.json(); }
@@ -60,6 +64,9 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   const { id } = await params;
   try {
     await prisma.promo.delete({ where: { id } });
