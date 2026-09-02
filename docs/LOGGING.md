@@ -50,7 +50,7 @@ npm run logs:worker    # logs/worker.json
 npm run logs:errors    # hanya level error & fatal
 
 # runut satu request dari access log sampai log aplikasinya
-grep '"requestId":"c54dc99b-4b57-42dd-9217-71528759c48e"' logs/app.json | npx pino-pretty -t false
+grep '"requestId":"c54dc99b-4b57-42dd-9217-71528759c48e"' logs/app.json | npx pino-pretty -t "SYS:standard"
 ```
 
 ## Menulis log
