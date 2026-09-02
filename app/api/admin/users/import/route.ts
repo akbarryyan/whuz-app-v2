@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import * as XLSX from "xlsx";
 import { prisma } from "@/src/infra/db/prisma";
-import { getSession } from "@/lib/session";
 import { getLogger } from "@/lib/logger";
+import { requireAdminVerified } from "@/lib/admin-auth";
 
 const log = getLogger("admin");
 
@@ -55,13 +55,6 @@ function pickValue(row: RawRow, keys: string[]) {
   return null;
 }
 
-async function ensureAdmin() {
-  const session = await getSession();
-  if (!session.isLoggedIn || !session.userId || session.role !== "ADMIN") {
-    return null;
-  }
-  return session;
-}
 
 async function generateUniqueMerchantSlug(
   preferredSlug: string,
@@ -81,12 +74,10 @@ async function generateUniqueMerchantSlug(
 }
 
 export async function POST(request: Request) {
-  try {
-    const session = await ensureAdmin();
-    if (!session) {
-      return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
-    }
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
 
+  try {
     const formData = await request.formData();
     const file = formData.get("file");
 

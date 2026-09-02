@@ -1,22 +1,13 @@
 import { NextResponse } from "next/server";
 import * as XLSX from "xlsx";
-import { getSession } from "@/lib/session";
+import { requireAdmin } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
-async function ensureAdmin() {
-  const session = await getSession();
-  if (!session.isLoggedIn || !session.userId || session.role !== "ADMIN") {
-    return null;
-  }
-  return session;
-}
 
 export async function GET() {
-  const session = await ensureAdmin();
-  if (!session) {
-    return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
-  }
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
 
   const rows = [
     {

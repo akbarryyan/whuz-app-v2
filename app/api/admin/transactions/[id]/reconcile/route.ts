@@ -8,8 +8,8 @@
 import { NextResponse } from "next/server";
 import { ReconcileOrderService } from "@/src/core/services/provider/reconcile-order.service";
 import { OrderRepository } from "@/src/infra/db/repositories/order.repository";
-import { getSession } from "@/lib/session";
 import { getLogger } from "@/lib/logger";
+import { requireAdminVerified } from "@/lib/admin-auth";
 
 const log = getLogger("admin");
 
@@ -23,13 +23,10 @@ export async function POST(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  try {
-    // ── Admin guard ────────────────────────────────────────────────────────
-    const session = await getSession();
-    if (!session.isLoggedIn || session.role !== "ADMIN") {
-      return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
-    }
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
 
+  try {
     const { id } = await params;
 
     const result = await reconcileService.reconcile(id);

@@ -1,27 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "@/lib/session";
 import { prisma } from "@/src/infra/db/prisma";
 import { getLogger } from "@/lib/logger";
+import { requireAdmin } from "@/lib/admin-auth";
 
 const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
-async function ensureAdmin() {
-  const session = await getSession();
-  if (!session.isLoggedIn || !session.userId || session.role !== "ADMIN") {
-    return null;
-  }
-  return session;
-}
 
 export async function GET(request: NextRequest) {
-  try {
-    const session = await ensureAdmin();
-    if (!session) {
-      return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
-    }
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
 
+  try {
     const q = request.nextUrl.searchParams.get("q")?.trim() ?? "";
 
     const merchants = await prisma.sellerProfile.findMany({
