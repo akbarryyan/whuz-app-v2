@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { ProviderManagementService } from "@/src/core/services/provider/provider-management.service";
 import { ProviderType } from "@/src/core/domain/enums/provider.enum";
 import { getLogger } from "@/lib/logger";
+import { requireAdminVerified } from "@/lib/admin-auth";
 
 const log = getLogger("admin");
 
@@ -18,6 +19,9 @@ export const dynamic = "force-dynamic";
  * }
  */
 export async function POST(request: Request) {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   try {
     const body = await request.json();
     const { provider, operations = ["checkBalance", "healthCheck"] } = body;

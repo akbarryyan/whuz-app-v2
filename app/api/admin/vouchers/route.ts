@@ -6,12 +6,16 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
 import { getLogger } from "@/lib/logger";
+import { requireAdmin, requireAdminVerified } from "@/lib/admin-auth";
 
 const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   try {
     const vouchers = await prisma.voucher.findMany({
       orderBy: { createdAt: "desc" },
@@ -47,6 +51,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   try {
     const body = await request.json().catch(() => null);
     if (!body) return NextResponse.json({ success: false, error: "Invalid JSON" }, { status: 400 });

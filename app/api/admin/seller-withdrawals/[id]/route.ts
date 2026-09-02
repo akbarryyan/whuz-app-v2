@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "@/src/infra/db/prisma";
 import { PoppayClient } from "@/src/infra/payment/poppay/poppay.client";
+import { requireAdminVerified } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -61,6 +62,9 @@ export async function PATCH(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   const { id } = await context.params;
 
   let body: unknown;

@@ -8,12 +8,16 @@ import { z } from "zod";
 import { prisma } from "@/src/infra/db/prisma";
 import { imageRefSchema } from "@/lib/upload";
 import { getLogger } from "@/lib/logger";
+import { requireAdmin, requireAdminVerified } from "@/lib/admin-auth";
 
 const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   try {
     const promos = await prisma.promo.findMany({
       orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
@@ -37,6 +41,9 @@ const CreateSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   let body: unknown;
   try { body = await request.json(); }
   catch { return NextResponse.json({ success: false, error: "Invalid JSON" }, { status: 400 }); }

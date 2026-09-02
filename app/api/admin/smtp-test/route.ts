@@ -6,12 +6,16 @@ import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { getSiteConfig, getSiteName } from "@/lib/site-config";
 import { getLogger } from "@/lib/logger";
+import { requireAdminVerified } from "@/lib/admin-auth";
 
 const log = getLogger("admin");
 
 export const dynamic = "force-dynamic";
 
 export async function POST() {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   try {
     const host =
       (await getSiteConfig("SMTP_HOST")) || process.env.SMTP_HOST || "";

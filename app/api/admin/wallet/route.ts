@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
 import { Prisma } from "@prisma/client";
 import { getLogger } from "@/lib/logger";
+import { requireAdmin, requireAdminVerified } from "@/lib/admin-auth";
 
 const log = getLogger("admin");
 
@@ -12,6 +13,9 @@ export const dynamic = "force-dynamic";
  * Daftar semua user beserta info wallet (balance, total ledger entries)
  */
 export async function GET(req: NextRequest) {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   const { searchParams } = new URL(req.url);
   const q = searchParams.get("q")?.trim() ?? "";
 
@@ -86,6 +90,9 @@ export async function GET(req: NextRequest) {
  * REFUND  → kembalikan saldo setelah debit
  */
 export async function POST(req: NextRequest) {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   let body: {
     action: string;
     userId: string;

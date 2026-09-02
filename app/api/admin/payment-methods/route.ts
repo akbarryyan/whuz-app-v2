@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
 import { getLogger } from "@/lib/logger";
+import { requireAdmin, requireAdminVerified } from "@/lib/admin-auth";
 
 const log = getLogger("admin");
 
@@ -15,6 +16,9 @@ const DEFAULT_METHODS = [
  * Returns ALL payment methods (active + inactive), seeding current defaults if empty.
  */
 export async function GET() {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   try {
     const count = await prisma.paymentMethod.count();
     if (count === 0) {
@@ -41,6 +45,9 @@ export async function GET() {
  * Body: { key, label, group, imageUrl?, sortOrder? }
  */
 export async function POST(req: NextRequest) {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   try {
     const { key, label, group, imageUrl, sortOrder } = await req.json();
     if (!key || !label || !group) {

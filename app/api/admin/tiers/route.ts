@@ -5,10 +5,14 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/src/infra/db/prisma";
+import { requireAdmin, requireAdminVerified } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   const [tiers, nullTierCount] = await Promise.all([
     prisma.userTier.findMany({
       orderBy: { sortOrder: "asc" },
@@ -37,6 +41,9 @@ const CreateSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   let body: unknown;
   try { body = await request.json(); } catch {
     return NextResponse.json({ success: false, error: "Invalid JSON" }, { status: 400 });

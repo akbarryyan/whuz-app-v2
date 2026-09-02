@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { getSession } from "@/lib/session";
 import { prisma } from "@/src/infra/db/prisma";
 import { getLogger } from "@/lib/logger";
+import { requireAdminVerified } from "@/lib/admin-auth";
 
 const log = getLogger("admin");
 
@@ -13,21 +13,12 @@ const CopyProductsSchema = z.object({
   targetMerchantIds: z.array(z.string().min(1)).min(1),
 });
 
-async function ensureAdmin() {
-  const session = await getSession();
-  if (!session.isLoggedIn || !session.userId || session.role !== "ADMIN") {
-    return null;
-  }
-  return session;
-}
 
 export async function POST(request: NextRequest) {
-  try {
-    const session = await ensureAdmin();
-    if (!session) {
-      return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
-    }
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
 
+  try {
     let body: unknown;
     try {
       body = await request.json();

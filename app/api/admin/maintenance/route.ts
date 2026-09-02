@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSession } from "@/lib/session";
+import { requireAdmin, requireAdminVerified } from "@/lib/admin-auth";
 import { getSiteConfig, setSiteConfig } from "@/lib/site-config";
 import { cookies } from "next/headers";
 import { getLogger } from "@/lib/logger";
@@ -9,6 +9,9 @@ const log = getLogger("admin");
 const KEY = "MAINTENANCE_MODE";
 
 export async function GET() {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   try {
     const val = await getSiteConfig(KEY);
     return NextResponse.json({ success: true, enabled: val === "1" });
@@ -19,12 +22,10 @@ export async function GET() {
 }
 
 export async function PATCH() {
-  try {
-    const session = await getSession();
-    if (!session.isLoggedIn || session.role !== "ADMIN") {
-      return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
-    }
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
 
+  try {
     const current = await getSiteConfig(KEY);
     const next = current === "1" ? "0" : "1";
     await setSiteConfig(KEY, next);

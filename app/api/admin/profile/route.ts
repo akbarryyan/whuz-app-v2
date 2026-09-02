@@ -4,6 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin, requireAdminVerified } from "@/lib/admin-auth";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/src/infra/db/prisma";
 import { getLogger } from "@/lib/logger";
@@ -15,15 +16,12 @@ export const dynamic = "force-dynamic";
 // ── GET ──────────────────────────────────────────────────────────────────────
 
 export async function GET() {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   try {
-    const session = await getSession();
-
-    if (!session.isLoggedIn || !session.userId || session.role !== "ADMIN") {
-      return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
-    }
-
     const user = await prisma.user.findUnique({
-      where: { id: session.userId },
+      where: { id: auth.session.userId },
       select: {
         id: true,
         email: true,
@@ -49,13 +47,10 @@ export async function GET() {
 // ── PATCH ─────────────────────────────────────────────────────────────────────
 
 export async function PATCH(req: NextRequest) {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   try {
-    const session = await getSession();
-
-    if (!session.isLoggedIn || !session.userId || session.role !== "ADMIN") {
-      return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
-    }
-
     const body = await req.json();
     const { email, name, phone } = body;
 
@@ -77,7 +72,7 @@ export async function PATCH(req: NextRequest) {
     const existingEmail = await prisma.user.findFirst({
       where: {
         email: email.trim().toLowerCase(),
-        id: { not: session.userId },
+        id: { not: auth.session.userId },
       },
       select: { id: true },
     });
@@ -93,7 +88,7 @@ export async function PATCH(req: NextRequest) {
       const existing = await prisma.user.findFirst({
         where: {
           phone: phone.trim(),
-          id: { not: session.userId },
+          id: { not: auth.session.userId },
         },
         select: { id: true },
       });
@@ -106,7 +101,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     const updated = await prisma.user.update({
-      where: { id: session.userId },
+      where: { id: auth.session.userId },
       data: {
         email: email.trim().toLowerCase(),
         name: name.trim(),
@@ -115,7 +110,9 @@ export async function PATCH(req: NextRequest) {
       select: { id: true, name: true, phone: true, email: true, role: true, createdAt: true, isActive: true },
     });
 
-    // Update nama & email di session
+    // Segarkan nama & email di cookie sesi. Guard sudah memverifikasi identitas;
+    // di sini kita butuh objek iron-session aslinya karena akan ditulis ulang.
+    const session = await getSession();
     session.name = updated.name ?? "";
     session.email = updated.email as string;
     await session.save();

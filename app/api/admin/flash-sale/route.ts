@@ -11,10 +11,14 @@ import {
   setFlashSaleConfig,
   type FlashSaleConfig,
 } from "@/lib/site-config";
+import { requireAdmin, requireAdminVerified } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  const auth = await requireAdmin();
+  if (!auth.ok) return auth.response;
+
   const config = await getFlashSaleConfig();
   return NextResponse.json({ success: true, data: config });
 }
@@ -37,6 +41,9 @@ const PutSchema = z.object({
 });
 
 export async function PUT(request: Request) {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   let body: unknown;
   try {
     body = await request.json();
@@ -57,6 +64,9 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE() {
+  const auth = await requireAdminVerified();
+  if (!auth.ok) return auth.response;
+
   const defaultCfg: FlashSaleConfig = {
     isActive: false,
     endTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
