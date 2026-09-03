@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "@/src/infra/db/prisma";
-import { requireSellerSession } from "@/lib/seller";
+import { requireSellerSession, toSellerWithdrawalView } from "@/lib/seller";
 import { PoppayClient } from "@/src/infra/payment/poppay/poppay.client";
 
 export const dynamic = "force-dynamic";
@@ -84,10 +84,7 @@ export async function GET() {
           updatedAt: wallet.updatedAt,
         }
       : { balance: 0, updatedAt: null },
-    data: withdrawals.map((item) => ({
-      ...item,
-      amount: Number(item.amount),
-    })),
+    data: withdrawals.map(toSellerWithdrawalView),
   });
 }
 
@@ -194,10 +191,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: {
-        ...result,
-        amount: Number(result.amount),
-      },
+      data: toSellerWithdrawalView(result),
     });
   } catch (error: unknown) {
     if (createdRequestId && !payoutSubmitted) {

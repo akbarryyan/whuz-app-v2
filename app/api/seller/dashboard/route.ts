@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
-import { requireSellerSession } from "@/lib/seller";
+import { requireSellerSession, toSellerWithdrawalView } from "@/lib/seller";
 
 export const dynamic = "force-dynamic";
 
@@ -83,10 +83,7 @@ export async function GET() {
         createdAt: order.createdAt,
         product: order.product,
       })),
-      withdrawals: withdrawals.map((item) => ({
-        ...item,
-        amount: Number(item.amount),
-      })),
+      withdrawals: withdrawals.map(toSellerWithdrawalView),
     },
   });
 }
