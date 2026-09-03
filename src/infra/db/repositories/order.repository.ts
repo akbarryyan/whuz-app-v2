@@ -189,7 +189,21 @@ export class OrderRepository {
     const existing = await prisma.webhookEvent.findUnique({
       where: { eventId: data.eventId },
     });
-    if (existing) return { event: existing, duplicate: true };
+
+    // `alreadyProcessed` — BUKAN sekadar "barisnya sudah ada".
+    //
+    // Baris ini dibuat sebelum pemrosesan dimulai, jadi keberadaannya hanya
+    // berarti "pernah dicoba". Memperlakukan itu sebagai duplikat membuat
+    // percobaan yang GAGAL ikut terkunci: gateway mengirim ulang callback,
+    // kita menolaknya sebagai duplikat, dan order tertinggal di status PAID
+    // tanpa ada yang menyelesaikannya.
+    //
+    // Pemrosesan ulang aman karena setiap jalur hilir menjaga idempotensinya
+    // sendiri di dalam satu transaksi: topup dijaga walletTopup.status,
+    // order dijaga OrderStatus, penarikan dijaga status permintaan beserta
+    // ledger WITHDRAW_PAID/WITHDRAW_RELEASE, dan eksekusi provider dijaga
+    // claimForProcessing.
+    if (existing) return { event: existing, alreadyProcessed: existing.processed };
 
     const event = await prisma.webhookEvent.create({
       data: {
@@ -200,7 +214,7 @@ export class OrderRepository {
         processed: false,
       },
     });
-    return { event, duplicate: false };
+    return { event, alreadyProcessed: false };
   }
 
   async markWebhookProcessed(eventId: string, error?: string) {

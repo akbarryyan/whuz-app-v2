@@ -54,21 +54,40 @@ export class HandlePakasirWebhookService {
     const eventId = `pakasir:${payload.order_id}:${payload.status}`;
 
     // ── Idempotency check ───────────────────────────────────────────────────
-    const { event, duplicate } = await this.orderRepo.findOrCreateWebhookEvent({
+    // Yang menghentikan pemrosesan hanyalah event yang benar-benar SELESAI.
+    // Percobaan yang gagal sengaja dibiarkan terbuka supaya kiriman ulang dari
+    // gateway masih bisa menyelesaikannya.
+    const { event, alreadyProcessed } = await this.orderRepo.findOrCreateWebhookEvent({
       source: WebhookSource.PAKASIR,
       eventId,
       eventType: payload.status,
       payload: JSON.parse(rawBody),
     });
 
-    if (duplicate) {
-      log.debug({ eventId }, "duplicate event, skipping");
+    if (alreadyProcessed) {
+      log.debug({ eventId }, "event sudah selesai diproses, dilewati");
       return { duplicate: true, action: "ignored" };
+    }
+
+    if (event.errorMessage) {
+      log.info(
+        { eventId, previousError: event.errorMessage },
+        "mencoba ulang event yang sebelumnya gagal",
+      );
     }
 
     try {
       const result = await this.processWebhook(payload);
-      await this.orderRepo.markWebhookProcessed(eventId);
+
+      // `execute_failed` berarti order sudah PAID tetapi provider belum
+      // dieksekusi. Menandainya selesai akan membuang kesempatan kiriman ulang
+      // dari gateway dan meninggalkan order menggantung.
+      if (result.action === "execute_failed") {
+        await this.orderRepo.markWebhookProcessed(eventId, result.executeError ?? "provider execute failed");
+      } else {
+        await this.orderRepo.markWebhookProcessed(eventId);
+      }
+
       return { ...result, duplicate: false };
     } catch (err: any) {
       await this.orderRepo.markWebhookProcessed(eventId, err.message);
