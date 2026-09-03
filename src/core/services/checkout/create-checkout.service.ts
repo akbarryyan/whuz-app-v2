@@ -13,6 +13,13 @@ import {
 } from "@/src/core/domain/errors/domain.errors";
 import { getPriceForUser } from "@/lib/pricing";
 import { getMerchantPlatformFeeConfig } from "@/lib/site-config";
+import {
+  attachVoucherClaimToOrder,
+  claimVoucher,
+  releaseVoucher,
+  resolveVoucher,
+  type VoucherResolution,
+} from "@/src/core/services/checkout/voucher.service";
 import { getLogger } from "@/lib/logger";
 
 const log = getLogger("order");
@@ -28,10 +35,8 @@ export interface CheckoutInput {
   redirectUrl?: string;            // PG redirect after payment
   /** Authenticated user id — null for guest */
   userId?: string | null;
-  /** Voucher code entered by user (validated in route handler) */
+  /** Kode voucher mentah dari user. Divalidasi & diklaim di dalam service ini. */
   voucherCode?: string;
-  /** Pre-calculated discount amount (validated in route handler) */
-  voucherDiscount?: number;
 }
 
 export interface CheckoutResult {
@@ -122,8 +127,26 @@ export class CreateCheckoutService {
       ? Math.max(0, configuredSellingPrice - basePrice)
       : (tierPricing?.markup ?? Number(product.margin));
     const fee = 0; // Gateway fee added after we know method — update after PG call
-    const discount = Math.min(input.voucherDiscount ?? 0, basePrice + markup - 1); // Can't discount to below 1
-    const amount = Math.max(1, basePrice + markup - discount); // Customer pays after voucher discount
+
+    // ── Voucher ────────────────────────────────────────────────────────────
+    // Diresolusi DI SINI, bukan di route handler, karena baru pada titik ini
+    // nilai yang benar-benar ditagihkan diketahui: basePrice + markup sudah
+    // memperhitungkan tier user atau harga produk seller. Route handler hanya
+    // melihat product.sellingPrice, yang untuk produk seller bisa jauh berbeda.
+    const grossAmount = basePrice + markup;
+
+    let voucherApplied: VoucherResolution | null = null;
+    if (input.voucherCode) {
+      const resolved = await resolveVoucher(input.voucherCode, grossAmount, input.userId ?? null);
+      // Klaim atomik. Gagal klaim (kuota habis / sudah dipakai user ini) berarti
+      // checkout tetap lanjut, hanya tanpa diskon.
+      if (resolved && (await claimVoucher(resolved.voucherId, input.userId ?? null))) {
+        voucherApplied = resolved;
+      }
+    }
+
+    const discount = voucherApplied?.discountAmount ?? 0;
+    const amount = Math.max(1, grossAmount - discount);
     const sellerGrossProfit = sellerProduct ? Math.max(0, markup - discount) : 0;
     const merchantPlatformFee = await getMerchantPlatformFeeConfig();
     const sellerFeeAmount = sellerProduct
@@ -165,7 +188,20 @@ export class CreateCheckoutService {
     }
 
     // ── 7. Create order ────────────────────────────────────────────────────
-    const order = await this.orderRepo.create({
+    // Voucher sudah diklaim di atas. Kalau pembuatan order gagal, slot kuotanya
+    // harus dikembalikan — kalau tidak, kegagalan teknis menghanguskan voucher
+    // yang tidak pernah benar-benar dipakai.
+    const lepasVoucher = async () => {
+      if (voucherApplied) {
+        await releaseVoucher(voucherApplied.voucherId, input.userId ?? null).catch((err) =>
+          log.error({ err, voucherId: voucherApplied?.voucherId }, "gagal melepas klaim voucher"),
+        );
+      }
+    };
+
+    let order;
+    try {
+      order = await this.orderRepo.create({
       orderCode,
       userId: input.userId ?? undefined,
       productId: product.id,
@@ -179,7 +215,7 @@ export class CreateCheckoutService {
       markup,
       fee,
       discount,
-      voucherCode: input.voucherCode,
+      voucherCode: voucherApplied?.code,
       amount,
       sellerGrossProfit,
       sellerFeeAmount,
@@ -190,7 +226,19 @@ export class CreateCheckoutService {
           : OrderStatus.WAITING_PAYMENT,
       paymentMethod: input.paymentMethod,
       viewTokenHash,
-    });
+      });
+    } catch (err) {
+      await lepasVoucher();
+      throw err;
+    }
+
+    if (voucherApplied) {
+      await attachVoucherClaimToOrder(
+        voucherApplied.voucherId,
+        input.userId ?? null,
+        order.id,
+      );
+    }
 
     // ── 8. Wallet: actual HOLD + enqueue ────────────────────────────────────
     if (input.paymentMethod === PaymentMethod.WALLET) {
@@ -205,6 +253,7 @@ export class CreateCheckoutService {
         await this.orderRepo.updateStatus(order.id, OrderStatus.FAILED, {
           notes: "Insufficient balance at hold time",
         });
+        await lepasVoucher();
         throw new InsufficientBalanceError();
       }
 
@@ -291,6 +340,7 @@ export class CreateCheckoutService {
       await this.orderRepo.updateStatus(order.id, OrderStatus.FAILED, {
         notes: `Gateway init error: ${message}`,
       });
+      await lepasVoucher();
 
       throw new ValidationError(message);
     }
