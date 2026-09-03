@@ -118,7 +118,7 @@ konsisten di ratusan call site.
 | `app/api/webhook{,s}/**`                                                                            | `webhook` (+ field `provider`)      |
 | `app/api/admin/**`                                                                                  | `admin`                             |
 | `app/api/{orders,checkout,transaksi}/**`, `src/core/services/checkout/**`                           | `order`                             |
-| `app/api/wallet/**`, `lib/wallet-topup-webhook.ts`                                                  | `wallet`                            |
+| `app/api/wallet/**`                                                                                 | `wallet`                            |
 | `app/api/{catalog,promos,vouchers,page-content,footer-config,payment-methods}/**`, `lib/pricing.ts` | `catalog`                           |
 | `app/api/{seller,merchant}/**`                                                                      | `seller`                            |
 | `src/core/services/provider/**`, `src/infra/providers/**`                                           | `provider` (+ field `providerType`) |
