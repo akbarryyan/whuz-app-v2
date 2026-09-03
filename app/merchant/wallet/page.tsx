@@ -36,7 +36,9 @@ interface WithdrawalItem {
   note: string | null;
   processedNote: string | null;
   payoutGateway?: string | null;
-  payoutRefId?: string | null;
+  // payoutRefId sengaja tidak ada di sini: referensi Poppay itu dipakai untuk
+  // memverifikasi callback penarikan, jadi tidak dikirim ke merchant.
+  // Lihat toSellerWithdrawalView di lib/seller.ts.
   payoutAggRefId?: string | null;
   processedAt: string | null;
   createdAt: string;
@@ -417,9 +419,6 @@ export default function MerchantWalletPage() {
                               </p>
                               <p>
                                 Bank Code: <span className="font-medium text-slate-700">{item.bankCode || "-"}</span>
-                              </p>
-                              <p>
-                                Gateway Ref: <span className="font-medium text-slate-700">{item.payoutRefId || "-"}</span>
                               </p>
                             </div>
 

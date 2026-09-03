@@ -35,7 +35,8 @@ export interface PoppayCallbackResult {
     | "ignored"
     | "not_found"
     | "execute_failed"
-    | "inquiry_mismatch";
+    | "inquiry_mismatch"
+    | "refid_mismatch";
   orderId?: string;
   topupId?: string;
   withdrawalId?: string;
@@ -169,6 +170,34 @@ async function handlePoppayWithdrawal(
   const outcome = resolveWithdrawalCallbackOutcome(payload.status);
   if (!outcome) {
     return { action: "ignored", withdrawalId: withdrawal.id };
+  }
+
+  // ── Verifikasi asal callback ──────────────────────────────────────────────
+  // Callback ini menggerakkan uang: status 1/2/3 mengembalikan saldo yang
+  // sedang di-hold ke wallet seller. Berbeda dari jalur topup dan order yang
+  // diverifikasi ulang lewat confirmCompletedViaInquiry, Poppay tidak
+  // menyediakan endpoint inquiry untuk transaksi keluar, jadi tidak ada
+  // pembanding dari sisi mereka.
+  //
+  // agg_refid TIDAK boleh dipakai sebagai bukti keaslian: bentuknya
+  // `withdraw-<id>` dan seller mengetahui id penarikannya sendiri. Tanpa
+  // pemeriksaan ini, seller bisa mengajukan penarikan (uang keluar ke
+  // rekeningnya), lalu mengirim callback penolakan palsu untuk menarik
+  // saldonya kembali — dapat transfer bank sekaligus saldo utuh.
+  //
+  // refid adalah referensi milik Poppay yang kita simpan saat createOutgoing
+  // dan tidak pernah dikirim ke seller (lihat app/api/seller/withdrawals).
+  // Kalau tidak cocok, jangan sentuh uang; biarkan admin yang memutuskan.
+  if (!withdrawal.payoutRefId || withdrawal.payoutRefId !== payload.refid) {
+    log.warn(
+      {
+        withdrawalId: withdrawal.id,
+        aggRefId: payload.agg_refid,
+        hasStoredRefId: Boolean(withdrawal.payoutRefId),
+      },
+      "withdrawal callback refid mismatch, tidak diproses",
+    );
+    return { action: "refid_mismatch", withdrawalId: withdrawal.id };
   }
 
   if (outcome.kind === "OBSCURE") {
