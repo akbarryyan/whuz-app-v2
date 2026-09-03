@@ -283,7 +283,7 @@ model SellerWithdrawalRequest {
 model PaymentInvoice {
   id            String    @id @default(cuid())
   orderId       String    @unique
-  gatewayName   String // PAKASIR, etc.
+  gatewayName   String // POPPAY
   invoiceId     String    @unique // Invoice ID from gateway
   amount        Decimal   @db.Decimal(15, 2)
   fee           Decimal   @default(0) @db.Decimal(15, 2)
@@ -328,7 +328,7 @@ model OrderProviderLog {
 
 model WebhookEvent {
   id           String    @id @default(cuid())
-  source       String // PAKASIR, DIGIFLAZZ, VIP_RESELLER
+  source       String // POPPAY, DIGIFLAZZ, VIP_RESELLER
   eventId      String    @unique // For idempotency
   eventType    String
   payload      Json
@@ -366,7 +366,7 @@ model PaymentMethod {
 // ============================================
 
 model SiteConfig {
-  key       String   @id // e.g. PROVIDER_DIGIFLAZZ_MODE, PROVIDER_VIP_MODE, PROVIDER_PAKASIR_MODE
+  key       String   @id // e.g. PROVIDER_DIGIFLAZZ_MODE, PROVIDER_VIP_MODE
   value     String   @db.Text // e.g. mock, real
   updatedAt DateTime @updatedAt
 
@@ -414,7 +414,7 @@ model BrandMeta {
 
 model WalletTopup {
   id            String    @id @default(cuid())
-  topupCode     String    @unique // WT-YYYYMMDD-XXXX — used as order_id in Pakasir
+  topupCode     String    @unique // WT-YYYYMMDD-XXXX — dipakai sebagai agg_refid di Poppay
   userId        String
   amount        Decimal   @db.Decimal(15, 2)
   fee           Decimal   @default(0) @db.Decimal(15, 2)

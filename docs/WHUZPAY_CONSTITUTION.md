@@ -19,7 +19,7 @@ Semua logic transaksi ada di service/usecase.
 
 Contoh:
 - `CreateCheckoutService`
-- `HandlePakasirWebhookService`
+- `handlePoppayCallback`
 - `ExecuteProviderPurchaseJobService`
 
 ### 1.3 Ports & Adapters
@@ -127,7 +127,7 @@ Mock provider wajib bisa:
   - `amount`
   - `status`
 - Always cross-check:
-  - call `detailPayment(order_id, amount)` untuk final confirm (Pakasir recommended)
+  - cross-check ke gateway sebelum menganggap lunas (`inquireIncoming` pada Poppay)
 
 ### 6.2 Provider Webhook
 - validate signature jika ada
