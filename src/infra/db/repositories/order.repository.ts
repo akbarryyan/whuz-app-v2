@@ -376,6 +376,8 @@ export class OrderRepository {
         });
       }
 
+      // Penjaga lapis pertama untuk data lama: bila ledger REFUND sudah ada
+      // tetapi penanda di order belum sempat terisi backfill, hentikan di sini.
       const existingRefund = await tx.ledgerEntry.findFirst({
         where: {
           walletId: wallet.id,
@@ -386,6 +388,19 @@ export class OrderRepository {
       });
 
       if (existingRefund) {
+        return { duplicated: true, balanceAfter: Number(wallet.balance) };
+      }
+
+      // Penjaga sesungguhnya: klaim atomik pada Order. findFirst di atas
+      // dibaca tanpa kunci, jadi dua pemanggil bersamaan bisa sama-sama
+      // melewatinya. Hanya satu yang bisa mengubah refundedAt dari null.
+      // Jalur ini terjangkau lewat reconcile, yang dipicu endpoint order publik.
+      const klaimRefund = await tx.order.updateMany({
+        where: { id: orderId, refundedAt: null },
+        data: { refundedAt: new Date() },
+      });
+
+      if (klaimRefund.count === 0) {
         return { duplicated: true, balanceAfter: Number(wallet.balance) };
       }
 
@@ -430,7 +445,22 @@ export class OrderRepository {
 
       const commissionAmount = Number(order.sellerCommission ?? 0);
       if (commissionAmount <= 0) return null;
-      if (order.sellerCommissionCreditedAt) return null;
+
+      // Klaim atomik. Membaca sellerCommissionCreditedAt lalu memeriksanya di
+      // JavaScript memberi celah yang sama seperti bug saldo: dua pemanggil
+      // bersamaan sama-sama melihat null dan keduanya membayar komisi.
+      // Jalurnya terjangkau — creditSellerCommission dipanggil dari eksekusi
+      // provider, dari reconcile (yang bisa dipicu endpoint order publik), dan
+      // dari dua tempat di webhook VIP.
+      //
+      // updateMany mengembalikan jumlah baris yang benar-benar berubah, dan
+      // MySQL mengevaluasi klausa where dengan kunci baris saat UPDATE berjalan.
+      // Hanya satu pemanggil yang bisa mengubahnya dari null.
+      const klaim = await tx.order.updateMany({
+        where: { id: order.id, sellerCommissionCreditedAt: null },
+        data: { sellerCommissionCreditedAt: new Date() },
+      });
+      if (klaim.count === 0) return null;
 
       let wallet = await tx.wallet.findUnique({ where: { userId: order.sellerId } });
       if (!wallet) {
@@ -457,11 +487,6 @@ export class OrderRepository {
           reference: order.id,
           description: `Komisi seller untuk order ${order.orderCode}`,
         },
-      });
-
-      await tx.order.update({
-        where: { id: order.id },
-        data: { sellerCommissionCreditedAt: new Date() },
       });
 
       return {

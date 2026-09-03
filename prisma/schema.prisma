@@ -190,6 +190,7 @@ model Order {
   viewTokenHash              String?   @unique // Hashed viewToken — raw token never stored
   notes                      String?   @db.Text
   sellerCommissionCreditedAt DateTime?
+  refundedAt                 DateTime? // penanda klaim refund; mencegah refund ganda
   createdAt                  DateTime  @default(now())
   updatedAt                  DateTime  @updatedAt
 
