@@ -247,7 +247,7 @@ export default function MerchantWalletPage() {
                     <div>
                       <h2 className="text-lg font-bold text-slate-900">Ajukan Withdraw</h2>
                       <p className="mt-1 text-sm text-slate-500">
-                        Withdraw akan langsung diproses ke Poppay setelah kamu kirim request.
+                        Permintaan withdraw ditinjau admin lebih dulu, baru dicairkan ke rekeningmu.
                       </p>
                     </div>
                     <div className="w-full rounded-2xl bg-emerald-50 px-3 py-2 ring-1 ring-emerald-100 sm:w-auto sm:max-w-[220px] sm:text-right">
