@@ -102,40 +102,74 @@ function resolveOrderCodeFromAggRefId(aggRefId: string): string {
   return orderCode || String(aggRefId);
 }
 
+/**
+ * Aksi yang BELUM boleh dianggap selesai. Menandainya selesai akan membuang
+ * kesempatan kiriman ulang dari gateway:
+ *
+ * - not_found        callback tiba lebih cepat dari penyimpanan barisnya
+ * - inquiry_mismatch Poppay belum mengonfirmasi; percobaan berikutnya bisa cocok
+ * - refid_mismatch   belum terverifikasi, jangan dikunci sebagai selesai
+ * - execute_failed   pembayaran diterima tetapi provider belum dieksekusi
+ */
+const AKSI_BELUM_SELESAI = new Set<PoppayCallbackResult["action"]>([
+  "not_found",
+  "inquiry_mismatch",
+  "refid_mismatch",
+  "execute_failed",
+]);
+
+async function finishWebhookEvent(
+  orderRepo: OrderRepository,
+  eventId: string,
+  action: PoppayCallbackResult["action"],
+) {
+  if (AKSI_BELUM_SELESAI.has(action)) {
+    await orderRepo.markWebhookProcessed(eventId, `belum selesai: ${action}`);
+    return;
+  }
+  await orderRepo.markWebhookProcessed(eventId);
+}
+
 export async function handlePoppayCallback(
   payload: PoppayCallbackPayload,
   rawPayload: unknown
 ): Promise<PoppayCallbackResult> {
   const orderRepo = new OrderRepository();
   const eventId = `poppay:${payload.agg_refid}:${payload.status}:${payload.refid}`;
-  const { duplicate } = await orderRepo.findOrCreateWebhookEvent({
+  // Hanya event yang benar-benar SELESAI yang menghentikan pemrosesan.
+  // Percobaan yang gagal dibiarkan terbuka agar kiriman ulang gateway masih
+  // bisa menyelesaikannya.
+  const { event, alreadyProcessed } = await orderRepo.findOrCreateWebhookEvent({
     source: WebhookSource.POPPAY,
     eventId,
     eventType: String(payload.status),
     payload: rawPayload as Parameters<OrderRepository["findOrCreateWebhookEvent"]>[0]["payload"],
   });
 
-  if (duplicate) {
+  if (alreadyProcessed) {
     return { duplicate: true, action: "ignored" };
+  }
+
+  if (event.errorMessage) {
+    log.info(
+      { eventId, previousError: event.errorMessage },
+      "mencoba ulang callback yang sebelumnya gagal",
+    );
   }
 
   try {
     const paidAt = resolvePaidAt(payload.trx_date);
 
+    let result: Omit<PoppayCallbackResult, "duplicate">;
     if (String(payload.agg_refid).startsWith("WT-")) {
-      const result = await handlePoppayTopup(payload, paidAt);
-      await orderRepo.markWebhookProcessed(eventId);
-      return { duplicate: false, ...result };
+      result = await handlePoppayTopup(payload, paidAt);
+    } else if (String(payload.agg_refid).startsWith("withdraw-")) {
+      result = await handlePoppayWithdrawal(payload);
+    } else {
+      result = await handlePoppayOrder(payload, paidAt);
     }
 
-    if (String(payload.agg_refid).startsWith("withdraw-")) {
-      const result = await handlePoppayWithdrawal(payload);
-      await orderRepo.markWebhookProcessed(eventId);
-      return { duplicate: false, ...result };
-    }
-
-    const result = await handlePoppayOrder(payload, paidAt);
-    await orderRepo.markWebhookProcessed(eventId);
+    await finishWebhookEvent(orderRepo, eventId, result.action);
     return { duplicate: false, ...result };
   } catch (error) {
     await orderRepo.markWebhookProcessed(
