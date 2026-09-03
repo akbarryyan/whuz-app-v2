@@ -1,5 +1,16 @@
 # Whuzpay — PPOB + Topup Game (Next.js Fullstack)
 
+> **Status per 3 September 2026 — dokumen ini belum disinkronkan.**
+>
+> Payment gateway yang benar-benar dipakai adalah **Poppay**, bukan Pakasir.
+> Seluruh integrasi Pakasir sudah dihapus dari kode; bagian mana pun di bawah
+> yang menyebut Pakasir hanya berlaku secara historis.
+>
+> Eksekusi provider juga TIDAK lagi lewat BullMQ seperti dijelaskan di bawah —
+> ia dijalankan inline. Lihat `ExecuteProviderPurchaseService`.
+>
+> Penyelarasan menyeluruh dokumen ini masih menjadi pekerjaan tersendiri.
+
 > **Goal:** Website PPOB + Topup Game dengan mode **Guest Checkout** dan **Member Wallet**, integrasi provider **Digiflazz** + **VIP Reseller**, payment gateway **Pakasir**, dan pola arsitektur yang rapi:  
 > **Service Layer Pattern**, **Environment-based Service Switching**, **Mock Simulation for Development**, **Webhook Simulation**, **Clean Separation of Concerns**.
 
