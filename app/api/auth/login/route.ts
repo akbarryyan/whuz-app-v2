@@ -4,10 +4,15 @@ import { getSession } from "@/lib/session";
 import { prisma } from "@/src/infra/db/prisma";
 import { normalizePhone, isValidPhone } from "@/lib/fonnte";
 import { getLogger } from "@/lib/logger";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 const log = getLogger("auth");
 
 export async function POST(req: NextRequest) {
+  // Tebak password beruntun.
+  const limited = enforceRateLimit(req, "auth:login", { limit: 10, windowMs: 300000 });
+  if (limited) return limited;
+
   try {
     const body = await req.json();
     const { identifier, password, method } = body;

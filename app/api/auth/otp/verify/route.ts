@@ -5,10 +5,15 @@ import { getSiteName } from "@/lib/site-config";
 import { prisma } from "@/src/infra/db/prisma";
 import { normalizePhone, isValidPhone } from "@/lib/fonnte";
 import { getLogger } from "@/lib/logger";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 const log = getLogger("auth");
 
 export async function POST(req: NextRequest) {
+  // Tebak kode OTP beruntun.
+  const limited = enforceRateLimit(req, "auth:otp-verify", { limit: 10, windowMs: 600000 });
+  if (limited) return limited;
+
   try {
     const siteName = await getSiteName();
     const body = await req.json();

@@ -5,10 +5,15 @@ import { generateOTP } from "@/lib/fonnte";
 import { sendOtpEmail } from "@/lib/mailer";
 import { getSiteName } from "@/lib/site-config";
 import { getLogger } from "@/lib/logger";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 const log = getLogger("auth");
 
 export async function POST(req: NextRequest) {
+  // Setiap pengiriman OTP berbiaya nyata (SMS/WhatsApp/email).
+  const limited = enforceRateLimit(req, "auth:otp-send", { limit: 5, windowMs: 600000 });
+  if (limited) return limited;
+
   try {
     await getSiteName();
     const body = await req.json();

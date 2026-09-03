@@ -3,10 +3,15 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/src/infra/db/prisma";
 import { normalizePhone, isValidPhone } from "@/lib/fonnte";
 import { getLogger } from "@/lib/logger";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 const log = getLogger("auth");
 
 export async function POST(req: NextRequest) {
+  // Penyalahgunaan alur pemulihan akun.
+  const limited = enforceRateLimit(req, "auth:reset-password", { limit: 5, windowMs: 900000 });
+  if (limited) return limited;
+
   try {
     const body = await req.json();
     const { identifier, method, code, newPassword, confirmPassword } = body;

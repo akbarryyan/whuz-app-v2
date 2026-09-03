@@ -5,10 +5,15 @@ import { getSiteName } from "@/lib/site-config";
 import { prisma } from "@/src/infra/db/prisma";
 import { normalizePhone, isValidPhone } from "@/lib/fonnte";
 import { getLogger } from "@/lib/logger";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 const log = getLogger("auth");
 
 export async function POST(req: NextRequest) {
+  // Pembuatan akun massal.
+  const limited = enforceRateLimit(req, "auth:register", { limit: 5, windowMs: 600000 });
+  if (limited) return limited;
+
   try {
     const siteName = await getSiteName();
     const body = await req.json();
