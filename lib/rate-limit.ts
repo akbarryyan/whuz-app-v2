@@ -40,7 +40,7 @@ interface Bucket {
 /**
  * Disimpan di globalThis supaya hot reload di mode dev tidak mengosongkan
  * hitungan setiap kali modul dimuat ulang — pola yang sama dipakai
- * src/infra/db/prisma.ts dan src/infra/queue/bullmq/queue.ts.
+ * src/infra/db/prisma.ts.
  */
 const g = globalThis as unknown as { _rateLimitBuckets?: Map<string, Bucket> };
 const buckets: Map<string, Bucket> = (g._rateLimitBuckets ??= new Map());

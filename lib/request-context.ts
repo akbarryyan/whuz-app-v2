@@ -45,8 +45,9 @@ export function getRequestId(): string | undefined {
 }
 
 /**
- * Jalankan `fn` dengan context tertentu. Dipakai worker BullMQ untuk memberi
- * correlation id pada log non-HTTP (worker tidak pernah memuat instrumentation).
+ * Jalankan `fn` dengan context tertentu. Dipakai untuk pekerjaan yang berjalan
+ * DI LUAR request HTTP — mis. sapuan rekonsiliasi berkala — supaya lognya tetap
+ * punya correlation id, sesuatu yang biasanya disuntikkan oleh access log.
  */
 export function runWithContext<T>(ctx: RequestContext, fn: () => T): T {
   return requestContext.run(ctx, fn);

@@ -3,7 +3,6 @@ import { ProviderFactory } from "@/src/infra/providers/provider.factory";
 import { ProviderType } from "@/src/core/domain/enums/provider.enum";
 import { OrderStatus } from "@/src/core/domain/enums/order.enum";
 import { checkAndUpgradeUserTier } from "@/lib/pricing";
-import { scheduleOrderReconcile } from "./reconcile-scheduler.service";
 import { getLogger } from "@/lib/logger";
 
 const log = getLogger("provider");
@@ -192,7 +191,9 @@ export class ExecuteProviderPurchaseService {
       await this.orderRepo.updateStatus(orderId, OrderStatus.PROCESSING_PROVIDER, {
         providerRef: result.transactionId,
       });
-      scheduleOrderReconcile(orderId);
+      // Tidak perlu menjadwalkan apa pun: order ini kini tersangkut di
+      // PROCESSING_PROVIDER, dan sapuan berkala akan menemukannya sendiri.
+      // Lihat sweepStuckOrders di reconcile-scheduler.service.ts.
 
       log.info(
         { orderId, providerRef: result.transactionId ?? null },
