@@ -52,6 +52,8 @@ interface OrderItem {
   fee: number;
   paymentMethod: string;
   serialNumber: string | null;
+  /** true = dibuka tanpa token/bukan pemilik, detail sensitif ditahan server. */
+  restricted?: boolean;
   createdAt: string;
   updatedAt: string;
   product: { name: string; brand: string; category: string };
@@ -224,6 +226,17 @@ function PesananPageContent() {
           </div>
         </div>
       </div>
+
+      {/* Detail ditahan: dibuka tanpa tautan pesanan */}
+      {order.restricted && order.status === "SUCCESS" && !order.serialNumber && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+          <p className="text-[11px] font-bold text-amber-700 mb-1">🔒 Detail disembunyikan</p>
+          <p className="text-xs text-amber-800">
+            Kode voucher hanya ditampilkan lewat tautan pesanan yang kamu terima saat
+            checkout, atau setelah login dengan akun yang dipakai membeli.
+          </p>
+        </div>
+      )}
 
       {/* Serial Number */}
       {order.serialNumber && (
