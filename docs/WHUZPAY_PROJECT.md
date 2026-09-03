@@ -1,324 +1,177 @@
-# Whuzpay — PPOB + Topup Game (Next.js Fullstack)
+# Whuzpay — Arsitektur Sistem
 
-> **Status per 3 September 2026 — dokumen ini belum disinkronkan.**
->
-> Payment gateway yang benar-benar dipakai adalah **Poppay**, bukan Pakasir.
-> Seluruh integrasi Pakasir sudah dihapus dari kode; bagian mana pun di bawah
-> yang menyebut Pakasir hanya berlaku secara historis.
->
-> Eksekusi provider juga TIDAK lagi lewat BullMQ seperti dijelaskan di bawah —
-> ia dijalankan inline. Lihat `ExecuteProviderPurchaseService`.
->
-> Penyelarasan menyeluruh dokumen ini masih menjadi pekerjaan tersendiri.
+Website PPOB dan topup game dengan checkout tamu dan dompet member.
 
-> **Goal:** Website PPOB + Topup Game dengan mode **Guest Checkout** dan **Member Wallet**, integrasi provider **Digiflazz** + **VIP Reseller**, payment gateway **Pakasir**, dan pola arsitektur yang rapi:  
-> **Service Layer Pattern**, **Environment-based Service Switching**, **Mock Simulation for Development**, **Webhook Simulation**, **Clean Separation of Concerns**.
+> Dokumen ini menggambarkan sistem **sebagaimana adanya**. Versi sebelumnya
+> adalah rencana yang ditulis sebelum implementasi, dan sudah menyimpang jauh —
+> ia masih menyebut Pakasir sebagai payment gateway dan BullMQ sebagai jalur
+> eksekusi provider, padahal keduanya sudah tidak ada.
+>
+> Aturan rekayasanya ada di [WHUZPAY_CONSTITUTION.md](WHUZPAY_CONSTITUTION.md).
 
 ---
 
-## 1) Tech Stack
+## 1) Tech stack
 
-### Core
-- **Next.js (App Router)**
-- **TypeScript**
-- **MySQL**
-- **Prisma ORM**
+| Lapis | Yang dipakai |
+|---|---|
+| Aplikasi | Next.js 16 (App Router), TypeScript, React 19 |
+| Database | MySQL 8.4 + Prisma |
+| Sesi | iron-session (cookie tersegel) |
+| Payment gateway | **Poppay** — satu-satunya |
+| Provider PPOB | Digiflazz, VIP Reseller |
+| Notifikasi | SMTP (nodemailer), WhatsApp (Fonnte) |
+| Log | pino + rotating-file-stream |
+| Test | Vitest, integrasi terhadap MySQL sekali pakai |
 
-### Infrastructure
-- **Redis** (BullMQ queue)
-- **BullMQ** (jobs untuk eksekusi transaksi provider)
-
-### External Integrations
-- **Payment Gateway:** Pakasir  
-  - SDK: `pakasir-sdk`  
-  - Webhook: payment status callback  
-- **Provider PPOB:** Digiflazz + VIP Reseller  
-  - `inquiry → purchase → checkStatus → webhook(optional)`
+Berjalan sebagai **satu proses** (PM2 `exec_mode: fork`, `instances: 1`). Tidak
+ada worker terpisah dan tidak ada Redis.
 
 ---
 
-## 2) Product Requirements
+## 2) Alur transaksi
 
-### A. Guest Checkout (Tanpa Login)
-- Bisa:
-  - Lihat katalog produk
-  - Checkout produk
-  - Bayar via **Payment Gateway (Pakasir)**
-  - Lihat status transaksi via **order_code + view_token**
-- Tidak bisa:
-  - Pakai wallet
-  - Lihat histori transaksi (kecuali via link order)
+### Payment gateway (tamu maupun member)
 
-### B. Member (Login)
-- Bisa:
-  - Semua fitur guest
-  - Bayar via **Wallet**
-  - Lihat histori transaksi
-  - Lihat saldo + ledger
-  - Deposit saldo (MVP: manual admin, Next: PG topup wallet)
-
----
-
-## 3) Transaction Flow (High Level)
-
-### A. Guest → Payment Gateway
 ```text
-Pilih produk → input target → checkout
-→ create invoice Pakasir → user bayar
-→ Pakasir webhook (completed) → order PAID
-→ enqueue job: execute provider purchase
-→ provider result → SUCCESS / FAILED / PENDING
-→ guest cek status pakai order_code + view_token
+pilih produk → input target → checkout
+→ POST /api/checkout membuat order + invoice Poppay
+→ pelanggan membayar
+→ Poppay memanggil /api/webhook/poppay
+→ cross-check inquireIncoming ke Poppay
+→ order PAID → eksekusi provider INLINE
+→ SUCCESS / FAILED / PROCESSING_PROVIDER
 ```
 
-### B. Member → Wallet
+### Wallet (member)
+
 ```text
-Pilih produk → input target → checkout
-→ wallet HOLD (reserve)
-→ enqueue job: execute provider purchase
-→ SUCCESS: finalize debit
-→ FAILED: release hold
+checkout → HOLD saldo (atomik) → order PAID
+→ eksekusi provider INLINE
+→ SUCCESS: catat DEBIT   |   FAILED: RELEASE saldo
 ```
+
+### Kalau ada yang tersangkut
+
+Eksekusi provider berjalan inline, jadi tidak ada retry berlapis seperti queue.
+Jaring pengamannya dua:
+
+1. **Kiriman ulang gateway.** `WebhookEvent` hanya dianggap selesai bila
+   pemrosesannya benar-benar berhasil; percobaan yang gagal dibiarkan terbuka.
+2. **Sapuan berkala.** `sweepStuckOrders` menanyakan ulang ke database order
+   mana yang tersangkut di `PAID` / `PROCESSING_PROVIDER`, lalu merekonsiliasi.
+   Jadwalnya tidak disimpan di mana pun, sehingga restart tidak menghilangkan
+   apa pun.
 
 ---
 
-## 4) Key Architecture Patterns
-
-### A. Service Layer Pattern
-- Route handler hanya:
-  - parse input
-  - validate (Zod)
-  - call service/usecase
-  - return response
-- Semua business logic ada di `core/services`
-
-### B. Clean Separation of Concerns
-- `core/` = domain + usecase
-- `infra/` = implementasi nyata (DB, provider, payment, queue)
-
-### C. Environment-based Service Switching
-Provider bisa switch per env:
-
-| Env | Digiflazz | VIP | Notes |
-|---|---|---|---|
-| local | mock | mock | no provider balance cut |
-| staging | mock/real | mock/real | configurable |
-| production | real | real | real transactions |
-
-Env var:
-- `PROVIDER_DIGIFLAZZ_MODE=mock|real`
-- `PROVIDER_VIP_MODE=mock|real`
-
-### D. Mock Simulation for Development
-Mock harus bisa:
-- success / failed / pending
-- delay random
-- pending_then_success
-- deterministic mode (optional)
-
-Env var:
-- `MOCK_PROVIDER_SCENARIO=random|success|failed|pending_then_success`
-- `MOCK_PROVIDER_DELAY_MS=1500`
-
-### E. Webhook Simulation
-- Dev mode bisa simulate:
-  - webhook payment Pakasir
-  - webhook provider
-
----
-
-## 5) Folder Structure (Recommended)
+## 3) Struktur kode
 
 ```
+app/
+  api/            route handler — parse, validasi, panggil service
+  admin/          dasbor admin (client-side)
+  (halaman publik, akun, merchant)
+
 src/
-  app/
-    api/
-      checkout/
-      orders/
-      webhooks/
-        payment/
-        provider/
-    (ui routes)
   core/
-    domain/
-      entities/
-      enums/
-      errors/
-    ports/
-      payment-gateway.port.ts
-      provider.port.ts
-      queue.port.ts
-    services/
-      checkout/
-      payment/
-      provider/
-      wallet/
+    domain/       enum & error
+    ports/        payment-gateway.port.ts, provider.port.ts
+    services/     seluruh logika bisnis
   infra/
-    db/
-      prisma.ts
-      repositories/
-    payment/
-      pakasir/
-        pakasir.adapter.ts
-    providers/
-      digiflazz/
-        digiflazz.adapter.ts
-      vip/
-        vip.adapter.ts
-      mock/
-        mock-provider.adapter.ts
-      provider.factory.ts
-    queue/
-      bullmq/
-        queue.ts
-        worker.ts
-        jobs.ts
-  lib/
-    auth/
-    security/
-    zod/
+    db/           prisma + repository
+    payment/      poppay (client + adapter)
+    providers/    digiflazz, vip, mock, factory
+
+lib/              sesi, guard admin, rate limit, logger, konfigurasi situs
+tests/            test integrasi (butuh MySQL uji)
 ```
 
----
-
-## 6) Core Modules (MVP)
-
-### 6.1 Catalog
-- `GET /api/products`
-
-### 6.2 Checkout
-- `POST /api/checkout`
-  - guest: PG only
-  - member: PG or wallet
-
-### 6.3 Order Status
-- `GET /api/orders/:code?token=...`
-
-### 6.4 Webhooks
-- `POST /api/webhooks/payment` (Pakasir)
-- `POST /api/webhooks/provider/digiflazz`
-- `POST /api/webhooks/provider/vip`
-
-### 6.5 Wallet
-- `GET /api/wallet`
-- `GET /api/wallet/ledger`
+Yang perlu diketahui: **tidak ada `src/infra/queue`** dan tidak ada
+`queue.port.ts` — keduanya dihapus bersama BullMQ.
 
 ---
 
-## 7) Database (MVP Entities)
+## 4) Endpoint inti
 
-### Must Have
-- User
-- Wallet
-- LedgerEntry
-- Product
-- Order (Transaction)
-- PaymentInvoice
-- WebhookEvent
-- ProviderLog
-
----
-
-## 8) Status Lifecycle
-
-### Order Status (recommended)
-- `CREATED`
-- `WAITING_PAYMENT`
-- `PAID`
-- `PROCESSING_PROVIDER`
-- `SUCCESS`
-- `FAILED`
-- `EXPIRED`
-- `REFUNDED`
-
-### Wallet Ledger Types
-- `HOLD`
-- `DEBIT`
-- `CREDIT`
-- `RELEASE`
-- `REFUND`
+| Endpoint | Catatan |
+|---|---|
+| `POST /api/checkout` | Membuat order. Voucher diresolusi & diklaim di dalam service |
+| `GET /api/orders/[code]` | Publik. Isi respons dibatasi bila tanpa kredensial |
+| `POST /api/webhook/poppay` | Uang masuk & keluar. Satu-satunya callback gateway |
+| `POST /api/webhook/vip` | Callback status provider VIP |
+| `GET /api/wallet`, `/api/wallet/topup` | Dompet member |
+| `app/api/admin/**` | Seluruhnya ter-guard `requireAdmin*` |
 
 ---
 
-## 9) Security Baseline
-- HTTPS in production
-- Rate limit:
-  - `/api/checkout`
-  - `/api/orders/:code`
-  - `/api/auth/*`
-- Webhook idempotency:
-  - store `eventId` in `WebhookEvent`
-- Store `viewToken` **hashed**
-- Validate:
-  - `order_id` and `amount` match
-  - status confirmed via Pakasir `detailPayment` (recommended by Pakasir docs)
+## 5) Status & kosakata ledger
+
+**Order:** `CREATED` → `WAITING_PAYMENT` → `PAID` → `PROCESSING_PROVIDER` →
+`SUCCESS`, dengan cabang `EXPIRED`, `FAILED`, dan `REFUNDED`.
+
+**LedgerEntry** — sembilan tipe:
+
+| Tipe | Arti | Menggeser saldo? |
+|---|---|---|
+| `HOLD` | Saldo ditahan saat checkout wallet | ya, mengurangi |
+| `DEBIT` | Finalisasi setelah provider sukses | tidak — sudah dipotong `HOLD` |
+| `RELEASE` | Pelepasan `HOLD` saat gagal | ya, menambah |
+| `REFUND` | Pengembalian order gateway yang gagal | ya, menambah |
+| `CREDIT` | Topup saldo | ya, menambah |
+| `COMMISSION` | Komisi seller | ya, menambah |
+| `WITHDRAW_HOLD` | Penarikan diajukan | ya, mengurangi |
+| `WITHDRAW_PAID` | Penarikan tuntas | tidak — pencatatan |
+| `WITHDRAW_RELEASE` | Penarikan gagal, saldo kembali | ya, menambah |
+
+Karena `DEBIT` dan `WITHDRAW_PAID` tidak menggeser saldo, saldo diturunkan dari
+`-HOLD -WITHDRAW_HOLD +RELEASE +WITHDRAW_RELEASE +REFUND +CREDIT +COMMISSION`.
+Ini penting saat merekonsiliasi ledger dengan `Wallet.balance`.
 
 ---
 
-## 10) Environment Variables (Example)
+## 6) Konfigurasi
 
-```env
-APP_ENV=local
+Lihat [`.env.example`](../.env.example) untuk daftar lengkap beserta
+penjelasannya.
 
-DATABASE_URL="mysql://user:pass@localhost:3306/whuzpay"
+Satu hal yang sering membingungkan: **kredensial dan mode tersimpan di tabel
+`site_configs`, bukan di berkas env.** Nilai di database MENIMPA env; env hanya
+cadangan ketika kuncinya belum ada. Artinya rotasi kredensial produksi
+dilakukan lewat `/admin/settings`, bukan dengan menyunting `.env.production`.
 
-# Pakasir
-PAKASIR_SLUG="your_project_slug"
-PAKASIR_API_KEY="your_api_key"
+`SESSION_SECRET` dan `DATABASE_URL` divalidasi saat boot — server menolak
+menyala bila salah.
 
-# Providers mode
-PROVIDER_DIGIFLAZZ_MODE=mock
-PROVIDER_VIP_MODE=mock
+---
 
-# Mock behavior
-MOCK_PROVIDER_SCENARIO=pending_then_success
-MOCK_PROVIDER_DELAY_MS=1500
+## 7) Menjalankan
 
-# Redis
-REDIS_URL="redis://localhost:6379"
+```bash
+npm install
+npm run db:migrate:local     # terapkan migrasi ke DB dev
+npm run db:seed              # data awal (admin: admin@whuzpay.com / admin123)
+npm run dev
+
+npm run test:db:up           # MySQL uji sekali pakai
+npm run test:db:push
+npm test
 ```
 
----
-
-## 11) Development Milestones
-
-### Milestone 1 — Skeleton
-- Next.js App Router
-- Prisma + MySQL
-- Auth (member)
-- Catalog API
-
-### Milestone 2 — Checkout + PG
-- Create order
-- Create invoice Pakasir
-- Order status page
-
-### Milestone 3 — Webhooks + Queue
-- Webhook Pakasir → mark paid
-- BullMQ worker → execute provider purchase (mock)
-
-### Milestone 4 — Providers
-- Digiflazz adapter
-- VIP adapter
-- Provider factory + switching
-
-### Milestone 5 — Wallet
-- Wallet reserve/hold
-- finalize debit / release
-- ledger page
-
-### Milestone 6 — Admin (basic)
-- product CRUD
-- pricing rules
-- manual wallet topup
+Detail pengujian: [TESTING.md](TESTING.md). Logging: [LOGGING.md](LOGGING.md).
 
 ---
 
-## 12) Notes
-- **Guest orders**: harus punya `order_code + view_token` untuk akses status.
-- Provider execution wajib via queue (avoid timeout).
-- Semua handler webhook harus idempotent.
+## 8) Yang masih menjadi pekerjaan
 
----
-
-**Let’s build this clean from zero.**
+- **Verifikasi tanda tangan callback Poppay** belum ditegakkan — verdict
+  `invalid` baru dicatat, belum menolak. Perlu kepastian format dari Poppay.
+- **Belum ada endpoint inquiry untuk transaksi keluar**, sehingga callback
+  penarikan bergantung pada kerahasiaan `refid`, bukan tanda tangan.
+- **Voucher pada order gateway** diklaim saat order dibuat, bukan saat dibayar.
+  Order yang tidak pernah dibayar tetap memakan kuota sampai dilepas manual.
+- **Belum ada dokumen integrasi Poppay.** Pemetaan kode status 1–5 hanya ada di
+  `lib/poppay-callback.ts`.
+- **Cakupan test** masih terbatas pada jalur uang dan pembatas laju.
+- **`GET /api/vouchers/validate`** menghitung diskon dari `amount` yang dikirim
+  klien, sehingga pratinjaunya bisa berbeda dari yang benar-benar diterapkan.

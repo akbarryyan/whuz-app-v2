@@ -1,46 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Whuzpay
 
-## Getting Started
+Website PPOB dan topup game: checkout tamu, dompet member, katalog merchant.
+Next.js 16 (App Router) + MySQL + Prisma.
 
-First, run the development server:
+## Menjalankan
 
 ```bash
+npm install
+cp .env.example .env.local        # isi DATABASE_URL dan SESSION_SECRET
+npm run db:migrate:local
+npm run db:seed                   # admin: admin@whuzpay.com / admin123
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`SESSION_SECRET` minimal 32 karakter — server menolak menyala tanpanya.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-## Testing
+## Test
 
 ```bash
-npm run test:db:up && npm run test:db:push   # sekali saja
+npm run test:db:up                # MySQL sekali pakai lewat Docker
+npm run test:db:push
 npm test
 ```
 
-Test integrasi memakai MySQL sekali pakai lewat Docker. Detail dan alasannya:
+Test-nya integrasi, bukan unit dengan tiruan. Alasannya ada di
 [docs/TESTING.md](docs/TESTING.md).
+
+## Dokumentasi
+
+| Dokumen | Isi |
+|---|---|
+| [WHUZPAY_PROJECT.md](docs/WHUZPAY_PROJECT.md) | Arsitektur sistem sebagaimana adanya |
+| [WHUZPAY_CONSTITUTION.md](docs/WHUZPAY_CONSTITUTION.md) | Aturan rekayasa — baca sebelum menyentuh jalur uang |
+| [TESTING.md](docs/TESTING.md) | Cara dan alasan pengujian |
+| [LOGGING.md](docs/LOGGING.md) | Log terstruktur, rotasi, penelusuran |
+| [PROVIDER_SYSTEM.md](docs/PROVIDER_SYSTEM.md) | Digiflazz & VIP Reseller |
+
+## Catatan penting
+
+**Kredensial dan mode tersimpan di database**, tabel `site_configs`, dan diubah
+lewat `/admin/settings`. Nilai di `.env` hanya cadangan ketika kuncinya belum
+ada di database — jadi menyunting `.env.production` sering kali tidak berpengaruh.
+
+**Aplikasi berjalan satu proses.** Tidak ada worker terpisah dan tidak ada
+Redis. Rekonsiliasi order tersangkut ditangani sapuan berkala di dalam proses
+yang sama.
+
+## Deploy
+
+```bash
+git pull && npm ci && npm run db:migrate && npm run build
+pm2 restart ecosystem.config.js --update-env
+```

@@ -21,12 +21,24 @@ export enum InvoiceStatus {
   CANCELLED = "CANCELLED",
 }
 
+/**
+ * Kosakata tipe LedgerEntry.
+ *
+ * Kode saat ini menulis literal string, bukan enum ini — jadi enum ini berperan
+ * sebagai dokumentasi kosakata yang sah. Empat tipe terakhir sempat tidak
+ * tercantum padahal dipakai; daftar di bawah sudah dicocokkan dengan yang
+ * benar-benar ditulis kode.
+ */
 export enum LedgerType {
   HOLD = "HOLD",
   DEBIT = "DEBIT",
   CREDIT = "CREDIT",
   RELEASE = "RELEASE",
   REFUND = "REFUND",
+  COMMISSION = "COMMISSION",
+  WITHDRAW_HOLD = "WITHDRAW_HOLD",
+  WITHDRAW_PAID = "WITHDRAW_PAID",
+  WITHDRAW_RELEASE = "WITHDRAW_RELEASE",
 }
 
 export enum WebhookSource {
