@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/src/infra/db/prisma";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +44,10 @@ export async function GET() {
  * POST /api/admin/auth — admin login
  */
 export async function POST(req: Request) {
+  // Tebak password admin beruntun.
+  const limited = enforceRateLimit(req, "admin:login", { limit: 10, windowMs: 300000 });
+  if (limited) return limited;
+
   try {
     const { email, password } = await req.json();
 

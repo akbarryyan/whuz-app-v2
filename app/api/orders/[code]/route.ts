@@ -16,6 +16,7 @@ import { getSession } from "@/lib/session";
 import { syncExpiredOrderByCode } from "@/src/core/services/order/sync-expired-orders.service";
 import { autoReconcileOrderNow } from "@/src/core/services/provider/reconcile-scheduler.service";
 import { getLogger } from "@/lib/logger";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 const log = getLogger("order");
 
@@ -38,6 +39,14 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ code: string }> }
 ) {
+  // Endpoint ini boleh diakses tanpa login dan tanpa token, dan orderCode hanya
+  // `WP-YYMMDD-` + 3 byte acak — jadi ia bisa disisir. Selain itu, untuk order
+  // berstatus PAID/PROCESSING ia memanggil autoReconcileOrderNow, yang menembak
+  // API provider. Tanpa pembatas, siapa pun bisa memaksa kita memanggil
+  // Digiflazz/VIP berulang kali atas biaya dan kuota kita sendiri.
+  const limited = enforceRateLimit(request, "orders:detail", { limit: 30, windowMs: 60_000 });
+  if (limited) return limited;
+
   try {
     const { code } = await params;
     const { searchParams } = new URL(request.url);

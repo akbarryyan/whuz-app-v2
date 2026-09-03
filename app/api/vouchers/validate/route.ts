@@ -6,12 +6,17 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
 import { getSession } from "@/lib/session";
 import { getLogger } from "@/lib/logger";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 const log = getLogger("catalog");
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
+  // Penyisiran kode voucher.
+  const limited = enforceRateLimit(request, "vouchers:validate", { limit: 20, windowMs: 60000 });
+  if (limited) return limited;
+
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code")?.trim().toUpperCase();
   const amount = Number(searchParams.get("amount") ?? 0);

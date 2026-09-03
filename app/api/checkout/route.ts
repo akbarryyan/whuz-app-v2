@@ -20,6 +20,7 @@ import {
 } from "@/src/core/domain/errors/domain.errors";
 import { isLoginRequiredForPurchase } from "@/lib/auth-config";
 import { getLogger } from "@/lib/logger";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 const log = getLogger("order");
 
@@ -38,6 +39,10 @@ const CheckoutSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  // Pembuatan order massal; tiap order memanggil gateway pembayaran.
+  const limited = enforceRateLimit(request, "checkout", { limit: 20, windowMs: 60000 });
+  if (limited) return limited;
+
   try {
     // ── 1. Parse body ──────────────────────────────────────────────────────
     let body: unknown;
