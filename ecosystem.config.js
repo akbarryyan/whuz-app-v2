@@ -20,9 +20,9 @@
  * 3. `LOG_DIR` sengaja absolut. cwd proses PM2 tidak selalu sama dengan folder
  *    app, dan default `./logs` akan resolve ke tempat yang salah.
  *
- * 4. Server dan worker menulis file berbeda (`app.json` vs `worker.json`).
- *    Dua proses tidak boleh menulis file yang sama: masing-masing melacak
- *    ukuran file sendiri lalu me-rename file aktif di bawah kaki yang lain.
+ * 4. Hanya ada SATU proses di sini. Worker BullMQ sudah dihapus — tidak ada
+ *    satu pun pengirim job, dan rekonsiliasi kini ditangani sapuan berkala di
+ *    dalam proses server (lihat reconcile-scheduler.service.ts).
  */
 
 const APP_DIR = "/var/www/whuz-app";
@@ -50,24 +50,6 @@ module.exports = {
       exec_mode: "fork",
       instances: 1,
       env: sharedEnv,
-    },
-    {
-      name: "whuz-worker",
-      cwd: APP_DIR,
-      script: "node_modules/.bin/tsx",
-      args: "src/infra/queue/bullmq/worker.ts",
-      exec_mode: "fork",
-      instances: 1,
-      env: {
-        ...sharedEnv,
-        LOG_FILE: "worker.json",
-
-        // Worker dijalankan lewat tsx, BUKAN lewat Next — jadi ia tidak pernah
-        // memuat .env.production. Variabel yang dibutuhkannya harus disebut di
-        // sini (atau sudah ada di environment shell yang menjalankan PM2).
-        // DATABASE_URL: "...",
-        // REDIS_URL: "...",
-      },
     },
   ],
 };

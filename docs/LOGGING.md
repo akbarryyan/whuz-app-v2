@@ -37,16 +37,19 @@ logs/
 Nomor kecil = lebih baru. Tiap rotasi menggeser semua arsip satu nomor (mode
 classical rotating-file-stream, ala logrotate).
 
-Worker BullMQ jalan sebagai proses terpisah dan menulis ke `logs/worker.json`
-dengan skema yang sama. Dua proses **tidak boleh** menulis file yang sama —
-rotating-file-stream melacak ukuran file per proses dan akan me-rename file
+Aplikasi berjalan sebagai SATU proses, jadi seluruh log masuk ke
+`logs/app.json`. Pekerjaan latar — sapuan rekonsiliasi — berjalan di dalam
+proses yang sama dan memakai correlation id sendiri per sapuan, sehingga tetap
+bisa dirunut meski tidak berasal dari request HTTP.
+
+Kalau suatu saat ada proses kedua, ia **wajib** menulis berkas berbeda:
+rotating-file-stream melacak ukuran berkas per proses dan akan me-rename berkas
 aktif di bawah kaki proses lain.
 
 ## Membaca log
 
 ```bash
 npm run logs:tail      # logs/app.json, di-pretty-print
-npm run logs:worker    # logs/worker.json
 npm run logs:errors    # hanya level error & fatal
 
 # runut satu request dari access log sampai log aplikasinya
@@ -120,7 +123,6 @@ konsisten di ratusan call site.
 | `app/api/{seller,merchant}/**`                                                                      | `seller`                            |
 | `src/core/services/provider/**`, `src/infra/providers/**`                                           | `provider` (+ field `providerType`) |
 | `src/core/services/payment/**`, `src/infra/payment/**`, `lib/poppay-callback.ts`                    | `payment`                           |
-| `src/infra/queue/**`                                                                                | `worker`                            |
 | `src/infra/db/**`                                                                                   | `db`                                |
 | `lib/mailer.ts`, `lib/fonnte.ts`                                                                    | `notify`                            |
 | `app/api/{upload,analytics,dev}/**`                                                                 | `http`                              |
@@ -190,7 +192,7 @@ chunk menggagalkan build dengan keras.
 | `TZ`                | _(OS)_                    | **wajib `Asia/Jakarta` di VPS** — kalau tidak, offset di `time` jadi `+00:00` |
 | `LOG_LEVEL`         | `info` prod / `debug` dev |                                                                               |
 | `LOG_DIR`           | `./logs`                  | di PM2/systemd sebaiknya path absolut, cwd bisa berbeda                       |
-| `LOG_FILE`          | `app.json`                | worker: `worker.json`                                                         |
+| `LOG_FILE`          | `app.json`                | satu proses, satu berkas                                                      |
 | `LOG_MAX_SIZE`      | `10M`                     | ambang rotasi                                                                 |
 | `LOG_MAX_FILES`     | `10`                      | jumlah arsip `.gz` yang disimpan                                              |
 | `LOG_APP_NAME`      | `whuzpay`                 | isi field `app`                                                               |
@@ -213,7 +215,7 @@ proxy_set_header X-Request-Id $request_id;
 ## Deployment dengan PM2
 
 [`ecosystem.config.js`](../ecosystem.config.js) sudah menyetel `TZ`, `LOG_DIR`
-absolut, dan memisahkan file log server dari worker.
+absolut.
 
 ```bash
 pm2 start ecosystem.config.js
@@ -222,10 +224,6 @@ pm2 restart ecosystem.config.js --update-env   # setelah mengubah blok env
 ```
 
 Variabel logging untuk pengguna PM2 diletakkan di `ecosystem.config.js`, bukan
-di `.env.production` — worker dijalankan lewat `tsx` dan tidak pernah memuat
-file `.env`, jadi `.env.production` saja tidak cukup untuk membuat timestamp
-worker benar.
-
 Verifikasi setelah deploy — baris pertama adalah `server-start` dan memuat
 field `tz`:
 
@@ -258,9 +256,6 @@ cat /var/www/whuz-app/logs/app*.json | grep '"level":"error"'
 
 ### `npm run logs:*` butuh devDependencies
 
-Script `logs:tail` / `logs:worker` / `logs:errors` memipe ke `pino-pretty`,
-yang ada di `devDependencies`. Kalau deploy Anda memakai `npm ci --omit=dev`,
-paket itu tidak terpasang dan script-nya gagal — pakai `tail`/`grep` biasa.
-
-Catatan: `tsx` juga devDependency, jadi kalau worker BullMQ jalan di VPS,
-devDependencies memang sudah terpasang dan `npm run logs:tail` bisa dipakai.
+Script `logs:tail` / `logs:errors` memipe ke `pino-pretty`, yang ada di
+`devDependencies`. Kalau deploy Anda memakai `npm ci --omit=dev`, paket itu
+tidak terpasang dan script-nya gagal — pakai `tail`/`grep` biasa.

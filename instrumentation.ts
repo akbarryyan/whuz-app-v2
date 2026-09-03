@@ -114,6 +114,15 @@ export async function register(): Promise<void> {
   for (const peringatan of environmentWarnings()) {
     getLogger("app").warn({ peringatan }, "konfigurasi lingkungan patut diperiksa");
   }
+
+  // Sapuan rekonsiliasi. Menggantikan worker BullMQ yang dihapus, dan juga
+  // menggantikan jadwal berbasis setTimeout yang hilang setiap kali proses
+  // berhenti. Keadaan sesungguhnya diturunkan dari database di setiap sapuan,
+  // jadi restart tidak menghilangkan apa pun.
+  const { startReconcileSweep } = await import(
+    "@/src/core/services/provider/reconcile-scheduler.service"
+  );
+  startReconcileSweep();
 }
 
 export const onRequestError = async (

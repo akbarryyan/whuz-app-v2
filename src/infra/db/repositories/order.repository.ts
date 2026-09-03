@@ -501,7 +501,14 @@ export class OrderRepository {
   // ── Admin & reconcile helpers ────────────────────────────────────────────
 
   /** Get orders stuck in PROCESSING_PROVIDER or PAID for reconciliation */
-  async findPendingProviderOrders(olderThanMinutes = 5) {
+  /**
+   * Order yang tersangkut di PAID / PROCESSING_PROVIDER lebih lama dari ambang.
+   *
+   * `limit` wajib diperhatikan: setiap order yang dikembalikan akan memicu satu
+   * panggilan ke API provider saat direkonsiliasi. Tanpa batas, satu tumpukan
+   * besar bisa membanjiri provider dalam satu sapuan.
+   */
+  async findPendingProviderOrders(olderThanMinutes = 5, limit = 100) {
     const cutoff = new Date(Date.now() - olderThanMinutes * 60 * 1000);
     return prisma.order.findMany({
       where: {
@@ -509,6 +516,8 @@ export class OrderRepository {
         updatedAt: { lt: cutoff },
       },
       include: { product: true },
+      orderBy: { updatedAt: "asc" }, // yang paling lama tersangkut lebih dulu
+      take: limit,
     });
   }
 }
