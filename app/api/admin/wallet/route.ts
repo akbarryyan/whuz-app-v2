@@ -136,28 +136,44 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      const balanceBefore = Number(wallet.balance);
-      let balanceDelta: number;
+      const menambah = action === "CREDIT" || action === "RELEASE" || action === "REFUND";
+      let balanceAfter: number;
 
-      // Hitung delta berdasarkan action
-      if (action === "CREDIT" || action === "RELEASE" || action === "REFUND") {
-        // Tambah saldo
-        balanceDelta = parsedAmount;
+      if (menambah) {
+        // increment atomik: nilai akhir dihitung MySQL dari baris terkini.
+        const updated = await tx.wallet.update({
+          where: { id: wallet!.id },
+          data: { balance: { increment: parsedAmount } },
+          select: { balance: true },
+        });
+        balanceAfter = Number(updated.balance);
       } else {
-        // HOLD / DEBIT — kurangi saldo
-        if (balanceBefore < parsedAmount) {
-          throw new Error(`Saldo tidak cukup. Saldo saat ini: Rp ${balanceBefore.toLocaleString("id")}`);
+        // HOLD / DEBIT — kecukupan saldo dan pengurangannya harus terjadi dalam
+        // SATU pernyataan UPDATE, supaya dua penyesuaian bersamaan tidak
+        // sama-sama lolos dan membuat saldo terpakai melebihi yang ada.
+        const { count } = await tx.wallet.updateMany({
+          where: { id: wallet!.id, balance: { gte: parsedAmount } },
+          data: { balance: { decrement: parsedAmount } },
+        });
+
+        if (count === 0) {
+          const kini = await tx.wallet.findUniqueOrThrow({
+            where: { id: wallet!.id },
+            select: { balance: true },
+          });
+          throw new Error(
+            `Saldo tidak cukup. Saldo saat ini: Rp ${Number(kini.balance).toLocaleString("id")}`,
+          );
         }
-        balanceDelta = -parsedAmount;
+
+        const updated = await tx.wallet.findUniqueOrThrow({
+          where: { id: wallet!.id },
+          select: { balance: true },
+        });
+        balanceAfter = Number(updated.balance);
       }
 
-      const balanceAfter = balanceBefore + balanceDelta;
-
-      // Update balance
-      await tx.wallet.update({
-        where: { id: wallet!.id },
-        data: { balance: new Prisma.Decimal(balanceAfter) },
-      });
+      const balanceBefore = menambah ? balanceAfter - parsedAmount : balanceAfter + parsedAmount;
 
       // Catat ledger
       const entry = await tx.ledgerEntry.create({

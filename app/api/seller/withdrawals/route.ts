@@ -121,17 +121,25 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      const balanceBefore = Number(wallet.balance);
-      if (balanceBefore < parsed.data.amount) {
+      // Kecukupan saldo dan pengurangannya harus terjadi dalam SATU pernyataan
+      // UPDATE. Membaca saldo lalu menuliskan kembali nilai absolutnya membuat
+      // dua pengajuan bersamaan sama-sama lolos, dan seller bisa menarik lebih
+      // dari saldo yang dimilikinya.
+      const { count } = await tx.wallet.updateMany({
+        where: { id: wallet.id, balance: { gte: parsed.data.amount } },
+        data: { balance: { decrement: parsed.data.amount } },
+      });
+
+      if (count === 0) {
         throw new Error("Saldo seller tidak cukup untuk withdraw");
       }
 
-      const balanceAfter = balanceBefore - parsed.data.amount;
-
-      await tx.wallet.update({
+      const afterHold = await tx.wallet.findUniqueOrThrow({
         where: { id: wallet.id },
-        data: { balance: new Prisma.Decimal(balanceAfter) },
+        select: { balance: true },
       });
+      const balanceAfter = Number(afterHold.balance);
+      const balanceBefore = balanceAfter + parsed.data.amount;
 
       const request = await tx.sellerWithdrawalRequest.create({
         data: {
@@ -206,13 +214,14 @@ export async function POST(req: NextRequest) {
         const wallet = await tx.wallet.findUnique({ where: { userId: request.userId } });
         if (!wallet) return;
 
-        const balanceBefore = Number(wallet.balance);
-        const balanceAfter = balanceBefore + Number(request.amount);
-
-        await tx.wallet.update({
+        // increment atomik: nilai akhir dihitung MySQL dari baris terkini.
+        const updated = await tx.wallet.update({
           where: { id: wallet.id },
-          data: { balance: new Prisma.Decimal(balanceAfter) },
+          data: { balance: { increment: Number(request.amount) } },
+          select: { balance: true },
         });
+        const balanceAfter = Number(updated.balance);
+        const balanceBefore = balanceAfter - Number(request.amount);
 
         await tx.ledgerEntry.create({
           data: {

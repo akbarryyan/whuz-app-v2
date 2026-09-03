@@ -250,22 +250,44 @@ export class OrderRepository {
   }
 
   /**
-   * Atomic HOLD: check & lock balance, create ledger entry, update wallet.balance
-   * Returns null if insufficient balance.
+   * HOLD saldo. Mengembalikan wallet bila berhasil, null bila saldo tidak cukup.
+   *
+   * Pemeriksaan kecukupan dan pengurangan saldo WAJIB terjadi dalam satu
+   * pernyataan UPDATE. Versi sebelumnya membaca saldo, memeriksanya di
+   * JavaScript, lalu menulis kembali nilai absolut hasil hitungan itu —
+   * membungkusnya dengan $transaction tidak menolong, karena findUnique
+   * menghasilkan SELECT tanpa kunci dan di bawah REPEATABLE READ setiap
+   * transaksi membaca snapshot yang sama. Sepuluh checkout bersamaan atas
+   * saldo yang hanya cukup untuk satu semuanya lolos, dan saldo akhirnya
+   * tetap terlihat wajar karena semua menulis nilai akhir yang identik.
+   * Lihat tests/wallet-hold-concurrency.test.ts.
+   *
+   * `updateMany` dipakai karena `update` melempar bila tidak ada baris cocok,
+   * sedangkan di sini "tidak cocok" adalah hasil normal: saldo tidak cukup.
+   * Klausa `balance: { gte: amount }` dievaluasi ulang oleh MySQL saat UPDATE
+   * dijalankan dengan kunci baris, bukan terhadap snapshot pembacaan awal.
    */
   async holdWalletBalance(userId: string, amount: number, orderId: string) {
     return prisma.$transaction(async (tx) => {
       const wallet = await tx.wallet.findUnique({ where: { userId } });
       if (!wallet) throw new Error("Wallet not found");
-      if (Number(wallet.balance) < amount) return null;
 
-      const balanceBefore = Number(wallet.balance);
-      const balanceAfter = balanceBefore - amount;
-
-      await tx.wallet.update({
-        where: { userId },
-        data: { balance: balanceAfter },
+      const { count } = await tx.wallet.updateMany({
+        where: { userId, balance: { gte: amount } },
+        data: { balance: { decrement: amount } },
       });
+
+      // Nol baris berubah = saldo tidak mencukupi saat UPDATE dijalankan.
+      if (count === 0) return null;
+
+      // Baca ulang setelah UPDATE: baris sudah terkunci oleh transaksi ini,
+      // jadi nilainya pasti dan tidak bisa disalip transaksi lain.
+      const updated = await tx.wallet.findUniqueOrThrow({
+        where: { userId },
+        select: { balance: true },
+      });
+      const balanceAfter = Number(updated.balance);
+      const balanceBefore = balanceAfter + amount;
 
       await tx.ledgerEntry.create({
         data: {
@@ -306,13 +328,15 @@ export class OrderRepository {
       const wallet = await tx.wallet.findUnique({ where: { userId } });
       if (!wallet) return;
 
-      const balanceBefore = Number(wallet.balance);
-      const balanceAfter = balanceBefore + amount;
-
-      await tx.wallet.update({
+      // increment atomik: nilai akhir dihitung MySQL dari baris terkini,
+      // bukan dari snapshot yang mungkin sudah basi saat UPDATE dijalankan.
+      const updated = await tx.wallet.update({
         where: { userId },
-        data: { balance: balanceAfter },
+        data: { balance: { increment: amount } },
+        select: { balance: true },
       });
+      const balanceAfter = Number(updated.balance);
+      const balanceBefore = balanceAfter - amount;
 
       await tx.ledgerEntry.create({
         data: {
@@ -351,13 +375,13 @@ export class OrderRepository {
         return { duplicated: true, balanceAfter: Number(wallet.balance) };
       }
 
-      const balanceBefore = Number(wallet.balance);
-      const balanceAfter = balanceBefore + amount;
-
-      await tx.wallet.update({
+      const updated = await tx.wallet.update({
         where: { id: wallet.id },
-        data: { balance: balanceAfter },
+        data: { balance: { increment: amount } },
+        select: { balance: true },
       });
+      const balanceAfter = Number(updated.balance);
+      const balanceBefore = balanceAfter - amount;
 
       await tx.ledgerEntry.create({
         data: {
@@ -401,13 +425,13 @@ export class OrderRepository {
         });
       }
 
-      const balanceBefore = Number(wallet.balance);
-      const balanceAfter = balanceBefore + commissionAmount;
-
-      await tx.wallet.update({
+      const updated = await tx.wallet.update({
         where: { id: wallet.id },
-        data: { balance: balanceAfter },
+        data: { balance: { increment: commissionAmount } },
+        select: { balance: true },
       });
+      const balanceAfter = Number(updated.balance);
+      const balanceBefore = balanceAfter - commissionAmount;
 
       await tx.ledgerEntry.create({
         data: {
