@@ -81,15 +81,17 @@ export async function handleWalletTopupWebhook(
       update: {},
     });
 
-    const balanceBefore = Number(wallet.balance);
-    const creditAmount  = Number(topup.amount);
-    const balanceAfter  = balanceBefore + creditAmount;
+    const creditAmount = Number(topup.amount);
 
-    // Update balance
-    await tx.wallet.update({
+    // increment atomik: nilai akhir dihitung MySQL dari baris terkini, bukan
+    // dari snapshot pembacaan yang bisa basi saat UPDATE dijalankan.
+    const updated = await tx.wallet.update({
       where: { id: wallet.id },
-      data: { balance: balanceAfter },
+      data: { balance: { increment: creditAmount } },
+      select: { balance: true },
     });
+    const balanceAfter = Number(updated.balance);
+    const balanceBefore = balanceAfter - creditAmount;
 
     // Write ledger entry
     await tx.ledgerEntry.create({

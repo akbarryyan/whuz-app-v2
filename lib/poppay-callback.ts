@@ -280,13 +280,14 @@ async function handlePoppayWithdrawal(
       : null;
 
     if (wallet && !hasReleaseLedger && outcome.shouldRelease) {
-      const balanceBefore = Number(wallet.balance);
-      const balanceAfter = balanceBefore + Number(withdrawal.amount);
-
-      await tx.wallet.update({
+      // increment atomik: nilai akhir dihitung MySQL dari baris terkini.
+      const updated = await tx.wallet.update({
         where: { id: wallet.id },
-        data: { balance: balanceAfter },
+        data: { balance: { increment: Number(withdrawal.amount) } },
+        select: { balance: true },
       });
+      const balanceAfter = Number(updated.balance);
+      const balanceBefore = balanceAfter - Number(withdrawal.amount);
 
       await tx.ledgerEntry.create({
         data: {
@@ -371,14 +372,16 @@ async function handlePoppayTopup(
       update: {},
     });
 
-    const balanceBefore = Number(wallet.balance);
     const creditAmount = Number(topup.amount);
-    const balanceAfter = balanceBefore + creditAmount;
 
-    await tx.wallet.update({
+    // increment atomik: nilai akhir dihitung MySQL dari baris terkini.
+    const updated = await tx.wallet.update({
       where: { id: wallet.id },
-      data: { balance: balanceAfter },
+      data: { balance: { increment: creditAmount } },
+      select: { balance: true },
     });
+    const balanceAfter = Number(updated.balance);
+    const balanceBefore = balanceAfter - creditAmount;
 
     await tx.ledgerEntry.create({
       data: {
