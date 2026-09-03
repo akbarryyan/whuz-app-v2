@@ -127,6 +127,7 @@ export default function MerchantWalletPage() {
     bankName: "",
     note: "",
   });
+  const [withdrawable, setWithdrawable] = useState<number | null>(null);
   const { toasts, removeToast, error: showError, success: showSuccess } = useToast();
 
   const loadPageData = async () => {
@@ -147,6 +148,7 @@ export default function MerchantWalletPage() {
 
     setData(walletJson.data);
     setWithdrawals(withdrawalsJson.data);
+    setWithdrawable(withdrawalsJson.withdrawable?.withdrawable ?? null);
   };
 
   useEffect(() => {
@@ -252,10 +254,13 @@ export default function MerchantWalletPage() {
                     </div>
                     <div className="w-full rounded-2xl bg-emerald-50 px-3 py-2 ring-1 ring-emerald-100 sm:w-auto sm:max-w-[220px] sm:text-right">
                       <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-600 sm:tracking-[0.18em]">
-                        Saldo Tersedia
+                        Bisa Dicairkan
                       </p>
                       <p className="mt-1 break-words text-sm font-bold text-emerald-700 sm:text-base">
-                        {rupiah(data.balance)}
+                        {rupiah(withdrawable ?? 0)}
+                      </p>
+                      <p className="mt-1 text-[10px] leading-snug text-emerald-600/80">
+                        Dari komisi penjualan. Saldo top up hanya bisa dipakai berbelanja.
                       </p>
                     </div>
                   </div>

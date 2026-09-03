@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "@/src/infra/db/prisma";
-import { requireSellerSession, toSellerWithdrawalView } from "@/lib/seller";
+import {
+  getWithdrawableCommission,
+  requireSellerSession,
+  toSellerWithdrawalView,
+} from "@/lib/seller";
 import { PoppayClient } from "@/src/infra/payment/poppay/poppay.client";
 
 export const dynamic = "force-dynamic";
@@ -48,7 +52,7 @@ export async function GET() {
     return NextResponse.json({ success: false, error: seller.error }, { status: seller.status });
   }
 
-  const [wallet, withdrawals] = await Promise.all([
+  const [wallet, withdrawals, plafon] = await Promise.all([
     prisma.wallet.findUnique({
       where: { userId: seller.session.userId! },
       select: { balance: true, updatedAt: true },
@@ -57,6 +61,7 @@ export async function GET() {
       where: { userId: seller.session.userId! },
       orderBy: { createdAt: "desc" },
     }),
+    getWithdrawableCommission(seller.session.userId!),
   ]);
 
   return NextResponse.json({
@@ -67,6 +72,9 @@ export async function GET() {
           updatedAt: wallet.updatedAt,
         }
       : { balance: 0, updatedAt: null },
+    // Saldo dompet dan plafon penarikan bukan angka yang sama. Tanpa ini UI
+    // menampilkan saldo penuh, lalu penarikan ditolak tanpa penjelasan.
+    withdrawable: plafon,
     data: withdrawals.map(toSellerWithdrawalView),
   });
 }
@@ -117,6 +125,21 @@ export async function POST(req: NextRequest) {
 
       if (count === 0) {
         throw new Error("Saldo seller tidak cukup untuk withdraw");
+      }
+
+      // Plafon dihitung dari KOMISI, bukan dari saldo dompet. Saldo hasil topup
+      // lewat payment gateway tidak boleh keluar lagi lewat transfer bank.
+      //
+      // Diperiksa SETELAH saldo ditahan: penahanan itu mengunci baris dompet,
+      // sehingga dua pengajuan bersamaan dari seller yang sama terurut dan
+      // pengajuan kedua melihat yang pertama sudah terhitung.
+      const plafon = await getWithdrawableCommission(seller.session.userId!, tx);
+      if (parsed.data.amount > plafon.withdrawable) {
+        throw new Error(
+          `Maksimal penarikan Rp ${plafon.withdrawable.toLocaleString("id-ID")}. ` +
+            "Yang bisa dicairkan hanya komisi penjualan; saldo hasil top up " +
+            "hanya dapat dipakai berbelanja.",
+        );
       }
 
       const afterHold = await tx.wallet.findUniqueOrThrow({
