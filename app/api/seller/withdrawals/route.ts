@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { prisma } from "@/src/infra/db/prisma";
-import { requireSellerSession, toSellerWithdrawalView } from "@/lib/seller";
+import {
+  getWithdrawableCommission,
+  requireSellerSession,
+  toSellerWithdrawalView,
+} from "@/lib/seller";
 import { PoppayClient } from "@/src/infra/payment/poppay/poppay.client";
 
 export const dynamic = "force-dynamic";
@@ -24,17 +28,6 @@ function normalizeBankLabel(value: string): string {
     .trim();
 }
 
-function resolvePoppayCallbackUrl(): string | null {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_URL ??
-    process.env.NEXT_PUBLIC_APP_URL ??
-    process.env.APP_URL ??
-    "";
-
-  if (!baseUrl) return null;
-  return `${baseUrl.replace(/\/+$/, "")}/api/webhook/poppay`;
-}
-
 async function resolvePoppayBankCode(explicitBankCode: string | null | undefined, bankName: string): Promise<string> {
   if (explicitBankCode?.trim()) return explicitBankCode.trim();
 
@@ -53,19 +46,13 @@ async function resolvePoppayBankCode(explicitBankCode: string | null | undefined
   );
 }
 
-function toPrismaJson(
-  value: Record<string, unknown> | null | undefined
-): Prisma.InputJsonValue | typeof Prisma.JsonNull {
-  return value ? (value as Prisma.InputJsonValue) : Prisma.JsonNull;
-}
-
 export async function GET() {
   const seller = await requireSellerSession();
   if ("error" in seller) {
     return NextResponse.json({ success: false, error: seller.error }, { status: seller.status });
   }
 
-  const [wallet, withdrawals] = await Promise.all([
+  const [wallet, withdrawals, plafon] = await Promise.all([
     prisma.wallet.findUnique({
       where: { userId: seller.session.userId! },
       select: { balance: true, updatedAt: true },
@@ -74,6 +61,7 @@ export async function GET() {
       where: { userId: seller.session.userId! },
       orderBy: { createdAt: "desc" },
     }),
+    getWithdrawableCommission(seller.session.userId!),
   ]);
 
   return NextResponse.json({
@@ -84,6 +72,9 @@ export async function GET() {
           updatedAt: wallet.updatedAt,
         }
       : { balance: 0, updatedAt: null },
+    // Saldo dompet dan plafon penarikan bukan angka yang sama. Tanpa ini UI
+    // menampilkan saldo penuh, lalu penarikan ditolak tanpa penjelasan.
+    withdrawable: plafon,
     data: withdrawals.map(toSellerWithdrawalView),
   });
 }
@@ -106,10 +97,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: "Validation error", details: parsed.error.flatten() }, { status: 422 });
   }
 
-  let createdRequestId: string | null = null;
-  let payoutSubmitted = false;
-
   try {
+    // Kode bank diselesaikan DI DEPAN, sebelum saldo ditahan. Kalau namanya
+    // tidak bisa dipetakan ke kode Poppay, seller tahu sekarang — bukan nanti
+    // saat admin menekan approve dan pencairannya gagal.
+    const bankCode = await resolvePoppayBankCode(parsed.data.bankCode, parsed.data.bankName);
+
     const createdRequest = await prisma.$transaction(async (tx) => {
       let wallet = await tx.wallet.findUnique({
         where: { userId: seller.session.userId! },
@@ -134,6 +127,21 @@ export async function POST(req: NextRequest) {
         throw new Error("Saldo seller tidak cukup untuk withdraw");
       }
 
+      // Plafon dihitung dari KOMISI, bukan dari saldo dompet. Saldo hasil topup
+      // lewat payment gateway tidak boleh keluar lagi lewat transfer bank.
+      //
+      // Diperiksa SETELAH saldo ditahan: penahanan itu mengunci baris dompet,
+      // sehingga dua pengajuan bersamaan dari seller yang sama terurut dan
+      // pengajuan kedua melihat yang pertama sudah terhitung.
+      const plafon = await getWithdrawableCommission(seller.session.userId!, tx);
+      if (parsed.data.amount > plafon.withdrawable) {
+        throw new Error(
+          `Maksimal penarikan Rp ${plafon.withdrawable.toLocaleString("id-ID")}. ` +
+            "Yang bisa dicairkan hanya komisi penjualan; saldo hasil top up " +
+            "hanya dapat dipakai berbelanja.",
+        );
+      }
+
       const afterHold = await tx.wallet.findUniqueOrThrow({
         where: { id: wallet.id },
         select: { balance: true },
@@ -146,7 +154,7 @@ export async function POST(req: NextRequest) {
           userId: seller.session.userId!,
           amount: new Prisma.Decimal(parsed.data.amount),
           status: "PENDING",
-          bankCode: parsed.data.bankCode?.trim() || null,
+          bankCode,
           accountName: parsed.data.accountName.trim(),
           accountNumber: parsed.data.accountNumber.trim(),
           bankName: parsed.data.bankName.trim(),
@@ -168,85 +176,24 @@ export async function POST(req: NextRequest) {
 
       return request;
     });
-    createdRequestId = createdRequest.id;
 
-    const bankCode = await resolvePoppayBankCode(parsed.data.bankCode, parsed.data.bankName);
-    const client = new PoppayClient();
-    const payout = await client.createOutgoing({
-      aggRefId: `withdraw-${createdRequest.id}`,
-      amount: Number(createdRequest.amount),
-      bankCode,
-      destinationAccountNumber: createdRequest.accountNumber,
-      destinationAccountName: createdRequest.accountName,
-      notes: createdRequest.note || `Withdraw merchant ${createdRequest.id}`,
-      callbackUrl: resolvePoppayCallbackUrl(),
-    });
-    payoutSubmitted = true;
-
-    const result = await prisma.sellerWithdrawalRequest.update({
-      where: { id: createdRequest.id },
-      data: {
-        status: "APPROVED",
-        bankCode,
-        payoutGateway: "POPPAY",
-        payoutRefId: payout.refId,
-        payoutAggRefId: payout.aggregatorRefId,
-        payoutRawPayload: toPrismaJson(payout.raw),
-        processedNote: "Payout otomatis dikirim ke Poppay.",
-        processedAt: new Date(),
-      },
-    });
-
+    // Berhenti di sini. Pencairan dilakukan admin lewat
+    // PATCH /api/admin/seller-withdrawals/[id] dengan status APPROVED.
+    //
+    // Sebelumnya createOutgoing dipanggil tepat di titik ini, sehingga uang
+    // sungguhan meninggalkan saldo merchant di Poppay pada detik seller menekan
+    // tombol — tanpa antrean, tanpa peninjauan, tanpa kemungkinan membatalkan.
+    // Status "PENDING" dan endpoint approval admin sudah ada sejak awal; yang
+    // hilang hanyalah jeda di antara keduanya.
     return NextResponse.json({
       success: true,
-      data: toSellerWithdrawalView(result),
+      data: toSellerWithdrawalView(createdRequest),
+      message: "Permintaan penarikan diterima dan menunggu persetujuan admin.",
     });
   } catch (error: unknown) {
-    if (createdRequestId && !payoutSubmitted) {
-      const requestId = createdRequestId;
-      await prisma.$transaction(async (tx) => {
-        const request = await tx.sellerWithdrawalRequest.findUnique({
-          where: { id: requestId },
-        });
-
-        if (!request || request.status !== "PENDING") return;
-
-        const wallet = await tx.wallet.findUnique({ where: { userId: request.userId } });
-        if (!wallet) return;
-
-        // increment atomik: nilai akhir dihitung MySQL dari baris terkini.
-        const updated = await tx.wallet.update({
-          where: { id: wallet.id },
-          data: { balance: { increment: Number(request.amount) } },
-          select: { balance: true },
-        });
-        const balanceAfter = Number(updated.balance);
-        const balanceBefore = balanceAfter - Number(request.amount);
-
-        await tx.ledgerEntry.create({
-          data: {
-            walletId: wallet.id,
-            type: "WITHDRAW_RELEASE",
-            amount: request.amount,
-            balanceBefore: new Prisma.Decimal(balanceBefore),
-            balanceAfter: new Prisma.Decimal(balanceAfter),
-            reference: request.id,
-            description: `Release withdraw seller ${request.id} karena create outgoing gagal`,
-          },
-        });
-
-        await tx.sellerWithdrawalRequest.update({
-          where: { id: request.id },
-          data: {
-            status: "REJECTED",
-            processedNote:
-              error instanceof Error ? error.message : "Create outgoing gagal",
-            processedAt: new Date(),
-          },
-        });
-      });
-    }
-
+    // Penahanan saldo dan pembuatan permintaan berada dalam satu transaksi,
+    // jadi kegagalan apa pun membatalkan keduanya. Tidak ada yang perlu
+    // dikompensasi di sini.
     const message = error instanceof Error ? error.message : "Gagal membuat request withdraw";
     return NextResponse.json({ success: false, error: message }, { status: 400 });
   }
