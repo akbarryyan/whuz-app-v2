@@ -101,7 +101,11 @@ export default function SellerStorefrontPage({
     return () => {
       cancelled = true;
     };
-  }, [params, toast]);
+    // `toast` sengaja TIDAK masuk dependency array. Effect ini menyetel state,
+    // jadi bergantung pada objek kembalian sebuah hook membuatnya berjalan
+    // setiap render. Yang dipakai di dalam hanya toast.error, yang stabil.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params]);
 
   const productGrid = useMemo(() => {
     if (!data) return [];
