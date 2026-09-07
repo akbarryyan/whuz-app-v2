@@ -17,6 +17,17 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const [siteName, setSiteName]   = useState("Website");
   const [maintEnabled, setMaintEnabled] = useState(false);
   const [maintLoading, setMaintLoading] = useState(false);
+  // Penarikan menunggu persetujuan. Sejak pencairan tidak lagi otomatis,
+  // permintaan berhenti di PENDING sampai admin membukanya — tanpa penanda di
+  // sini, ia menumpuk tanpa ada yang tahu.
+  const [withdrawPending, setWithdrawPending] = useState(0);
+
+  useEffect(() => {
+    fetch("/api/admin/seller-withdrawals?status=PENDING")
+      .then((r) => r.json())
+      .then((d) => setWithdrawPending(Array.isArray(d?.data) ? d.data.length : 0))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     fetch("/api/admin/maintenance")
@@ -141,6 +152,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               {
                 name: "Wallet", href: "/admin/wallet",
                 icon: <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 6h18M3 14h18M3 18h18"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14h.01"/></svg>,
+              },
+              {
+                name: "Penarikan", href: "/admin/seller-withdrawals",
+                badge: withdrawPending || undefined,
+                icon: <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16"/></svg>,
               },
               {
                 name: "Pesan", href: "/admin/tickets",
