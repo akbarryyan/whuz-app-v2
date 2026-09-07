@@ -8,7 +8,12 @@
  */
 import { beforeAll, afterAll, beforeEach, describe, expect, it } from "vitest";
 import { PrismaClient } from "@prisma/client";
-import { claimVoucher, resolveVoucher, releaseVoucher } from "@/src/core/services/checkout/voucher.service";
+import {
+  claimVoucher,
+  hitungDiskon,
+  releaseVoucher,
+  resolveVoucher,
+} from "@/src/core/services/checkout/voucher.service";
 
 const prisma = new PrismaClient();
 const PARALEL = 10;
@@ -120,5 +125,33 @@ describe("basis perhitungan diskon", () => {
     const v = await buatVoucher({ minPurchase: 60_000, quota: null });
     expect(await resolveVoucher(v.code, 50_000, null)).toBeNull();
     expect(await resolveVoucher(v.code, 60_000, null)).not.toBeNull();
+  });
+});
+
+describe("rumus diskon dipakai bersama checkout dan pratinjau", () => {
+  // Dulu ada dua rumus: satu di voucher.service, satu lagi disalin di
+  // app/api/vouchers/validate. Yang kedua membiarkan diskon menyamai nominal,
+  // sehingga angka di layar bisa lebih besar dari yang benar-benar diterapkan.
+  const persen = { discountType: "PERCENT", discountValue: 10, maxDiscount: null };
+  const tetap = { discountType: "FIXED", discountValue: 999_999, maxDiscount: null };
+
+  it("persen dihitung dari nominal yang diberikan", () => {
+    expect(hitungDiskon(persen, 50_000)).toBe(5_000);
+  });
+
+  it("maxDiscount membatasi diskon persen", () => {
+    expect(hitungDiskon({ ...persen, maxDiscount: 3_000 }, 50_000)).toBe(3_000);
+  });
+
+  it("tidak pernah menggratiskan sepenuhnya — selalu menyisakan 1", () => {
+    expect(hitungDiskon(tetap, 10_000)).toBe(9_999);
+  });
+
+  it("nominal 0 berarti belum diketahui, pembatasan dilewati", () => {
+    expect(hitungDiskon(tetap, 0)).toBe(999_999);
+  });
+
+  it("tidak pernah negatif", () => {
+    expect(hitungDiskon({ discountType: "FIXED", discountValue: -50, maxDiscount: null }, 10_000)).toBe(0);
   });
 });

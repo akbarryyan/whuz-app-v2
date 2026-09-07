@@ -31,6 +31,12 @@ export async function POST(
 
     const result = await reconcileService.reconcile(id);
 
+    // Sebelumnya order yang tidak ada pun dibalas 200 dengan success:true,
+    // sehingga salah ketik id terlihat seperti rekonsiliasi yang berhasil.
+    if (result.status === "not_found") {
+      return NextResponse.json({ success: false, error: result.message }, { status: 404 });
+    }
+
     return NextResponse.json({ success: true, data: result });
   } catch (err: any) {
     log.error({ err }, "admin transactions reconcile request failed");

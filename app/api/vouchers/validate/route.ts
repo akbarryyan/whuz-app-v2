@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
 import { getSession } from "@/lib/session";
 import { getLogger } from "@/lib/logger";
+import { hitungDiskon } from "@/src/core/services/checkout/voucher.service";
 import { enforceRateLimit } from "@/lib/rate-limit";
 
 const log = getLogger("catalog");
@@ -60,26 +61,20 @@ export async function GET(request: Request) {
 
     // Per-user limit check
     if (userId) {
+      // Hanya klaim yang SUDAH TERPAKAI yang dihitung. Baris berstatus CLAIMED
+      // dari halaman /voucher belum memakai jatah apa pun; menghitungnya membuat
+      // pratinjau menolak voucher yang sebenarnya masih bisa dipakai.
       const claimCount = await prisma.voucherClaim.count({
-        where: { voucherId: voucher.id, userId },
+        where: { voucherId: voucher.id, userId, status: "USED" },
       });
       if (claimCount >= voucher.perUserLimit) {
         return NextResponse.json({ success: false, error: "Kamu sudah menggunakan voucher ini" }, { status: 400 });
       }
     }
 
-    // Calculate discount
-    let discountAmount = 0;
-    if (voucher.discountType === "FIXED") {
-      discountAmount = Number(voucher.discountValue);
-    } else {
-      discountAmount = Math.floor((amount * Number(voucher.discountValue)) / 100);
-      if (voucher.maxDiscount !== null) {
-        discountAmount = Math.min(discountAmount, Number(voucher.maxDiscount));
-      }
-    }
-    // Don't let discount exceed the amount
-    if (amount > 0) discountAmount = Math.min(discountAmount, amount);
+    // Rumusnya dibagi dengan jalur checkout supaya angka di layar tidak berbeda
+    // dari yang benar-benar diterapkan. Lihat hitungDiskon di voucher.service.
+    const discountAmount = hitungDiskon(voucher, amount);
 
     const finalAmount = Math.max(1, amount - discountAmount);
 

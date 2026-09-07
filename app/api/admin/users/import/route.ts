@@ -77,8 +77,20 @@ export async function POST(request: Request) {
   const auth = await requireAdminVerified();
   if (!auth.ok) return auth.response;
 
+  // Diurai di luar try utama: body yang bukan multipart membuat formData()
+  // melempar, dan sebelumnya itu tertangkap catch terluar lalu dilaporkan
+  // sebagai 500 — padahal itu kesalahan pengirim, bukan kesalahan server.
+  let formData: FormData;
   try {
-    const formData = await request.formData();
+    formData = await request.formData();
+  } catch {
+    return NextResponse.json(
+      { success: false, error: "Body harus berupa multipart/form-data berisi berkas Excel." },
+      { status: 400 },
+    );
+  }
+
+  try {
     const file = formData.get("file");
 
     if (!(file instanceof File)) {
