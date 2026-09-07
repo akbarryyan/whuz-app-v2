@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
 import { getLogger } from "@/lib/logger";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 const log = getLogger("catalog");
 
@@ -11,7 +12,15 @@ export const dynamic = "force-dynamic";
  * Return all active joki products grouped by brand (game).
  * Public — no auth required.
  */
-export async function GET() {
+export async function GET(request: Request) {
+  // Endpoint katalog publik. Batasnya longgar — penjelajahan manusia yang paling
+  // ramai pun jauh di bawahnya — tetapi cukup untuk memotong loop render yang
+  // menembak ratusan kali per detik. Itu bukan skenario karangan: satu bug
+  // identitas hook pernah membuat halaman toko merchant memanggil endpoint ini
+  // sekitar 130 kali per detik per tab, dan tidak ada apa pun yang menahannya.
+  const limited = enforceRateLimit(request, "catalog:joki", { limit: 200, windowMs: 60000 });
+  if (limited) return limited;
+
   try {
     const products = await prisma.product.findMany({
       where: { type: "joki", isActive: true, stock: true },

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -7,6 +8,14 @@ export async function GET(
   req: NextRequest,
   context: { params: Promise<{ slug: string }> }
 ) {
+  // Endpoint katalog publik. Batasnya longgar — penjelajahan manusia yang paling
+  // ramai pun jauh di bawahnya — tetapi cukup untuk memotong loop render yang
+  // menembak ratusan kali per detik. Itu bukan skenario karangan: satu bug
+  // identitas hook pernah membuat halaman toko merchant memanggil endpoint ini
+  // sekitar 130 kali per detik per tab, dan tidak ada apa pun yang menahannya.
+  const limited = enforceRateLimit(req, "catalog:seller-products", { limit: 200, windowMs: 60000 });
+  if (limited) return limited;
+
   const { slug } = await context.params;
   const { searchParams } = new URL(req.url);
   const q = searchParams.get("q")?.trim() ?? "";

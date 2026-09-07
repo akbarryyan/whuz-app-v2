@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/src/infra/db/prisma";
 import { getLogger } from "@/lib/logger";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 const log = getLogger("catalog");
 
@@ -20,6 +21,14 @@ const TYPE_GROUP_MAP: Record<string, string[]> = {
  * Optional ?typeGroup= to filter by product type group.
  */
 export async function GET(request: NextRequest) {
+  // Endpoint katalog publik. Batasnya longgar — penjelajahan manusia yang paling
+  // ramai pun jauh di bawahnya — tetapi cukup untuk memotong loop render yang
+  // menembak ratusan kali per detik. Itu bukan skenario karangan: satu bug
+  // identitas hook pernah membuat halaman toko merchant memanggil endpoint ini
+  // sekitar 130 kali per detik per tab, dan tidak ada apa pun yang menahannya.
+  const limited = enforceRateLimit(request, "catalog:brands", { limit: 200, windowMs: 60000 });
+  if (limited) return limited;
+
   try {
     const { searchParams } = new URL(request.url);
     const typeGroup = searchParams.get("typeGroup") ?? undefined;

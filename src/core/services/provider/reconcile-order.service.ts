@@ -54,7 +54,9 @@ export class ReconcileOrderService {
     const order = await this.orderRepo.findById(orderId);
 
     if (!order) {
-      return { status: "error", message: `Order ${orderId} not found` };
+      // Dibedakan dari "error": order yang tidak ada bukan kegagalan proses,
+      // dan pemanggilnya perlu bisa membalas 404 alih-alih 200.
+      return { status: "not_found", message: `Order ${orderId} not found` };
     }
 
     // Only reconcile orders that are still in flight

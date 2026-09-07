@@ -29,6 +29,41 @@ export interface VoucherResolution {
 /** Klien Prisma biasa maupun klien di dalam transaksi. */
 type Db = Pick<typeof prisma, "voucher" | "voucherClaim" | "$executeRaw">;
 
+/** Bentuk minimal voucher yang dibutuhkan perhitungan diskon. */
+export interface VoucherDiscountRule {
+  discountType: string;
+  discountValue: unknown;
+  maxDiscount: unknown | null;
+}
+
+/**
+ * Satu-satunya tempat diskon dihitung.
+ *
+ * Sebelumnya rumusnya ada dua: di sini dan di app/api/vouchers/validate. Yang
+ * kedua membiarkan diskon menyamai nominal, sedangkan yang ini menyisakan 1 —
+ * sehingga pratinjau di layar bisa lebih besar daripada yang benar-benar
+ * diterapkan saat checkout.
+ *
+ * `grossAmount` 0 berarti nominalnya belum diketahui (pratinjau tanpa produk
+ * terpilih); pembatasan terhadap nominal dilewati.
+ */
+export function hitungDiskon(voucher: VoucherDiscountRule, grossAmount: number): number {
+  let discountAmount: number;
+
+  if (voucher.discountType === "FIXED") {
+    discountAmount = Number(voucher.discountValue);
+  } else {
+    discountAmount = Math.floor((grossAmount * Number(voucher.discountValue)) / 100);
+    if (voucher.maxDiscount !== null && voucher.maxDiscount !== undefined) {
+      discountAmount = Math.min(discountAmount, Number(voucher.maxDiscount));
+    }
+  }
+
+  // Tidak boleh menggratiskan sepenuhnya.
+  if (grossAmount > 0) discountAmount = Math.min(discountAmount, grossAmount - 1);
+  return Math.max(0, discountAmount);
+}
+
 /**
  * Hitung diskon untuk `grossAmount` — nilai yang BENAR-BENAR akan ditagihkan
  * sebelum diskon. Tidak mengubah apa pun; kuota belum diklaim di sini.
@@ -58,18 +93,7 @@ export async function resolveVoucher(
     if (terpakai >= voucher.perUserLimit) return null;
   }
 
-  let discountAmount: number;
-  if (voucher.discountType === "FIXED") {
-    discountAmount = Number(voucher.discountValue);
-  } else {
-    discountAmount = Math.floor((grossAmount * Number(voucher.discountValue)) / 100);
-    if (voucher.maxDiscount !== null) {
-      discountAmount = Math.min(discountAmount, Number(voucher.maxDiscount));
-    }
-  }
-
-  // Tidak boleh menggratiskan sepenuhnya.
-  discountAmount = Math.min(discountAmount, grossAmount - 1);
+  const discountAmount = hitungDiskon(voucher, grossAmount);
   if (discountAmount <= 0) return null;
 
   return { voucherId: voucher.id, code: voucher.code, discountAmount };
